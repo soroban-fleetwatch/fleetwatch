@@ -54,6 +54,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return doctor(args[1:], stdout, stderr)
 	case "report":
 		return reportFleet(args[1:], stdout, stderr)
+	case "backup":
+		return backup(args[1:], stdout, stderr)
 	case "replay":
 		return replay(args[1:], stdout, stderr)
 	case "capture":
@@ -146,5 +148,5 @@ func compare(args []string, stdout, stderr io.Writer) int {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|alerts|doctor|report|deliver|verify-approval|bind-approval|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  report --state replay.db --network TEXT --ledger N --owner ID --tag-hex HEX\n  doctor --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  deliver --state replay.db --network TEXT --webhook-url HTTPS_URL --allow-host HOST\n  verify-approval --approval envelope.json --trust trust.json --observation transition.json\n  bind-approval --state replay.db --network TEXT --event-id ID --approval envelope.json --trust trust.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=output failure")
+	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|alerts|doctor|report|backup|deliver|verify-approval|bind-approval|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  backup --state replay.db --output NEW_FILE\n  report --state replay.db --network TEXT --ledger N --owner ID --tag-hex HEX\n  doctor --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  deliver --state replay.db --network TEXT --webhook-url HTTPS_URL --allow-host HOST\n  verify-approval --approval envelope.json --trust trust.json --observation transition.json\n  bind-approval --state replay.db --network TEXT --event-id ID --approval envelope.json --trust trust.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=output failure")
 }

@@ -79,9 +79,11 @@ after commit: repeat the same journal safely to retrieve the report again.
 Storage failures return 5. An intentional pre-commit process-crash test verifies
 that incomplete writes do not advance the checkpoint.
 
-Stop all processes using the file before copying it for backup; live filesystem
-copies are not a supported backup procedure. Reopen a restored copy and replay
-the original journal to validate it. There is no schema migration or automatic
+Use the transaction-consistent [backup command and recovery guide](BACKUP.md),
+preserving all receipt/nonce and delivery indices together. Stop processes holding
+a writable handle before invoking the standalone CLI; raw live filesystem copies
+are not a supported backup procedure. Reopen a restored copy and replay the
+original journal to validate retained observations. There is no schema migration or automatic
 retention yet. Preserve the file when changing parser/rule versions; a versioned
 migration must handle changed event derivation. This local store remains bounded
 to 1,000 ledgers, 10,000 events, 25 MiB of encoded state per scope. Durable ledger
