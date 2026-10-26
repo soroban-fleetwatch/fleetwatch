@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -115,5 +116,43 @@ func TestCLISignedApprovalVerificationAndUnsignedRejection(t *testing.T) {
 	errs.Reset()
 	if code := run(args, &out, &errs); code != 3 || out.Len() != 0 {
 		t.Fatalf("unsigned policy used as signature: code=%d out=%s", code, out.String())
+	}
+}
+
+func TestCLIBindsPersistedApprovalAndRejectsNonceReuse(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "state.db")
+	var out, errs bytes.Buffer
+	if code := run([]string{"replay", "--journal", fixture("approval-journal.json"), "--state", path}, &out, &errs); code != 2 {
+		t.Fatalf("replay=%d %s", code, errs.String())
+	}
+	var replay struct {
+		Network string `json:"network"`
+		Events  []struct {
+			ID string `json:"id"`
+		} `json:"events"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &replay); err != nil || len(replay.Events) != 3 {
+		t.Fatalf("%s %v", out.String(), err)
+	}
+	args := []string{"bind-approval", "--state", path, "--network", replay.Network, "--event-id", replay.Events[0].ID, "--approval", fixture("signed-approval.json"), "--trust", fixture("approval-trust.json")}
+	for i := 0; i < 2; i++ {
+		out.Reset()
+		errs.Reset()
+		code := run(args, &out, &errs)
+		var result struct {
+			New          bool `json:"new_binding"`
+			Verification struct {
+				Final string `json:"final_verdict"`
+			} `json:"verification"`
+		}
+		if err := json.Unmarshal(out.Bytes(), &result); err != nil || code != 0 || result.New != (i == 0) || result.Verification.Final != "UNDETERMINED" {
+			t.Fatalf("code=%d out=%s err=%s parse=%v", code, out.String(), errs.String(), err)
+		}
+	}
+	args[6] = replay.Events[2].ID
+	out.Reset()
+	errs.Reset()
+	if code := run(args, &out, &errs); code != 2 || out.Len() != 0 || !strings.Contains(errs.String(), "nonce") {
+		t.Fatalf("reuse code=%d out=%s err=%s", code, out.String(), errs.String())
 	}
 }

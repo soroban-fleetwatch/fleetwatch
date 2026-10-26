@@ -85,9 +85,10 @@ are SHA-256 of the complete domain-prefixed signing bytes.
 
 The nonce is signed and mandatory, but this standalone verifier does not consume
 nonces or bind them to durable incident IDs. Re-verification is deliberately
-repeatable. One-time authorization, replay prevention, trustworthy ledger evidence,
-policy integration, and trust-store distribution require future work before
-signed approvals can downgrade a finding. The format and protocol are experimental
+repeatable. Optional same-database nonce consumption and event association are now available
+through bind-approval; see APPROVAL_BINDING.md. Global replay prevention, trustworthy
+ledger evidence, policy integration and trust-store distribution require future
+work before signed approvals can downgrade a finding. The format and protocol are experimental
 and have not received an independent security audit.
 
 JSON Schemas are in schema/signed-approval-v1.schema.json,

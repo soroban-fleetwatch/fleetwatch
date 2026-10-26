@@ -14,7 +14,7 @@
 | S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
 | S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot replay, atomic local state and restart fixtures | Real ledger-meta adapter and production Postgres remain |
 | S5 Watcher/alerts | IN PROGRESS: local outbox | Atomic enqueue, lease/retry dispatcher API and simulated delivery tests | Continuous watcher, telemetry and proxy-aware delivery transport remain |
-| S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Nonce consumption, durable incident binding, trustworthy chain evidence and policy integration remain |
+| S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | NOT STARTED | None | Stabilize config/schema |
 | S8 Security/performance | NOT STARTED | None | Fuzz/fault testing |
 | S9 Docs/repo hygiene | NOT STARTED | None | Documentation and CI review |
@@ -128,3 +128,13 @@ Webhook checkpoint: 71 top-level unit tests pass; one intentional subprocess-hel
 - Nonce consumption, durable incident binding, signed trust distribution, independently authenticated chain evidence and severity-downgrade integration remain unfinished. See docs/APPROVALS.md and ADR 0003.
 
 Approval checkpoint: 83 top-level unit tests pass; one intentional crash-helper skip. Race/vet/module verification/build pass. Compiled public synthetic checks return 0 verified-for-fields, 4 partial, 2 revoked/tampered, with final verdict UNDETERMINED in every case.
+
+## Durable approval association increment
+
+- Added bind-approval: derives a transition from a persisted incident, rechecks signatures/current scoped trust, and atomically saves a public receipt and owner/network nonce reservation. Source/tag changes cannot bypass that reservation within the same database.
+- Exact repeat binding is idempotent after reopen. Another incident cannot reuse the nonce; another statement/trust version cannot silently replace an event receipt. Incomplete or rejected observations do not reserve it.
+- Tests cover concurrent competition, revocation after binding, gap repair, source switching, corruption rejection, order-independent trust identity, transactional rollback and pre-commit process crash.
+- Findings and outbox authorization/severity are unchanged; all final chain verdicts stay UNDETERMINED. No external signing, production keys, transactions or alert sends.
+- Added a synthetic binding journal and receipt JSON Schema. Replay protection is local to a single DB history; distributed coordination, binding recovery/migration, authenticated chain evidence, trust distribution and production storage remain unfinished. See docs/APPROVAL_BINDING.md.
+
+Binding checkpoint: 95 top-level unit tests pass; one intentional crash-helper skip. Race/vet/module verification/build pass. Fresh compiled processes verify first bind, idempotent retry and nonce-reuse rejection; positive receipts validate against JSON Schema.

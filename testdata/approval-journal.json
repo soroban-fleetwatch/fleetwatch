@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "source": "synthetic",
+  "network": "TESTNET-SYNTHETIC-NOT-A-REAL-NETWORK",
+  "from_ledger": 100,
+  "to_ledger": 103,
+  "snapshots": [
+    {
+      "schema_version": 1,
+      "network": "TESTNET-SYNTHETIC-NOT-A-REAL-NETWORK",
+      "ledger": 100,
+      "contracts": [
+        {
+          "id": "SYNTHETIC_INSTANCE",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+            "tag_hex": "ff0061"
+          }
+        }
+      ],
+      "references": [
+        {
+          "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+          "tag_hex": "ff0061",
+          "wasm_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "network": "TESTNET-SYNTHETIC-NOT-A-REAL-NETWORK",
+      "ledger": 101,
+      "contracts": [
+        {
+          "id": "SYNTHETIC_INSTANCE",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+            "tag_hex": "ff0061"
+          }
+        }
+      ],
+      "references": [
+        {
+          "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+          "tag_hex": "ff0061",
+          "wasm_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "network": "TESTNET-SYNTHETIC-NOT-A-REAL-NETWORK",
+      "ledger": 102,
+      "contracts": [
+        {
+          "id": "SYNTHETIC_INSTANCE",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+            "tag_hex": "ff0061"
+          }
+        }
+      ],
+      "references": [
+        {
+          "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+          "tag_hex": "ff0061",
+          "wasm_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "network": "TESTNET-SYNTHETIC-NOT-A-REAL-NETWORK",
+      "ledger": 103,
+      "contracts": [
+        {
+          "id": "SYNTHETIC_INSTANCE",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+            "tag_hex": "ff0061"
+          }
+        }
+      ],
+      "references": [
+        {
+          "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+          "tag_hex": "ff0061",
+          "wasm_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    }
+  ]
+}

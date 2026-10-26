@@ -42,6 +42,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		fmt.Fprintf(stdout, "valid snapshot: %s ledger=%d contracts=%d references=%d\n", s.Network, s.Ledger, len(s.Contracts), len(s.References))
 		return 0
+	case "bind-approval":
+		return bindApproval(args[1:], stdout, stderr)
 	case "verify-approval":
 		return verifyApproval(args[1:], stdout, stderr)
 	case "deliver":
@@ -140,5 +142,5 @@ func compare(args []string, stdout, stderr io.Writer) int {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|alerts|deliver|verify-approval|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  deliver --state replay.db --network TEXT --webhook-url HTTPS_URL --allow-host HOST\n  verify-approval --approval envelope.json --trust trust.json --observation transition.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=output failure")
+	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|alerts|deliver|verify-approval|bind-approval|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  deliver --state replay.db --network TEXT --webhook-url HTTPS_URL --allow-host HOST\n  verify-approval --approval envelope.json --trust trust.json --observation transition.json\n  bind-approval --state replay.db --network TEXT --event-id ID --approval envelope.json --trust trust.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=output failure")
 }

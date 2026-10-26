@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source": {
+      "enum": [
+        "synthetic",
+        "user_snapshot"
+      ]
+    },
+    "statement_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "trust_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "bound_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "envelope": {
+      "$ref": "signed-approval-v1.schema.json"
+    },
+    "trust": {
+      "$ref": "approval-trust-v1.schema.json"
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "policy_match": {
+          "const": "YES"
+        },
+        "signature_verified": {
+          "const": "YES"
+        },
+        "signer_trusted": {
+          "const": "YES"
+        },
+        "approval_valid_for_ledger": {
+          "const": "YES"
+        },
+        "verification_status": {
+          "const": "VERIFIED"
+        },
+        "final_verdict": {
+          "const": "UNDETERMINED"
+        },
+        "reason": {
+          "const": "APPROVAL_VERIFIED_FOR_SUPPLIED_FIELDS"
+        },
+        "statement_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "trusted_signatures": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "required_signatures": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "evidence_disclaimer": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "policy_match",
+        "signature_verified",
+        "signer_trusted",
+        "approval_valid_for_ledger",
+        "verification_status",
+        "final_verdict",
+        "reason",
+        "statement_digest",
+        "trusted_signatures",
+        "required_signatures",
+        "evidence_disclaimer"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "network",
+    "source",
+    "statement_digest",
+    "trust_digest",
+    "bound_at",
+    "envelope",
+    "trust",
+    "verification"
+  ],
+  "additionalProperties": false
+}

@@ -17,3 +17,5 @@ approval evaluation. There is no signing operation or production key in the repo
 Nonce consumption, durable event binding, signed trust distribution and verified
 chain-evidence integration are deferred. Tests cover the cryptographic boundary,
 not on-chain authorization, source consensus, or an independent security audit.
+
+A subsequent increment adds optional local nonce consumption and event association; see APPROVAL_BINDING.md. The standalone verifier remains read-only, and chain verdicts remain UNDETERMINED.
