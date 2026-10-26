@@ -33,7 +33,8 @@ performed by these commands.
 letters, digits, dots, underscores or hyphens. A database scope is the exact
 network passphrase plus stream ID, keyed by SHA-256 of a versioned tuple under
 `fleetwatch.watched-reconstruction.v1`. A stream is bound to its original
-canonical baseline snapshot digest and header pin when the first prefix commits.
+canonical baseline snapshot digest and header pin when its first valid attempt
+commits, including a failure-only diagnostic before any prefix is accepted.
 A different baseline is rejected; use a separate stream for an intentional new
 assertion. Equivalent snapshot list order/hex case does not silently create a
 different baseline identity.
@@ -67,9 +68,10 @@ still returns PARTIAL / SOURCE_ATTEMPT_INCOMPLETE rather than hiding the failed
 attempt behind old evidence.
 
 The stored record contains **only the accepted contiguous prefix** and a canonical
-complete report for that smaller range. Failed attempt bodies and the latest
-request's diagnostics are not stored. The caller must retain attempt results when
-needed for operational history. `checkpoint` therefore always labels its view
+complete report for that smaller range. Full failed attempt bodies are not stored.
+The [reconstruction outbox](RECONSTRUCTION_ALERTS.md) now retains latest-attempt
+summaries and historical diagnostics separately in the same transaction.
+`checkpoint` therefore always labels its accepted report
 RETAINED_PREFIX_ONLY: a COMPLETE_CAPTURE_APPLICATION stored report does not mean
 the latest request succeeded or the source is currently fresh. This is not a
 continuous watcher health check, source-lag metric, or gap alarm service.
@@ -80,12 +82,10 @@ metadata. `found=false` has a null report and exit 4. Missing/locked/unrecognize
 or inconsistent database returns 5 without a success report. Inspection opens
 the file read only, never initializes a missing file, and preserves its bytes.
 
-Reconstruction events are stored as findings in this separate checkpoint
-namespace. They are **not** inserted into the snapshot replay outbox, accepted
-by `bind-approval`, or sent by `deliver`. Existing `doctor`, `alerts` and replay
-scopes continue to describe the older snapshot workflow; use `checkpoint` to
-inspect these retained reconstruction streams. No severity or authorization is
-downgraded by persistence.
+Reconstruction events remain separate from snapshot replay and its `bind-approval`
+command. Inspect their outbox with `alerts --source rpc_ledger_meta --stream ID`
+and explicitly dispatch with the same options on `deliver`. `doctor` still covers
+the older snapshot workflow. No authorization is upgraded by storage or HMAC.
 
 ## Failure, limits and recovery
 
@@ -126,6 +126,6 @@ transaction data, so keep database and backups in operator-controlled storage.
 All outputs keep UNVERIFIED baseline/source authentication, NOT_VERIFIED metadata
 commitments, UNKNOWN membership/history completeness and UNDETERMINED final
 verdicts. Durable storage adds recovery, not independent chain authentication.
-Production retention, durable failure/gap alerts, reconstruction outbox delivery,
-signed-policy integration, continuous ingestion and controlled live upgrade proof
+Production retention, operator dead-letter recovery, signed-policy integration,
+continuous ingestion and controlled live upgrade proof
 remain unfinished.

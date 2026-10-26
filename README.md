@@ -69,6 +69,8 @@ The [backup command and recovery guide](docs/BACKUP.md) preserve replay, deliver
 
 Offline [signed approval verification](docs/APPROVALS.md) checks Ed25519 statements against explicit trust roots. Optional [durable incident binding](docs/APPROVAL_BINDING.md) prevents nonce reuse within one database history. These checks remain separate from unsigned policy matching and do not authenticate chain observations.
 
+Durable reconstruction now has [stream-scoped finding and diagnostic alerts](docs/RECONSTRUCTION_ALERTS.md). Inspect them with `alerts --source rpc_ledger_meta --stream ID`; explicit webhook delivery retains all unverified labels.
+
 ## CLI interface
 
 | Command | Purpose |

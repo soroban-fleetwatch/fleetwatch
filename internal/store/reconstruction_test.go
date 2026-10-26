@@ -397,6 +397,12 @@ func TestReconstructionCrashBeforeCommit(t *testing.T) {
 	if err != nil || !found || state.Report.ProcessedThrough != 100 || len(state.Capture.Ledgers) != 1 {
 		t.Fatal("partial crash commit", state, err)
 	}
+	if rows, err := s.ReconstructionAlerts(context.Background(), b.Snapshot.Network, "crash"); err != nil || len(rows) != 2 {
+		t.Fatal("uncommitted outbox survived crash", rows, err)
+	}
+	if attempt, err := s.LastReconstructionAttempt(context.Background(), b.Snapshot.Network, "crash"); err != nil || attempt.ToLedger != 100 {
+		t.Fatal("uncommitted attempt survived crash", attempt, err)
+	}
 	if r, err := s.Reconstruct(context.Background(), "crash", b, nextReconstructionCapture(t, b, c, false)); err != nil || r.ProcessedThrough != 101 {
 		t.Fatal(r, err)
 	}

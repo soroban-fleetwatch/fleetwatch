@@ -41,6 +41,16 @@
           "type": "null"
         }
       ]
+    },
+    "last_attempt": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/attempt"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "allOf": [
@@ -598,11 +608,127 @@
               "WATCHED_REFERENCE_UNAVAILABLE",
               "UNSUPPORTED_PROJECTED_CHANGE",
               "UNORDERED_WATCHED_EVICTION",
-              "SOURCE_ATTEMPT_INCOMPLETE"
+              "SOURCE_ATTEMPT_INCOMPLETE",
+              "EVIDENCE_CONFLICT"
             ]
           }
         }
       }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "network",
+        "stream",
+        "baseline_ledger",
+        "baseline_digest",
+        "baseline_header_hash",
+        "from_ledger",
+        "to_ledger",
+        "retained_through",
+        "input_digest",
+        "status"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "network": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "stream": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "baseline_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "baseline_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "baseline_header_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "from_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "to_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "retained_through": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "PARTIAL",
+            "COMPLETE"
+          ]
+        },
+        "code": {
+          "enum": [
+            "BASELINE_RANGE_OR_NETWORK_MISMATCH",
+            "BASELINE_HEADER_LINK_MISMATCH",
+            "NORMALIZATION_INCOMPLETE",
+            "RECONSTRUCTION_LIMIT",
+            "UNRESOLVED_WATCHED_REFERENCE",
+            "PREIMAGE_MISMATCH",
+            "UNSUPPORTED_FEE_EXECUTABLE_MUTATION",
+            "AMBIGUOUS_GROUP_MUTATION_ORDER",
+            "MISSING_GROUP_PREIMAGE",
+            "INVALID_PROJECTED_STATE",
+            "ENTRY_ALREADY_PRESENT",
+            "WATCHED_INSTANCE_UNAVAILABLE",
+            "WATCHED_REFERENCE_UNAVAILABLE",
+            "UNSUPPORTED_PROJECTED_CHANGE",
+            "UNORDERED_WATCHED_EVICTION",
+            "SOURCE_ATTEMPT_INCOMPLETE",
+            "EVIDENCE_CONFLICT"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "PARTIAL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "code"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "code"
+              ]
+            }
+          }
+        }
+      ]
     }
   }
 }

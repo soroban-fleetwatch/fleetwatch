@@ -82,3 +82,8 @@ the durable outbox before retrying. Delivery remains at least once. A receiver m
 accept a request before its acknowledgement is committed; stable IDs are required
 to avoid duplicate side effects. Dead-letter recovery and continuous watching
 remain future work.
+
+Reconstruction delivery uses `--source rpc_ledger_meta --stream ID`. Its inner
+payload uses version 2 with mandatory unverified labels; the outer v1 envelope
+and MAC are unchanged. See [RECONSTRUCTION_ALERTS.md](RECONSTRUCTION_ALERTS.md)
+before updating a receiver. Historical diagnostics can arrive after repair.

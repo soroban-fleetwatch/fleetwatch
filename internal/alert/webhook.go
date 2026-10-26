@@ -156,14 +156,7 @@ func publicAddress(ip netip.Addr) bool {
 func (w *Webhook) SinkID() string { return w.sinkID }
 func (w *Webhook) Close()         { w.client.CloseIdleConnections() }
 func (w *Webhook) Send(ctx context.Context, item store.Alert) error {
-	id, err := hex.DecodeString(item.ID)
-	if err != nil || len(id) != 32 || item.Payload.EvaluationStatus != "UNVERIFIED_INPUT" {
-		return PermanentError{}
-	}
-	if item.Payload.SchemaVersion != 1 || item.Payload.Network == "" || (item.Payload.Event == nil) == (item.Payload.Issue == nil) {
-		return PermanentError{}
-	}
-	if item.Payload.Event != nil && (item.Payload.Event.ID != item.ID || item.Payload.Event.Finding.Authorization != "UNVERIFIED") {
+	if store.ValidateAlertPayload(item.ID, item.Payload) != nil {
 		return PermanentError{}
 	}
 	body, err := json.Marshal(struct {

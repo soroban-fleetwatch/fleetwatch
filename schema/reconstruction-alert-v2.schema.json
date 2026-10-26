@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch reconstruction alert payload v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "network",
+    "source",
+    "evaluation_status",
+    "stream",
+    "assurance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source": {
+      "const": "rpc_ledger_meta"
+    },
+    "evaluation_status": {
+      "const": "UNVERIFIED_PROJECTED_STATE"
+    },
+    "stream": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "assurance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_authentication",
+        "source_authentication",
+        "metadata_commitment",
+        "membership_coverage",
+        "history_completeness",
+        "final_verdict"
+      ],
+      "properties": {
+        "baseline_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "source_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "metadata_commitment": {
+          "const": "NOT_VERIFIED"
+        },
+        "membership_coverage": {
+          "const": "UNKNOWN"
+        },
+        "history_completeness": {
+          "const": "UNKNOWN"
+        },
+        "final_verdict": {
+          "const": "UNDETERMINED"
+        }
+      }
+    },
+    "reconstruction_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_digest",
+        "baseline_header_hash",
+        "ledger",
+        "header_hash",
+        "metadata_sha256",
+        "event"
+      ],
+      "properties": {
+        "baseline_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "baseline_header_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "header_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "metadata_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "event": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "group_id",
+            "finding"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "group_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "finding": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "severity",
+                "message",
+                "authorization"
+              ],
+              "properties": {
+                "code": {
+                  "enum": [
+                    "UNAPPROVED_REFERENCE_CHANGE",
+                    "POLICY_MATCHED_REFERENCE_CHANGE",
+                    "CONTRACT_EXECUTABLE_REPOINTED",
+                    "REFERENCE_NOT_OBSERVED",
+                    "UNRESOLVED_EXTERNAL_REFERENCE",
+                    "CONTRACT_NOT_OBSERVED",
+                    "NEW_REFERENCE_OBSERVED",
+                    "NEW_CONTRACT_OBSERVED"
+                  ]
+                },
+                "severity": {
+                  "enum": [
+                    "critical",
+                    "high",
+                    "warning",
+                    "info"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "authorization": {
+                  "const": "UNVERIFIED"
+                },
+                "owner": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "tag_hex": {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 2048,
+                  "pattern": "^(?:[0-9a-f]{2})+$"
+                },
+                "contract_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "old_hash": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "new_hash": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "affected_contracts": {
+                  "type": "array",
+                  "maxItems": 20000,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                },
+                "approval_ticket": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "reconstruction_diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "network",
+        "stream",
+        "baseline_ledger",
+        "baseline_digest",
+        "baseline_header_hash",
+        "from_ledger",
+        "to_ledger",
+        "retained_through",
+        "input_digest",
+        "status"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "network": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "stream": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "baseline_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "baseline_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "baseline_header_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "from_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "to_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "retained_through": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "PARTIAL",
+            "COMPLETE"
+          ]
+        },
+        "code": {
+          "enum": [
+            "BASELINE_RANGE_OR_NETWORK_MISMATCH",
+            "BASELINE_HEADER_LINK_MISMATCH",
+            "NORMALIZATION_INCOMPLETE",
+            "RECONSTRUCTION_LIMIT",
+            "UNRESOLVED_WATCHED_REFERENCE",
+            "PREIMAGE_MISMATCH",
+            "UNSUPPORTED_FEE_EXECUTABLE_MUTATION",
+            "AMBIGUOUS_GROUP_MUTATION_ORDER",
+            "MISSING_GROUP_PREIMAGE",
+            "INVALID_PROJECTED_STATE",
+            "ENTRY_ALREADY_PRESENT",
+            "WATCHED_INSTANCE_UNAVAILABLE",
+            "WATCHED_REFERENCE_UNAVAILABLE",
+            "UNSUPPORTED_PROJECTED_CHANGE",
+            "UNORDERED_WATCHED_EVICTION",
+            "SOURCE_ATTEMPT_INCOMPLETE",
+            "EVIDENCE_CONFLICT"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "PARTIAL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "code"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "code"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "reconstruction_event"
+      ],
+      "not": {
+        "required": [
+          "reconstruction_diagnostic"
+        ]
+      }
+    },
+    {
+      "required": [
+        "reconstruction_diagnostic"
+      ],
+      "not": {
+        "required": [
+          "reconstruction_event"
+        ]
+      },
+      "properties": {
+        "reconstruction_diagnostic": {
+          "properties": {
+            "status": {
+              "const": "PARTIAL"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

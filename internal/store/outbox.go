@@ -2,6 +2,7 @@ package store
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -20,12 +21,16 @@ var ErrStaleLease = errors.New("alert lease expired or superseded")
 const MaxDeliveryAttempts = 5
 
 type AlertPayload struct {
-	SchemaVersion    int                     `json:"schema_version"`
-	Network          string                  `json:"network"`
-	Source           string                  `json:"source"`
-	EvaluationStatus string                  `json:"evaluation_status"`
-	Event            *fleetwatch.ReplayEvent `json:"event,omitempty"`
-	Issue            *fleetwatch.ReplayIssue `json:"issue,omitempty"`
+	SchemaVersion    int                       `json:"schema_version"`
+	Network          string                    `json:"network"`
+	Source           string                    `json:"source"`
+	EvaluationStatus string                    `json:"evaluation_status"`
+	Event            *fleetwatch.ReplayEvent   `json:"event,omitempty"`
+	Issue            *fleetwatch.ReplayIssue   `json:"issue,omitempty"`
+	Stream           string                    `json:"stream,omitempty"`
+	Assurance        *ProjectionAssurance      `json:"assurance,omitempty"`
+	Reconstruction   *ReconstructionEventAlert `json:"reconstruction_event,omitempty"`
+	Diagnostic       *ReconstructionAttempt    `json:"reconstruction_diagnostic,omitempty"`
 }
 type Alert struct {
 	ID            string       `json:"id"`
@@ -55,14 +60,12 @@ func decodeAlert(data []byte, key, network, source string) (Alert, error) {
 		return a, errors.New("invalid stored alert JSON")
 	}
 	raw, err := hex.DecodeString(a.ID)
-	if err != nil || len(raw) != 32 || a.ID != key || a.Payload.SchemaVersion != 1 || a.Payload.Network != network || a.Payload.Source != source || a.Payload.EvaluationStatus != "UNVERIFIED_INPUT" || a.Attempts < 0 || a.Attempts > MaxDeliveryAttempts || a.NextAttempt < 0 || a.LeaseUntil < 0 {
+	expectedSource := a.Payload.Source
+	if a.Payload.SchemaVersion == 2 {
+		expectedSource = reconstructionQueuePrefix + a.Payload.Stream
+	}
+	if err != nil || len(raw) != 32 || a.ID != key || a.Payload.Network != network || expectedSource != source || ValidateAlertPayload(a.ID, a.Payload) != nil || a.Attempts < 0 || a.Attempts > MaxDeliveryAttempts || a.NextAttempt < 0 || a.LeaseUntil < 0 {
 		return a, errors.New("invalid stored alert invariants")
-	}
-	if (a.Payload.Event == nil) == (a.Payload.Issue == nil) {
-		return a, errors.New("alert requires exactly one event or issue")
-	}
-	if a.Payload.Event != nil && (a.Payload.Event.ID != a.ID || a.Payload.Event.Finding.Authorization != "UNVERIFIED") {
-		return a, errors.New("invalid event alert assurance")
 	}
 	switch a.Status {
 	case "PENDING", "DELIVERED", "DEAD":
@@ -170,17 +173,34 @@ func (s *Store) Alerts(network, source string) ([]Alert, error) {
 // Claim grants one bounded lease in the same transaction that increments the
 // attempt counter. Expired leases can be reclaimed; acknowledgments are fenced.
 func (s *Store) Claim(network, source, sink string, now time.Time, lease time.Duration) (*Alert, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	return s.ClaimContext(ctx, network, source, sink, now, lease)
+}
+
+func (s *Store) ClaimContext(ctx context.Context, network, source, sink string, now time.Time, lease time.Duration) (*Alert, error) {
+	started := time.Now()
 	if sink == "" || len(sink) > 256 || now.Unix() <= 0 || lease < time.Second || lease > 5*time.Minute {
 		return nil, errors.New("invalid claim configuration")
 	}
 	var claimed *Alert
 	err := s.db.Update(func(tx *bolt.Tx) error {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		if err := validateQueueBeforeClaim(ctx, tx, network, source); err != nil {
+			return err
+		}
 		b, err := queue(tx, network, source, false)
 		if err != nil || b == nil {
 			return err
 		}
 		cursor := b.Cursor()
 		for key, data := cursor.First(); key != nil; key, data = cursor.Next() {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+			grantTime := now.Add(time.Since(started))
 			a, err := decodeAlert(data, string(key), network, source)
 			if err != nil {
 				return err
@@ -191,10 +211,10 @@ func (s *Store) Claim(network, source, sink string, now time.Time, lease time.Du
 			if a.Status != "PENDING" && a.Status != "INFLIGHT" {
 				return errors.New("invalid outbox status")
 			}
-			if a.Status == "INFLIGHT" && a.LeaseUntil > now.Unix() {
+			if a.Status == "INFLIGHT" && a.LeaseUntil > grantTime.Unix() {
 				continue
 			}
-			if a.NextAttempt > now.Unix() {
+			if a.NextAttempt > grantTime.Unix() {
 				continue
 			}
 			if a.Sink != "" && a.Sink != sink {
@@ -218,7 +238,7 @@ func (s *Store) Claim(network, source, sink string, now time.Time, lease time.Du
 			a.Sink = sink
 			a.Attempts++
 			a.Token = hex.EncodeToString(token[:])
-			a.LeaseUntil = now.Add(lease).Unix()
+			a.LeaseUntil = grantTime.Add(lease).Unix()
 			a.NextAttempt = 0
 			if err := writeAlert(b, a); err != nil {
 				return err

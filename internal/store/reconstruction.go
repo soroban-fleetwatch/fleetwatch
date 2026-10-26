@@ -25,6 +25,7 @@ type ReconstructionState struct {
 	Baseline      history.Baseline       `json:"baseline"`
 	Capture       history.Capture        `json:"capture"`
 	Report        history.Reconstruction `json:"report"`
+	AlertsEnabled bool                   `json:"alerts_enabled,omitempty"`
 }
 
 func ValidateReconstructionScope(network, stream string) error {
@@ -118,6 +119,14 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 			return ctx.Err()
 		}
 		b := tx.Bucket(reconstructionBucket)
+		lastAttempt, err := loadAttempt(tx, incoming.Network, stream)
+		if err != nil {
+			return err
+		}
+		baselineDigest, _ := fleetwatch.SnapshotDigest(baseline.Snapshot)
+		if lastAttempt != nil && (lastAttempt.BaselineDigest != baselineDigest || lastAttempt.BaselineHeaderHash != baseline.HeaderHash || lastAttempt.BaselineLedger != baseline.Snapshot.Ledger) {
+			return ErrReconstructionBaseline
+		}
 		var old *ReconstructionState
 		if b != nil {
 			if raw := b.Get(reconstructionScope(incoming.Network, stream)); raw != nil {
@@ -135,10 +144,16 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 			}
 		}
 		merged, err := mergeReconstructionCapture(baseline, old, incoming)
-		if err != nil {
+		if errors.Is(err, ErrConflict) && old != nil {
+			result = old.Report
+			result.Status = "PARTIAL"
+			result.Errors = []string{"EVIDENCE_CONFLICT"}
+			applicationErr = ErrConflict
+		} else if err != nil {
 			return err
+		} else {
+			result, applicationErr = history.Reconstruct(ctx, baseline, merged)
 		}
-		result, applicationErr = history.Reconstruct(ctx, baseline, merged)
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
@@ -148,7 +163,22 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 			applicationErr = ErrReconstructionIncomplete
 		}
 		if len(result.Ledgers) == 0 {
-			return nil
+			attempt := makeReconstructionAttempt(stream, baseline, incoming, result, applicationErr)
+			if err := saveAttempt(tx, attempt); err != nil {
+				return err
+			}
+			if err := enqueueReconstruction(tx, stream, result, attempt); err != nil {
+				return err
+			}
+			if beforeCommit != nil {
+				if err := beforeCommit(); err != nil {
+					return err
+				}
+			}
+			return ctx.Err()
+		}
+		if errors.Is(applicationErr, ErrConflict) {
+			merged = old.Capture
 		}
 		retained := merged
 		retained.ToLedger = result.ProcessedThrough
@@ -168,7 +198,7 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 				return errors.New("accepted reconstruction prefix failed revalidation")
 			}
 		}
-		encoded, err := json.Marshal(ReconstructionState{SchemaVersion: 1, Stream: stream, Baseline: baseline, Capture: retained, Report: committed})
+		encoded, err := json.Marshal(ReconstructionState{SchemaVersion: 1, Stream: stream, Baseline: baseline, Capture: retained, Report: committed, AlertsEnabled: true})
 		if err != nil {
 			return err
 		}
@@ -188,6 +218,13 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 		if err := b.Put(key, encoded); err != nil {
 			return err
 		}
+		attempt := makeReconstructionAttempt(stream, baseline, incoming, result, applicationErr)
+		if err := saveAttempt(tx, attempt); err != nil {
+			return err
+		}
+		if err := enqueueReconstruction(tx, stream, committed, attempt); err != nil {
+			return err
+		}
 		if beforeCommit != nil {
 			if err := beforeCommit(); err != nil {
 				return err
@@ -199,7 +236,7 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 		return history.Reconstruction{}, err
 	}
 	if applicationErr != nil {
-		return result, fmt.Errorf("%w: %v", ErrReconstructionIncomplete, applicationErr)
+		return result, fmt.Errorf("%w: %w", ErrReconstructionIncomplete, applicationErr)
 	}
 	return result, nil
 }

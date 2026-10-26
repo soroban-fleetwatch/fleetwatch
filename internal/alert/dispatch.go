@@ -17,6 +17,10 @@ type Queue interface {
 	Claim(string, string, string, time.Time, time.Duration) (*store.Alert, error)
 	Resolve(string, string, string, string, bool, bool, time.Time) error
 }
+
+type contextQueue interface {
+	ClaimContext(context.Context, string, string, string, time.Time, time.Duration) (*store.Alert, error)
+}
 type PermanentError struct{}
 
 func (PermanentError) Error() string { return "permanent delivery failure" }
@@ -38,7 +42,13 @@ func Dispatch(ctx context.Context, q Queue, s Sender, network, source, sink stri
 		if err := ctx.Err(); err != nil {
 			return result, err
 		}
-		item, err := q.Claim(network, source, sink, time.Now(), 30*time.Second)
+		var item *store.Alert
+		var err error
+		if queue, ok := q.(contextQueue); ok {
+			item, err = queue.ClaimContext(ctx, network, source, sink, time.Now(), 30*time.Second)
+		} else {
+			item, err = q.Claim(network, source, sink, time.Now(), 30*time.Second)
+		}
 		if err != nil {
 			return result, err
 		}
