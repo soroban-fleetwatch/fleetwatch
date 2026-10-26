@@ -92,3 +92,13 @@ func TestCLIListsOutboxWithoutDelivering(t *testing.T) {
 		t.Fatalf("code=%d out=%s err=%s", code, out.String(), errs.String())
 	}
 }
+
+func TestCLIDeliveryRejectsMissingKeyWithoutSending(t *testing.T) {
+	const name = "FLEETWATCH_TEST_MISSING_KEY"
+	t.Setenv(name, "")
+	var out, errs bytes.Buffer
+	code := run([]string{"deliver", "--state", "not-opened.db", "--network", "synthetic", "--webhook-url", "https://hooks.example.com", "--allow-host", "hooks.example.com", "--hmac-key-env", name}, &out, &errs)
+	if code != 3 || out.Len() != 0 || !strings.Contains(errs.String(), "signing key") {
+		t.Fatalf("code=%d output=%s error=%s", code, out.String(), errs.String())
+	}
+}

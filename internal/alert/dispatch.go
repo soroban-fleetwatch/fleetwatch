@@ -22,9 +22,9 @@ type PermanentError struct{}
 func (PermanentError) Error() string { return "permanent delivery failure" }
 
 type Result struct {
-	Attempted int
-	Delivered int
-	Failed    int
+	Attempted int `json:"attempted"`
+	Delivered int `json:"delivered"`
+	Failed    int `json:"failed"`
 }
 
 // Dispatch runs one bounded batch. It never embeds transport errors or secrets

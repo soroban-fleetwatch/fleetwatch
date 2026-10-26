@@ -51,6 +51,4 @@ durable gaps, scope isolation, lease recovery/fencing, retry backoff/dead letter
 sink binding, cancelled dispatch, error redaction, and delivery with a lost
 acknowledgement. The process-crash test also verifies no uncommitted queue rows.
 
-HTTPS webhook/HMAC transport, SSRF controls, continuous worker, operator dead-letter
-recovery, metrics, and production Postgres/outbox migration remain unimplemented.
-There is no CLI send command or live webhook evidence in this checkpoint.
+Experimental direct HTTPS/HMAC transport and the separate `deliver` command are now available; see WEBHOOKS.md for strict destination controls and unsupported proxy routing. Continuous worker, operator dead-letter recovery, metrics and production Postgres migration remain unimplemented. No external webhook has been contacted during development.
