@@ -19,4 +19,4 @@ go build -o /workspace/.tools/bin/fleetwatch ./cmd/fleetwatch
 
 Go 1.27.3 was used for current-instance validation; `go.mod` requires Go 1.25 for Stellar SDK v0.8.0. CI has not been run remotely. No database, service, or credentials are needed for this offline milestone. Synthetic contract labels are accepted; this is not Stellar address verification. Unsigned policy matches do not authenticate approvals. See `build/STATUS.md` for remaining work.
 
-Read-only diagnostic capture is now implemented; see CAPTURE.md. Live Testnet verification remains blocked by the current network policy.
+Read-only capture, bounded resumable ingestion and finite polling are implemented; see CAPTURE.md, INGESTION.md and WATCH.md. Controlled live CAP-85 upgrade proof remains unfinished. See RPC_JSON.md for reproducible parser fuzz/benchmark commands and the limits of those measurements.

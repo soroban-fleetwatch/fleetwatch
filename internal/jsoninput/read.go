@@ -13,6 +13,9 @@ import (
 
 const MaxBytes = 25 << 20
 
+// MaxObjectMembers bounds the duplicate-key set for each JSON object.
+const MaxObjectMembers = 10000
+
 func File(path string, target any) error {
 	file, err := os.Open(path)
 	if err != nil {
@@ -25,6 +28,17 @@ func File(path string, target any) error {
 // Read the limit plus one byte so the size bound also applies to pipes and
 // other non-seekable inputs. Never decode a silently truncated document.
 func Decode(r io.Reader, target any) error {
+	return decode(r, target, false)
+}
+
+// DecodeExtensible preserves the same byte, UTF-8, nesting and duplicate-member
+// guards as Decode while allowing additive provider fields. Operator-controlled
+// inputs must continue to use Decode, which rejects unknown fields.
+func DecodeExtensible(r io.Reader, target any) error {
+	return decode(r, target, true)
+}
+
+func decode(r io.Reader, target any, extensible bool) error {
 	data, err := io.ReadAll(io.LimitReader(r, MaxBytes+1))
 	if err != nil {
 		return fmt.Errorf("read JSON: %w", err)
@@ -44,7 +58,9 @@ func Decode(r io.Reader, target any) error {
 		return err
 	}
 	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
+	if !extensible {
+		dec.DisallowUnknownFields()
+	}
 	if err := dec.Decode(target); err != nil {
 		return fmt.Errorf("decode JSON: %w", err)
 	}
@@ -87,6 +103,9 @@ func uniqueObjectKeys(dec *json.Decoder, depth int) error {
 			folded := strings.ToUpper(strings.ToLower(name))
 			if seen[folded] {
 				return errors.New("duplicate JSON object member")
+			}
+			if len(seen) >= MaxObjectMembers {
+				return errors.New("JSON object exceeds 10000 members")
 			}
 			seen[folded] = true
 			if err := uniqueObjectKeys(dec, depth+1); err != nil {

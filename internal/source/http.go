@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -103,51 +102,41 @@ func (r *HTTPRPC) callOnce(ctx context.Context, method string, params any, targe
 	if response.StatusCode != http.StatusOK {
 		return errors.New("RPC returned non-success HTTP status")
 	}
-	data, err := io.ReadAll(io.LimitReader(response.Body, (25<<20)+1))
-	if err != nil {
-		return errors.New("RPC response read failed")
-	}
-	if len(data) > 25<<20 {
-		return errors.New("RPC response exceeds local size limit")
-	}
-	var envelope struct {
-		JSONRPC string          `json:"jsonrpc"`
-		ID      uint64          `json:"id"`
-		Result  json.RawMessage `json:"result"`
-		Error   json.RawMessage `json:"error"`
-	}
-	if err := json.Unmarshal(data, &envelope); err != nil {
-		return errors.New("invalid RPC JSON response")
-	}
-	if envelope.JSONRPC != "2.0" || envelope.ID != id || (len(envelope.Error) > 0 && string(envelope.Error) != "null") || len(envelope.Result) == 0 || string(envelope.Result) == "null" {
-		return errors.New("RPC error or mismatched response envelope")
-	}
-	if err := json.Unmarshal(envelope.Result, target); err != nil {
-		return errors.New("invalid RPC result")
-	}
-	return nil
+	return decodeRPCResponse(response.Body, id, target)
 }
 func (r *HTTPRPC) Network(ctx context.Context) (Network, error) {
 	var n Network
 	err := r.call(ctx, "getNetwork", struct{}{}, &n)
-	return n, err
+	if err != nil {
+		return Network{}, err
+	}
+	return n, nil
 }
 func (r *HTTPRPC) Entries(ctx context.Context, keys []string) (Entries, error) {
 	var e Entries
 	err := r.call(ctx, "getLedgerEntries", struct {
 		Keys []string `json:"keys"`
 	}{keys}, &e)
-	return e, err
+	if err != nil {
+		return Entries{}, err
+	}
+	return e, nil
 }
 
 func (r *HTTPRPC) Head(ctx context.Context) (Head, error) {
 	var h Head
 	err := r.call(ctx, "getLatestLedger", struct{}{}, &h)
-	return h, err
+	if err != nil {
+		return Head{}, err
+	}
+	return h, nil
 }
 
 func (r *HTTPRPC) Ledgers(ctx context.Context, request protocol.GetLedgersRequest) (protocol.GetLedgersResponse, error) {
 	var result protocol.GetLedgersResponse
 	err := r.call(ctx, protocol.GetLedgersMethodName, request, &result)
-	return result, err
+	if err != nil {
+		return protocol.GetLedgersResponse{}, err
+	}
+	return result, nil
 }
