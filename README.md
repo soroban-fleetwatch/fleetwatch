@@ -53,6 +53,8 @@ Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient change
 
 Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command.
 
+Offline [signed approval verification](docs/APPROVALS.md) checks Ed25519 statements against explicit trust roots. It remains separate from unsigned policy matching and does not authenticate chain observations.
+
 ## CLI interface
 
 | Command | Purpose |

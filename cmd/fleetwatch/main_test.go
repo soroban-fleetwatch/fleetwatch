@@ -102,3 +102,18 @@ func TestCLIDeliveryRejectsMissingKeyWithoutSending(t *testing.T) {
 		t.Fatalf("code=%d output=%s error=%s", code, out.String(), errs.String())
 	}
 }
+
+func TestCLISignedApprovalVerificationAndUnsignedRejection(t *testing.T) {
+	var out, errs bytes.Buffer
+	args := []string{"verify-approval", "--approval", fixture("signed-approval.json"), "--trust", fixture("approval-trust.json"), "--observation", fixture("approval-observation.json")}
+	code := run(args, &out, &errs)
+	if code != 0 || !strings.Contains(out.String(), `"verification_status": "VERIFIED"`) || !strings.Contains(out.String(), `"final_verdict": "UNDETERMINED"`) {
+		t.Fatalf("code=%d out=%s error=%s", code, out.String(), errs.String())
+	}
+	args[2] = fixture("approved-policy.json")
+	out.Reset()
+	errs.Reset()
+	if code := run(args, &out, &errs); code != 3 || out.Len() != 0 {
+		t.Fatalf("unsigned policy used as signature: code=%d out=%s", code, out.String())
+	}
+}

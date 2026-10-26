@@ -14,7 +14,7 @@
 | S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
 | S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot replay, atomic local state and restart fixtures | Real ledger-meta adapter and production Postgres remain |
 | S5 Watcher/alerts | IN PROGRESS: local outbox | Atomic enqueue, lease/retry dispatcher API and simulated delivery tests | Continuous watcher, telemetry and proxy-aware delivery transport remain |
-| S6 Signed approvals | NOT STARTED | None | Cryptographic trust policy |
+| S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Nonce consumption, durable incident binding, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | NOT STARTED | None | Stabilize config/schema |
 | S8 Security/performance | NOT STARTED | None | Fuzz/fault testing |
 | S9 Docs/repo hygiene | NOT STARTED | None | Documentation and CI review |
@@ -117,3 +117,14 @@ Outbox checkpoint: 61 top-level unit tests pass; one subprocess-helper skip. Rac
 - See docs/WEBHOOKS.md for receiver verification steps and at-least-once semantics.
 
 Webhook checkpoint: 71 top-level unit tests pass; one intentional subprocess-helper skip. Race/vet/module verification/build pass. TLS trust rejection uses a fresh sender; no external alert delivery performed.
+
+## Offline signed approval increment
+
+- Added custom v1 domain-separated Ed25519 envelopes, exact network/owner/tag/hash binding, reviewed artifact digest, ledger validity, mandatory nonce, scoped public trust roots, distinct-signer thresholds, revocation and rotation.
+- Added verify-approval CLI. Unsigned policies cannot be loaded as signed envelopes. Existing compare/replay findings and outbox authorization remain unchanged; final chain verdict stays UNDETERMINED for every currently supported observation source.
+- Shared strict JSON input now serves snapshots and approval files, rejecting case-alias duplicate fields and invalid raw UTF-8 while retaining existing size/depth/unknown-field checks.
+- Added public-only synthetic envelope/trust/observation/signing vector; its temporary private key was not saved. Three new JSON Schemas and fixtures validate. No production key or external signing action.
+- Tests cover valid/forged/unknown signatures, every signed field, network/transition mismatch, ledger expiry, incomplete input, revocation/rotation and distinct threshold enforcement.
+- Nonce consumption, durable incident binding, signed trust distribution, independently authenticated chain evidence and severity-downgrade integration remain unfinished. See docs/APPROVALS.md and ADR 0003.
+
+Approval checkpoint: 83 top-level unit tests pass; one intentional crash-helper skip. Race/vet/module verification/build pass. Compiled public synthetic checks return 0 verified-for-fields, 4 partial, 2 revoked/tampered, with final verdict UNDETERMINED in every case.

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "network_passphrase": "TESTNET-SYNTHETIC-NOT-A-REAL-NETWORK",
+  "owner_contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+  "tag_hex": "ff0061",
+  "from_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "to_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "ledger": 101,
+  "completeness": "COMPLETE",
+  "source": "synthetic"
+}
