@@ -96,6 +96,11 @@ trusted baseline, pair preimages with every mutation, reconstruct membership,
 detect/classify incidents, calculate blast radius, or apply changes. Those steps
 are required before continuous ingestion and within-ledger incident reporting.
 
+The separate experimental [reconstruct command](RECONSTRUCTION.md) now applies an
+operator-asserted baseline to an explicit watchlist, checks executable-field
+preimages and compares operation-boundary membership. It adds no independent
+baseline authentication or metadata commitment verification.
+
 Every report retains CHANGED_ENTRIES_ONLY scope, UNKNOWN membership/history
 coverage, UNVERIFIED source authentication, NOT_VERIFIED metadata commitments,
 NOT_APPLIED state changes, and UNDETERMINED final verdict. COMPLETE_CAPTURE means

@@ -49,9 +49,11 @@ Reports explicitly label coverage as `UNKNOWN` and authorization as `UNVERIFIED`
 
 Experimental read-only capture is documented in [CAPTURE.md](docs/CAPTURE.md). Multi-call consistency remains unproven and produces a partial diagnostic result.
 
-Diagnostic [historical metadata collection](docs/HISTORY.md) reads bounded consecutive ledger-close metadata from RPC and checks header hashes/linkage. Two real Testnet protocol-29 records have been parsed; metadata commitments and fleet state reconstruction remain unimplemented.
+Diagnostic [historical metadata collection](docs/HISTORY.md) reads bounded consecutive ledger-close metadata from RPC and checks header hashes/linkage. Two real Testnet protocol-29 records have been parsed; metadata commitments and authenticated durable fleet reconstruction remain unimplemented.
 
 The offline [changes command](docs/METADATA_CHANGES.md) projects executable-related metadata in transaction-phase order, preserving preimages, intermediate writes and restores. It does not yet apply a baseline or infer complete fleet membership.
+
+The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-asserted baseline to a fixed watchlist, checks executable preimages and reports operation-boundary changes. It stops on conflicts and uncertain watched evictions; baseline/source authentication and metadata commitments remain unverified.
 
 Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; live ledger-meta ingestion remains unimplemented.
 

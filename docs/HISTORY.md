@@ -93,8 +93,9 @@ summary. This is not a controlled CAP-85 deployment/update demonstration.
 
 The offline [changes normalizer](METADATA_CHANGES.md) now projects executable-related
 transaction/fee/upgrade/restore records and separate unordered eviction markers.
-Sequential state ingestion still needs a trustworthy baseline, application and
-validation of these changes with transaction ordering,
-reference/member reconstruction, commitment/provenance decisions, durable
+The separate [reconstruct command](RECONSTRUCTION.md) can now apply an operator-asserted
+baseline to a fixed watchlist and compare operation-boundary states offline.
+Authenticated sequential ingestion still needs a trustworthy baseline,
+complete lifecycle reconciliation, commitment/provenance decisions, durable
 evidence/cursor storage, restart reconciliation and continuous worker tests.
 Within-ledger A→B→A detection is not provided by this collector or snapshot replay.

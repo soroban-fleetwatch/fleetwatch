@@ -1,5 +1,5 @@
-// Package history collects bounded, untrusted ledger-close metadata separately
-// from replay state. It does not apply changes or authenticate consensus.
+// Package history collects bounded, untrusted ledger-close metadata and supports
+// offline diagnostic projection. It does not persist chain state or authenticate consensus.
 package history
 
 import (

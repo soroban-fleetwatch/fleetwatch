@@ -10,6 +10,20 @@ import (
 // Compare snapshots from an independently managed collector. It does not
 // infer transaction authorship, the validity of an approval, or maliciousness.
 func Compare(before, after Snapshot, policy Policy) (Report, error) {
+	return compareStates(before, after, policy, false)
+}
+
+// CompareWithinLedger compares two projected operation-boundary states. Callers
+// must establish their ordering separately; no chronology or provenance is
+// inferred from the equal ledger numbers. Unsigned policies are not accepted.
+func CompareWithinLedger(before, after Snapshot) (Report, error) {
+	if before.Ledger != after.Ledger {
+		return Report{}, errors.New("operation states must share a ledger")
+	}
+	return compareStates(before, after, Policy{SchemaVersion: 1}, true)
+}
+
+func compareStates(before, after Snapshot, policy Policy, sameLedger bool) (Report, error) {
 	var report Report
 	if err := before.Validate(); err != nil {
 		return report, fmt.Errorf("before: %w", err)
@@ -23,7 +37,7 @@ func Compare(before, after Snapshot, policy Policy) (Report, error) {
 	if before.Network != after.Network {
 		return report, errors.New("snapshots are from different networks")
 	}
-	if before.Ledger >= after.Ledger {
+	if before.Ledger > after.Ledger || (!sameLedger && before.Ledger == after.Ledger) {
 		return report, errors.New("after ledger must be greater than before ledger")
 	}
 	report = Report{Coverage: "UNKNOWN", EvaluationStatus: "UNVERIFIED_SNAPSHOTS", SchemaVersion: SchemaVersion, Network: before.Network, BeforeLedger: before.Ledger, AfterLedger: after.Ledger, Findings: []Finding{}, EvidenceDisclaimer: "Findings compare supplied snapshots only; source authenticity, history completeness and on-chain authorization are not verified."}
