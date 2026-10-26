@@ -23,8 +23,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version-file: go.mod
+          go-version-file: .go-version
           cache: false
+      - name: Verify compiler selection
+        run: |
+          go version
+          test "$(go env GOVERSION)" = "go$(cat .go-version)"
       - name: Verify modules
         run: go mod verify
       - name: Verify dependency declarations
@@ -50,7 +54,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version-file: go.mod
+          go-version-file: .go-version
           cache: false
+      - name: Verify compiler selection
+        run: |
+          go version
+          test "$(go env GOVERSION)" = "go$(cat .go-version)"
       - name: Scan modules, source, tests and compiled CLI
         run: ./scripts/check-vulnerabilities.sh

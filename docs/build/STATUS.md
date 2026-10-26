@@ -310,3 +310,12 @@ Health checkpoint: 101 top-level unit tests pass; one intentional crash-helper s
 - Authenticated baseline/chain/metadata commitments, production retention/unbounded operation, durable telemetry, controlled live CAP-85 upgrade proof, proxy-aware production delivery, representative load/external review and release validation remain unfinished. No live Stellar endpoint, webhook receiver or transaction was contacted in this increment.
 
 Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck ; https://vuln.go.dev ; official action release refs/manifests linked in docs/DEPENDENCY_CHECKS.md.
+
+
+## PR #1 compiler selection correction
+
+- User-reported GitHub Actions logs show govulncheck v1.9.0 installation failing under Go 1.25.0 with GOTOOLCHAIN=local. This contradicts the earlier assumption that setup-go would prefer go.mod's toolchain recommendation over its language directive. Remote CI was failing; local passes did not establish remote compiler selection.
+- Added .go-version with the explicit 1.27.3 compiler version and made both jobs read that dedicated file. Both jobs now print and assert the selected GOVERSION before checks. Retained the Go 1.25 language floor, Go 1.27.3 toolchain recommendation, local-only toolchain policy and pinned vulnerability scanner; no security gates were disabled or downgraded.
+- Confirmed PR https://github.com/soroban-fleetwatch/fleetwatch/pull/1 has work as its source: refs/pull/1/head and refs/heads/work both matched published checkpoint 542d57d before this fix. Pushing the correction to work updates the existing PR.
+- Local checks PASS with GOFLAGS=-mod=readonly, GOTOOLCHAIN=local and Go 1.27.3: exact compiler assertion, actionlint, module tidy-diff, full unit/fuzz seed suite, vet, full race suite, trimmed-path build and diff checks. scripts/check-vulnerabilities.sh PASS: module, source/test and fresh binary scans each report no vulnerabilities found, scanner v1.9.0 / DB updated 2026-10-21 00:27:29 UTC.
+- Updated dependency/development guidance to state the explicit version-file selection. Remote checks must rerun on the new PR head; no remote success is claimed from these local results.

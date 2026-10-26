@@ -26,8 +26,9 @@ RPC/webhook endpoints are required. Standard HTTPS Go package/checksum access an
 An unavailable database is an operational failure, not a clean result.
 
 Go's language directive remains 1.25.0, while `toolchain go1.27.3` records the
-selected development compiler. CI's setup-go action reads the toolchain directive
-and selects that exact version, with automatic switching disabled in the CI job.
+selected development compiler. CI's setup-go action reads the dedicated `.go-version` file (1.27.3). Each
+job verifies the selected compiler before any checks; automatic switching stays
+disabled. The go.mod language directive is not used to select the CI compiler.
 Local developers should use Go 1.27.3 for the verified workflow. The scanner is a
 separately pinned development tool, not an application dependency.
 
