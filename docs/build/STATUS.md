@@ -13,7 +13,7 @@
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
 | S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot replay, atomic local state and restart fixtures | Real ledger-meta adapter and production Postgres remain |
-| S5 Watcher/alerts | NOT STARTED | None | Storage/replay prerequisite |
+| S5 Watcher/alerts | IN PROGRESS: local outbox | Atomic enqueue, lease/retry dispatcher API and simulated delivery tests | HTTPS/HMAC/SSRF transport, continuous watcher and telemetry remain |
 | S6 Signed approvals | NOT STARTED | None | Cryptographic trust policy |
 | S7 CLI/API integration | NOT STARTED | None | Stabilize config/schema |
 | S8 Security/performance | NOT STARTED | None | Fuzz/fault testing |
@@ -97,3 +97,13 @@ Replay checkpoint: 40 top-level unit tests pass; race/vet/build and structural s
 - See docs/adr/0002-offline-replay-store.md and docs/REPLAY.md. Historical notes above describe prior checkpoints; this increment adds optional persistence.
 
 Durable checkpoint: 50 top-level unit tests pass; one intentional crash-helper skip (the parent test runs its subprocess). Race/vet/module verification/build pass.
+
+## Durable outbox increment
+
+- Durable replay now queues findings and gap issues in the same synchronous transaction as its observations/cursor. Queue IDs are stable; replay preserves delivery status.
+- Added bounded lease claims, random fencing tokens, retry scheduling, attempt limit/dead letters, sink binding and fixed redacted failure codes. Alerts CLI lists persisted records without delivery.
+- Added dispatcher API with simulated senders; tested acknowledged deduplication, lost-ack duplicate delivery with the same ID, cancellation and permanent/transient errors. Process-crash regression also checks the queue remains empty after rollback.
+- Delivery is explicitly at least once. No live webhook, signing keys, HMAC transport, SSRF-hardened network sender, continuous watcher or production Postgres implementation.
+- Queue/payload bounds abort replay rather than advancing a cursor without its alert. See docs/ALERTS.md for retained-gap and dead-letter limitations.
+
+Outbox checkpoint: 61 top-level unit tests pass; one subprocess-helper skip. Race/vet/build checks pass; no network alert delivery performed.

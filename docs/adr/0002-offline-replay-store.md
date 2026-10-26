@@ -17,8 +17,7 @@ options are not enabled.
 Retain at most 1,000 per-ledger snapshots, 10,000 derived events and 25 MiB of
 encoded state per scope. These explicit prototype bounds make recomputation and
 validation practical; this is not an unbounded event store. Source authenticity
-and history completeness remain unverified. No outbox or service coordination is
-implemented. Production migration requires a distinct design and acceptance gate.
+and history completeness remain unverified. A local outbox was added in the following increment (see ALERTS.md); production service coordination remains unimplemented. Production migration requires a distinct design and acceptance gate.
 
 Tests exercise cold reopen, segment resume, repeated replay, gaps, conflicts,
 network/source separation, exclusive file locking, rollback after a write hook,

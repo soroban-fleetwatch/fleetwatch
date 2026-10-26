@@ -79,3 +79,16 @@ func TestCLIReplayDurableRepeat(t *testing.T) {
 		}
 	}
 }
+
+func TestCLIListsOutboxWithoutDelivering(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "state.db")
+	var out, errs bytes.Buffer
+	if code := run([]string{"replay", "--journal", fixture("replay-transient.json"), "--state", path}, &out, &errs); code != 2 {
+		t.Fatalf("code=%d %s", code, errs.String())
+	}
+	out.Reset()
+	errs.Reset()
+	if code := run([]string{"alerts", "--state", path, "--network", "TESTNET-SYNTHETIC"}, &out, &errs); code != 0 || strings.Count(out.String(), `"status": "PENDING"`) != 2 || strings.Contains(out.String(), "lease_token") {
+		t.Fatalf("code=%d out=%s err=%s", code, out.String(), errs.String())
+	}
+}

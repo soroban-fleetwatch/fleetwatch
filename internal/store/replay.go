@@ -200,6 +200,9 @@ func (s *Store) replay(j fleetwatch.Journal, beforeCommit func() error) (fleetwa
 		if err := bucket.Put(scope(j.Network, j.Source), encoded); err != nil {
 			return err
 		}
+		if err := enqueue(tx, report); err != nil {
+			return err
+		}
 		if beforeCommit != nil {
 			if err := beforeCommit(); err != nil {
 				return err

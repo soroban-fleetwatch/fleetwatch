@@ -155,6 +155,10 @@ func TestProcessCrashBeforeCommit(t *testing.T) {
 	if err != nil || stored.Report.ProcessedThrough != 100 || len(stored.Report.Events) != 0 {
 		t.Fatalf("partial crash commit: %+v %v", stored, err)
 	}
+	rows, queueErr := s.Alerts(j.Network, j.Source)
+	if queueErr != nil || len(rows) != 0 {
+		t.Fatal("outbox survived uncommitted process crash", queueErr)
+	}
 	if r, err := s.Replay(j); err != nil || len(r.Events) != 2 || r.ProcessedThrough != 102 {
 		t.Fatalf("restart failed: %+v %v", r, err)
 	}

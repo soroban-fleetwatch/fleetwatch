@@ -74,7 +74,7 @@ scope. Observation/event bounds apply across the accumulated scope, not per call
 Cursor, observations and findings commit in one synchronous transaction. On
 restart, replay recomputes findings and checks stored invariants. Duplicate replay
 returns the cumulative report with the same event IDs; exit 2 may therefore recur
-for existing findings. No alerts are delivered. A failed output write can occur
+for existing findings. Pending alerts are now enqueued atomically; none are delivered automatically. See ALERTS.md. A failed output write can occur
 after commit: repeat the same journal safely to retrieve the report again.
 Storage failures return 5. An intentional pre-commit process-crash test verifies
 that incomplete writes do not advance the checkpoint.
@@ -86,3 +86,5 @@ retention yet. Preserve the file when changing parser/rule versions; a versioned
 migration must handle changed event derivation. This local store remains bounded
 to 1,000 ledgers, 10,000 events, 25 MiB of encoded state per scope. Durable ledger
 metadata ingest and the production Postgres/outbox service are still unimplemented.
+
+Durable replay now also maintains an offline outbox; see [ALERTS.md](ALERTS.md). HTTPS delivery and production service integration are still future work.

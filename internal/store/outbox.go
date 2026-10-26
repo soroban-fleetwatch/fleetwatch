@@ -1,0 +1,268 @@
+package store
+
+import (
+	"bytes"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"io"
+	"time"
+
+	"github.com/soroban-fleetwatch/fleetwatch/internal/fleetwatch"
+	bolt "go.etcd.io/bbolt"
+)
+
+var outboxBucket = []byte("fleetwatch.offline-outbox.v1")
+var ErrStaleLease = errors.New("alert lease expired or superseded")
+
+const MaxDeliveryAttempts = 5
+
+type AlertPayload struct {
+	SchemaVersion    int                     `json:"schema_version"`
+	Network          string                  `json:"network"`
+	Source           string                  `json:"source"`
+	EvaluationStatus string                  `json:"evaluation_status"`
+	Event            *fleetwatch.ReplayEvent `json:"event,omitempty"`
+	Issue            *fleetwatch.ReplayIssue `json:"issue,omitempty"`
+}
+type Alert struct {
+	ID            string       `json:"id"`
+	Payload       AlertPayload `json:"payload"`
+	Status        string       `json:"status"`
+	Attempts      int          `json:"attempts"`
+	Sink          string       `json:"sink,omitempty"`
+	NextAttempt   int64        `json:"next_attempt,omitempty"`
+	LeaseUntil    int64        `json:"lease_until,omitempty"`
+	LeaseToken    string       `json:"-"`
+	Token         string       `json:"lease_token,omitempty"` // persistence only; list hides it
+	LastErrorCode string       `json:"last_error_code,omitempty"`
+}
+
+func decodeAlert(data []byte, key, network, source string) (Alert, error) {
+	var a Alert
+	if len(data) > 1<<20 {
+		return a, errors.New("oversized stored alert")
+	}
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&a); err != nil {
+		return a, err
+	}
+	var trailing any
+	if err := dec.Decode(&trailing); err != io.EOF {
+		return a, errors.New("invalid stored alert JSON")
+	}
+	raw, err := hex.DecodeString(a.ID)
+	if err != nil || len(raw) != 32 || a.ID != key || a.Payload.SchemaVersion != 1 || a.Payload.Network != network || a.Payload.Source != source || a.Payload.EvaluationStatus != "UNVERIFIED_INPUT" || a.Attempts < 0 || a.Attempts > MaxDeliveryAttempts || a.NextAttempt < 0 || a.LeaseUntil < 0 {
+		return a, errors.New("invalid stored alert invariants")
+	}
+	if (a.Payload.Event == nil) == (a.Payload.Issue == nil) {
+		return a, errors.New("alert requires exactly one event or issue")
+	}
+	if a.Payload.Event != nil && (a.Payload.Event.ID != a.ID || a.Payload.Event.Finding.Authorization != "UNVERIFIED") {
+		return a, errors.New("invalid event alert assurance")
+	}
+	switch a.Status {
+	case "PENDING", "DELIVERED", "DEAD":
+		if a.Token != "" || a.LeaseUntil != 0 {
+			return a, errors.New("invalid inactive alert lease")
+		}
+	case "INFLIGHT":
+		if len(a.Token) != 32 || a.LeaseUntil == 0 || a.Attempts == 0 {
+			return a, errors.New("invalid active alert lease")
+		}
+	default:
+		return a, errors.New("unknown stored alert status")
+	}
+	return a, nil
+}
+
+func queue(tx *bolt.Tx, network, source string, create bool) (*bolt.Bucket, error) {
+	root := tx.Bucket(outboxBucket)
+	if create {
+		var err error
+		root, err = tx.CreateBucketIfNotExists(outboxBucket)
+		if err != nil {
+			return nil, err
+		}
+		return root.CreateBucketIfNotExists(scope(network, source))
+	}
+	if root == nil {
+		return nil, nil
+	}
+	return root.Bucket(scope(network, source)), nil
+}
+func writeAlert(b *bolt.Bucket, a Alert) error {
+	data, err := json.Marshal(a)
+	if err != nil {
+		return err
+	}
+	if len(data) > 1<<20 {
+		return errors.New("alert exceeds 1 MiB local limit")
+	}
+	return b.Put([]byte(a.ID), data)
+}
+func enqueue(tx *bolt.Tx, r fleetwatch.ReplayReport) error {
+	b, err := queue(tx, r.Network, r.Source, true)
+	if err != nil {
+		return err
+	}
+	count := b.Stats().KeyN
+	add := func(id string, payload AlertPayload) error {
+		if raw := b.Get([]byte(id)); raw != nil {
+			_, err := decodeAlert(raw, id, r.Network, r.Source)
+			return err
+		}
+		if count >= fleetwatch.MaxRecords {
+			return errors.New("outbox exceeds 10000 alerts per scope")
+		}
+		if err := writeAlert(b, Alert{ID: id, Payload: payload, Status: "PENDING"}); err != nil {
+			return err
+		}
+		count++
+		return nil
+	}
+	for _, event := range r.Events {
+		event := event
+		if err := add(event.ID, AlertPayload{SchemaVersion: 1, Network: r.Network, Source: r.Source, EvaluationStatus: r.EvaluationStatus, Event: &event}); err != nil {
+			return err
+		}
+	}
+	for _, issue := range r.Issues {
+		issue := issue
+		raw, _ := json.Marshal(struct {
+			Domain, Network, Source string
+			Issue                   fleetwatch.ReplayIssue
+		}{"fleetwatch.offline-issue.v1", r.Network, r.Source, issue})
+		hash := sha256.Sum256(raw)
+		if err := add(hex.EncodeToString(hash[:]), AlertPayload{SchemaVersion: 1, Network: r.Network, Source: r.Source, EvaluationStatus: r.EvaluationStatus, Issue: &issue}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (s *Store) Alerts(network, source string) ([]Alert, error) {
+	result := []Alert{}
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b, err := queue(tx, network, source, false)
+		if err != nil || b == nil {
+			return err
+		}
+		return b.ForEach(func(key, data []byte) error {
+			a, err := decodeAlert(data, string(key), network, source)
+			if err != nil {
+				return err
+			}
+			a.Token = ""
+			a.LeaseToken = ""
+			result = append(result, a)
+			return nil
+		})
+	})
+	return result, err
+}
+
+// Claim grants one bounded lease in the same transaction that increments the
+// attempt counter. Expired leases can be reclaimed; acknowledgments are fenced.
+func (s *Store) Claim(network, source, sink string, now time.Time, lease time.Duration) (*Alert, error) {
+	if sink == "" || len(sink) > 256 || now.Unix() <= 0 || lease < time.Second || lease > 5*time.Minute {
+		return nil, errors.New("invalid claim configuration")
+	}
+	var claimed *Alert
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b, err := queue(tx, network, source, false)
+		if err != nil || b == nil {
+			return err
+		}
+		cursor := b.Cursor()
+		for key, data := cursor.First(); key != nil; key, data = cursor.Next() {
+			a, err := decodeAlert(data, string(key), network, source)
+			if err != nil {
+				return err
+			}
+			if a.Status == "DELIVERED" || a.Status == "DEAD" {
+				continue
+			}
+			if a.Status != "PENDING" && a.Status != "INFLIGHT" {
+				return errors.New("invalid outbox status")
+			}
+			if a.Status == "INFLIGHT" && a.LeaseUntil > now.Unix() {
+				continue
+			}
+			if a.NextAttempt > now.Unix() {
+				continue
+			}
+			if a.Sink != "" && a.Sink != sink {
+				return errors.New("alert already bound to another sink")
+			}
+			if a.Attempts >= MaxDeliveryAttempts {
+				a.Status = "DEAD"
+				a.Token = ""
+				a.LeaseUntil = 0
+				a.LastErrorCode = "ATTEMPT_LIMIT"
+				if err := writeAlert(b, a); err != nil {
+					return err
+				}
+				continue
+			}
+			var token [16]byte
+			if _, err := rand.Read(token[:]); err != nil {
+				return err
+			}
+			a.Status = "INFLIGHT"
+			a.Sink = sink
+			a.Attempts++
+			a.Token = hex.EncodeToString(token[:])
+			a.LeaseUntil = now.Add(lease).Unix()
+			a.NextAttempt = 0
+			if err := writeAlert(b, a); err != nil {
+				return err
+			}
+			a.LeaseToken = a.Token
+			a.Token = ""
+			claimed = &a
+			break
+		}
+		return nil
+	})
+	return claimed, err
+}
+func (s *Store) Resolve(network, source, id, token string, success, permanent bool, now time.Time) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b, err := queue(tx, network, source, false)
+		if err != nil {
+			return err
+		}
+		if b == nil {
+			return ErrStaleLease
+		}
+		data := b.Get([]byte(id))
+		if data == nil {
+			return ErrStaleLease
+		}
+		a, err := decodeAlert(data, id, network, source)
+		if err != nil {
+			return err
+		}
+		if a.Status != "INFLIGHT" || token == "" || token != a.Token || now.Unix() >= a.LeaseUntil {
+			return ErrStaleLease
+		}
+		a.Token = ""
+		a.LeaseUntil = 0
+		a.NextAttempt = 0
+		if success {
+			a.Status = "DELIVERED"
+			a.LastErrorCode = ""
+		} else if permanent || a.Attempts >= MaxDeliveryAttempts {
+			a.Status = "DEAD"
+			a.LastErrorCode = "PERMANENT_DELIVERY_FAILURE"
+		} else {
+			a.Status = "PENDING"
+			a.LastErrorCode = "TRANSIENT_DELIVERY_FAILURE"
+			a.NextAttempt = now.Add(time.Duration(1<<a.Attempts) * time.Second).Unix()
+		}
+		return writeAlert(b, a)
+	})
+}

@@ -42,6 +42,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		fmt.Fprintf(stdout, "valid snapshot: %s ledger=%d contracts=%d references=%d\n", s.Network, s.Ledger, len(s.Contracts), len(s.References))
 		return 0
+	case "alerts":
+		return alerts(args[1:], stdout, stderr)
 	case "replay":
 		return replay(args[1:], stdout, stderr)
 	case "capture":
@@ -134,5 +136,5 @@ func compare(args []string, stdout, stderr io.Writer) int {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=output failure")
+	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|alerts|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=output failure")
 }

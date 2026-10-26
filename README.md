@@ -51,6 +51,8 @@ Experimental read-only capture is documented in [CAPTURE.md](docs/CAPTURE.md). M
 
 Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; live ledger-meta ingestion remains unimplemented.
 
+Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them.
+
 ## CLI interface
 
 | Command | Purpose |
