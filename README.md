@@ -55,6 +55,8 @@ Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` l
 
 Use [doctor](docs/HEALTH.md) to inspect persisted replay coverage and alert delivery health without changing the database. Its `OK_OFFLINE` status does not establish live chain coverage.
 
+Use [report](docs/FLEET_REPORT.md) to query an observed owner/tag fleet at an exact retained ledger, including adjacent membership changes, snapshot digests and related replay events. Membership outside the supplied snapshots remains unknown.
+
 Offline [signed approval verification](docs/APPROVALS.md) checks Ed25519 statements against explicit trust roots. Optional [durable incident binding](docs/APPROVAL_BINDING.md) prevents nonce reuse within one database history. These checks remain separate from unsigned policy matching and do not authenticate chain observations.
 
 ## CLI interface

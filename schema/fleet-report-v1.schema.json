@@ -1,0 +1,384 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch observed at-ledger fleet report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "network",
+    "ledger",
+    "owner",
+    "tag_hex",
+    "source",
+    "state_found",
+    "snapshot_status",
+    "processed_through",
+    "sequence_coverage",
+    "input_issues",
+    "fleet_scope",
+    "membership_coverage",
+    "evaluation_status",
+    "final_verdict",
+    "current",
+    "previous",
+    "membership_change",
+    "related_events"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "tag_hex": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2048,
+      "pattern": "^(?:[0-9a-f]{2})+$"
+    },
+    "source": {
+      "enum": [
+        "synthetic",
+        "user_snapshot"
+      ]
+    },
+    "state_found": {
+      "type": "boolean"
+    },
+    "snapshot_status": {
+      "enum": [
+        "RETAINED",
+        "NOT_RETAINED"
+      ]
+    },
+    "processed_through": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "sequence_coverage": {
+      "enum": [
+        "UNKNOWN",
+        "PARTIAL",
+        "COMPLETE_INPUT_SEQUENCE"
+      ]
+    },
+    "input_issues": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "from_ledger",
+          "to_ledger"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "OBSERVATION_GAP",
+              "SOURCE_DIVERGENCE"
+            ]
+          },
+          "from_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "to_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          }
+        }
+      }
+    },
+    "fleet_scope": {
+      "const": "OBSERVED_SNAPSHOT_MEMBERS"
+    },
+    "membership_coverage": {
+      "const": "UNKNOWN"
+    },
+    "evaluation_status": {
+      "const": "UNVERIFIED_INPUT"
+    },
+    "final_verdict": {
+      "const": "UNDETERMINED"
+    },
+    "current": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/observation"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "previous": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/observation"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "membership_change": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/membershipChange"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "related_events": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "ledger",
+          "finding"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "finding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "severity",
+              "message",
+              "authorization"
+            ],
+            "properties": {
+              "code": {
+                "enum": [
+                  "UNAPPROVED_REFERENCE_CHANGE",
+                  "POLICY_MATCHED_REFERENCE_CHANGE",
+                  "CONTRACT_EXECUTABLE_REPOINTED",
+                  "REFERENCE_NOT_OBSERVED",
+                  "UNRESOLVED_EXTERNAL_REFERENCE",
+                  "CONTRACT_NOT_OBSERVED",
+                  "NEW_REFERENCE_OBSERVED",
+                  "NEW_CONTRACT_OBSERVED"
+                ]
+              },
+              "severity": {
+                "enum": [
+                  "critical",
+                  "high",
+                  "warning",
+                  "info"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "authorization": {
+                "const": "UNVERIFIED"
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "tag_hex": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 2048,
+                "pattern": "^(?:[0-9a-f]{2})+$"
+              },
+              "contract_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "old_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "new_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "affected_contracts": {
+                "type": "array",
+                "maxItems": 20000,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                }
+              },
+              "approval_ticket": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ledger",
+        "snapshot_digest",
+        "reference_status",
+        "wasm_hash",
+        "members"
+      ],
+      "properties": {
+        "ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "snapshot_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reference_status": {
+          "enum": [
+            "OBSERVED",
+            "NOT_OBSERVED"
+          ]
+        },
+        "wasm_hash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "members": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reference_status": {
+                "const": "OBSERVED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "wasm_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "wasm_hash": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "membershipChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "joined",
+        "left",
+        "retained",
+        "observed_union"
+      ],
+      "properties": {
+        "joined": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "left": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "retained": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "observed_union": {
+          "type": "array",
+          "maxItems": 20000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      }
+    }
+  }
+}
