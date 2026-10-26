@@ -129,3 +129,8 @@ verdicts. Durable storage adds recovery, not independent chain authentication.
 Production retention, operator dead-letter recovery, signed-policy integration,
 continuous ingestion and controlled live upgrade proof
 remain unfinished.
+
+
+Use [ingest](INGESTION.md) to fetch a missing bounded RPC range directly into the
+retained stream. It checks the expected cursor again before committing, retains
+source/application diagnostics and preserves the original baseline and range bound.

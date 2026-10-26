@@ -55,9 +55,11 @@ The offline [changes command](docs/METADATA_CHANGES.md) projects executable-rela
 
 The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-asserted baseline to a fixed watchlist, checks executable preimages and reports operation-boundary changes. It stops on conflicts and uncertain watched evictions; baseline/source authentication and metadata commitments remain unverified.
 
+Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
+
 Optional [reconstruction checkpoints](docs/RECONSTRUCTION_CHECKPOINTS.md) retain the original baseline, accepted raw metadata and findings atomically. Use `checkpoint` to inspect and revalidate a retained prefix after restart; this does not establish current source health or authenticate the chain.
 
-Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; live ledger-meta ingestion remains unimplemented.
+Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; continuous authenticated ledger-meta ingestion remains unfinished.
 
 Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command. Explicit [dead-letter recovery](docs/ALERT_RECOVERY.md) preserves alert identity and records each operator retry.
 

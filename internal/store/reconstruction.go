@@ -106,6 +106,9 @@ func (s *Store) Reconstruct(ctx context.Context, stream string, baseline history
 	return s.reconstruct(ctx, stream, baseline, incoming, nil)
 }
 func (s *Store) reconstruct(ctx context.Context, stream string, baseline history.Baseline, incoming history.Capture, beforeCommit func() error) (history.Reconstruction, error) {
+	return s.reconstructAt(ctx, stream, baseline, incoming, nil, beforeCommit)
+}
+func (s *Store) reconstructAt(ctx context.Context, stream string, baseline history.Baseline, incoming history.Capture, expectedThrough *uint32, beforeCommit func() error) (history.Reconstruction, error) {
 	if ValidateReconstructionScope(baseline.Snapshot.Network, stream) != nil || history.ValidateBaseline(baseline) != nil || history.ValidateCaptureEnvelope(incoming) != nil {
 		return history.Reconstruction{}, errors.New("invalid reconstruction input")
 	}
@@ -141,6 +144,16 @@ func (s *Store) reconstruct(ctx context.Context, stream string, baseline history
 					return ErrReconstructionBaseline
 				}
 				baseline = state.Baseline
+			}
+		}
+
+		if expectedThrough != nil {
+			actual := baseline.Snapshot.Ledger
+			if old != nil {
+				actual = old.Report.ProcessedThrough
+			}
+			if actual != *expectedThrough {
+				return ErrReconstructionCursor
 			}
 		}
 		merged, err := mergeReconstructionCapture(baseline, old, incoming)

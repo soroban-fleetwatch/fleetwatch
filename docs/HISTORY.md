@@ -2,7 +2,7 @@
 
 `history` fetches an exact inclusive range of up to 16 ledger-close metadata
 records using Stellar RPC `getLedgers`. It is a read-only collection step for
-the future sequential ingestion adapter. It does not apply state changes,
+the bounded [resumable ingestion command](INGESTION.md). It does not apply state changes,
 advance a database cursor, compare fleets, bind approvals or send alerts.
 
 ```sh
