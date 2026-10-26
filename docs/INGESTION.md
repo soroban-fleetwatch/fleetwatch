@@ -88,3 +88,8 @@ commitments, historical fleet membership or current source freshness. No new
 approval binding, signing keys or on-chain transaction capability is introduced.
 Continuous worker configuration, production retention/telemetry and authenticated
 chain evidence remain unfinished.
+
+
+For bounded automatic availability retries toward the same fixed target, use the
+[watch worker](WATCH.md). It preserves the same asserted baseline, evidence limits
+and atomic commits, with explicit polling/attempt/deadline budgets.

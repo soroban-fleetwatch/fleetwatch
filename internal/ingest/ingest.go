@@ -43,7 +43,7 @@ func Run(ctx context.Context, rpc history.RPC, s *store.Store, stream string, b 
 	if err != nil {
 		return Result{}, err
 	}
-	out := Result{SchemaVersion: 1, Network: p.Network, Stream: stream, RequestedThrough: to, StartedThrough: p.ExpectedThrough, ProcessedThrough: p.ExpectedThrough, Status: "ALREADY_RETAINED", SourceQuery: "NOT_QUERIED", LatestAttemptStatus: p.LastAttemptStatus, FetchErrors: []string{}, Assurance: store.ProjectionAssurance{BaselineAuthentication: "UNVERIFIED", SourceAuthentication: "UNVERIFIED", MetadataCommitment: "NOT_VERIFIED", MembershipCoverage: "UNKNOWN", HistoryCompleteness: "UNKNOWN", FinalVerdict: "UNDETERMINED"}}
+	out := Result{SchemaVersion: 1, Network: p.Network, Stream: stream, RequestedThrough: to, StartedThrough: p.ExpectedThrough, ProcessedThrough: p.ExpectedThrough, Status: "ALREADY_RETAINED", SourceQuery: "NOT_QUERIED", LatestAttemptStatus: p.LastAttemptStatus, FetchErrors: []string{}, Assurance: store.UnverifiedProjectionAssurance()}
 	if p.AlreadyRetained {
 		return out, nil
 	}

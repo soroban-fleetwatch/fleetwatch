@@ -29,6 +29,9 @@ type ProjectionAssurance struct {
 	FinalVerdict           string `json:"final_verdict"`
 }
 
+// UnverifiedProjectionAssurance is the fixed trust boundary for diagnostic projection.
+func UnverifiedProjectionAssurance() ProjectionAssurance { return projectionAssurance() }
+
 func projectionAssurance() ProjectionAssurance {
 	return ProjectionAssurance{"UNVERIFIED", "UNVERIFIED", "NOT_VERIFIED", "UNKNOWN", "UNKNOWN", "UNDETERMINED"}
 }

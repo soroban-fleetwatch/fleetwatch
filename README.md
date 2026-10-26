@@ -55,6 +55,8 @@ The offline [changes command](docs/METADATA_CHANGES.md) projects executable-rela
 
 The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-asserted baseline to a fixed watchlist, checks executable preimages and reports operation-boundary changes. It stops on conflicts and uncertain watched evictions; baseline/source authentication and metadata commitments remain unverified.
 
+The [bounded polling worker](docs/WATCH.md) retries a fixed target with strict JSON configuration, cancellation and NDJSON progress. It retains the original 16-ledger interval bound and does not send alerts.
+
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 
 Optional [reconstruction checkpoints](docs/RECONSTRUCTION_CHECKPOINTS.md) retain the original baseline, accepted raw metadata and findings atomically. Use `checkpoint` to inspect and revalidate a retained prefix after restart; this does not establish current source health or authenticate the chain.
