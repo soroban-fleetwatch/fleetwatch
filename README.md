@@ -49,6 +49,8 @@ Reports explicitly label coverage as `UNKNOWN` and authorization as `UNVERIFIED`
 
 Experimental read-only capture is documented in [CAPTURE.md](docs/CAPTURE.md). Multi-call consistency remains unproven and produces a partial diagnostic result.
 
+Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It is not a ledger-meta ingestion service.
+
 ## CLI interface
 
 | Command | Purpose |

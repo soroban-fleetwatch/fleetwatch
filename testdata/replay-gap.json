@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "source": "synthetic",
+  "network": "TESTNET-SYNTHETIC",
+  "from_ledger": 100,
+  "to_ledger": 102,
+  "snapshots": [
+    {
+      "schema_version": 1,
+      "network": "TESTNET-SYNTHETIC",
+      "ledger": 100,
+      "contracts": [
+        {
+          "id": "CONTRACT_DEMO_A",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "OWNER_DEMO",
+            "tag_hex": "72656c656173652d737461626c65"
+          }
+        },
+        {
+          "id": "CONTRACT_DEMO_B",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "OWNER_DEMO",
+            "tag_hex": "72656c656173652d737461626c65"
+          }
+        },
+        {
+          "id": "CONTRACT_DEMO_C",
+          "executable": {
+            "kind": "wasm",
+            "wasm_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "references": [
+        {
+          "owner": "OWNER_DEMO",
+          "tag_hex": "72656c656173652d737461626c65",
+          "wasm_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "network": "TESTNET-SYNTHETIC",
+      "ledger": 102,
+      "contracts": [
+        {
+          "id": "CONTRACT_DEMO_A",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "OWNER_DEMO",
+            "tag_hex": "72656c656173652d737461626c65"
+          }
+        },
+        {
+          "id": "CONTRACT_DEMO_B",
+          "executable": {
+            "kind": "external_ref",
+            "owner": "OWNER_DEMO",
+            "tag_hex": "72656c656173652d737461626c65"
+          }
+        },
+        {
+          "id": "CONTRACT_DEMO_C",
+          "executable": {
+            "kind": "wasm",
+            "wasm_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "references": [
+        {
+          "owner": "OWNER_DEMO",
+          "tag_hex": "72656c656173652d737461626c65",
+          "wasm_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    }
+  ]
+}

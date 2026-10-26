@@ -12,7 +12,7 @@
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
-| S4 Sequential historical ingest | NOT STARTED | None | Identify supported ledger source |
+| S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot-journal replay and gap/divergence fixtures | Real ledger-meta adapter, transactional persistence and restart recovery remain |
 | S5 Watcher/alerts | NOT STARTED | None | Storage/replay prerequisite |
 | S6 Signed approvals | NOT STARTED | None | Cryptographic trust policy |
 | S7 CLI/API integration | NOT STARTED | None | Stabilize config/schema |
@@ -46,7 +46,7 @@ Update after each milestone. A status becomes PASS only when tests and reference
 
 1. Strict Stellar identifiers remain deferred to a versioned chain-capture schema; v1 synthetic labels now have explicit bounds and validation. Source authenticity and history coverage remain unverified.
 2. Finish S1: compile SDK/XDR compatibility fixtures, decide the capture schema and consistency rules, verify history sources and supported protocol ranges. Preliminary source evidence is in docs/research/2026-10-26-cap85-sdk.md.
-3. Continue S2 typed RPC capture with offline failure fixtures before any live Testnet proof. S4 and later stages remain NOT STARTED.
+3. Continue S2 typed RPC capture with offline failure fixtures before any live Testnet proof. S4 now has offline replay scaffolding; S5 and later stages remain NOT STARTED.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
 
@@ -78,3 +78,12 @@ Current checkpoint: 30 top-level unit tests pass (subtests and fuzz seeds report
 - Normal/race tests, vet and CLI build pass for this increment. Full historical ingestion, alerts, signed approvals and production release remain unimplemented.
 
 Resilience checkpoint: 34 top-level unit tests pass; updated startup instructions saved.
+
+## Offline replay and schemas increment
+
+- Added bounded replay --journal with deterministic network-scoped event IDs, canonical duplicate handling, A→B→A fixture, prefix stopping at gaps, and conflicting-ledger quarantine. No transactional or persistent checkpoint claim.
+- Added snapshot-v1, journal-v1 and diagnostic capture-v2 JSON Schema documents. Three schema definitions checked using installed jsonschema; both replay fixture documents validate. Runtime checks enforce semantics beyond JSON Schema.
+- Compiled fixture CLI: transient sequence exits 2 with two events; missing-ledger sequence exits 4 with zero inferred events. Added five replay core tests and one CLI test with positive/negative cases.
+- Historical chain ingest, Postgres state, crash recovery, alerts, cryptographic approvals, and live chain proof remain unimplemented/unverified.
+
+Replay checkpoint: 40 top-level unit tests pass; race/vet/build and structural schema checks pass.

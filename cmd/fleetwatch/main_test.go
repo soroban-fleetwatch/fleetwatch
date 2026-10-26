@@ -48,3 +48,17 @@ func TestCaptureRejectsInvalidConfiguration(t *testing.T) {
 		}
 	}
 }
+
+func TestCLIReplayTransientAndGap(t *testing.T) {
+	for _, tc := range []struct {
+		file   string
+		exit   int
+		marker string
+	}{{"replay-transient.json", 2, "COMPLETE_INPUT_SEQUENCE"}, {"replay-gap.json", 4, "OBSERVATION_GAP"}} {
+		var out, errs bytes.Buffer
+		code := run([]string{"replay", "--journal", fixture(tc.file)}, &out, &errs)
+		if code != tc.exit || !strings.Contains(out.String(), tc.marker) || errs.Len() != 0 {
+			t.Fatalf("code=%d output=%s errors=%s", code, out.String(), errs.String())
+		}
+	}
+}

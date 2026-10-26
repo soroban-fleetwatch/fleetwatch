@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "source": {
+      "enum": [
+        "synthetic",
+        "user_snapshot"
+      ]
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "from_ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "to_ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "snapshots": {
+      "type": "array",
+      "items": {
+        "$ref": "snapshot-v1.schema.json"
+      },
+      "maxItems": 1000
+    }
+  },
+  "required": [
+    "schema_version",
+    "source",
+    "network",
+    "from_ledger",
+    "to_ledger",
+    "snapshots"
+  ],
+  "additionalProperties": false
+}
