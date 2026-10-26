@@ -1,0 +1,608 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch retained reconstruction checkpoint view v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "network",
+    "stream",
+    "found",
+    "coverage",
+    "report"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "stream": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "found": {
+      "type": "boolean"
+    },
+    "coverage": {
+      "const": "RETAINED_PREFIX_ONLY"
+    },
+    "report": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/report"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "found": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "report": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "report": {
+            "$ref": "#/$defs/report"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "report": {
+      "title": "FleetWatch unverified watched fleet reconstruction v1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "source",
+        "network",
+        "baseline_digest",
+        "baseline_header_hash",
+        "watchlist",
+        "processed_through",
+        "status",
+        "fleet_scope",
+        "membership_coverage",
+        "baseline_authentication",
+        "source_authentication",
+        "metadata_commitment",
+        "history_completeness",
+        "evaluation_status",
+        "preimage_assurance",
+        "impact_assurance",
+        "final_verdict",
+        "snapshot",
+        "ledgers",
+        "errors"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "watched_reconstruction"
+        },
+        "source": {
+          "const": "rpc_ledger_meta"
+        },
+        "network": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "baseline_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "baseline_header_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "watchlist": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          }
+        },
+        "processed_through": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "status": {
+          "enum": [
+            "PARTIAL",
+            "COMPLETE_CAPTURE_APPLICATION"
+          ]
+        },
+        "fleet_scope": {
+          "const": "EXPLICIT_BASELINE_WATCHLIST"
+        },
+        "membership_coverage": {
+          "const": "UNKNOWN"
+        },
+        "baseline_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "source_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "metadata_commitment": {
+          "const": "NOT_VERIFIED"
+        },
+        "history_completeness": {
+          "const": "UNKNOWN"
+        },
+        "evaluation_status": {
+          "const": "UNVERIFIED_PROJECTED_STATE"
+        },
+        "preimage_assurance": {
+          "const": "EXECUTABLE_FIELDS_ONLY"
+        },
+        "impact_assurance": {
+          "const": "OBSERVED_MEMBERSHIP_UNION"
+        },
+        "final_verdict": {
+          "const": "UNDETERMINED"
+        },
+        "snapshot": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "const": 1
+            },
+            "network": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "ledger": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "contracts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "executable": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "wasm",
+                          "external_ref",
+                          "stellar_asset"
+                        ]
+                      },
+                      "wasm_hash": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{64}$"
+                      },
+                      "owner": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "tag_hex": {
+                        "type": "string",
+                        "pattern": "^(?:[a-fA-F0-9]{2})+$",
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false,
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "kind": {
+                            "const": "wasm"
+                          }
+                        },
+                        "required": [
+                          "wasm_hash"
+                        ],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "owner"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "tag_hex"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "kind": {
+                            "const": "external_ref"
+                          }
+                        },
+                        "required": [
+                          "owner",
+                          "tag_hex"
+                        ],
+                        "not": {
+                          "required": [
+                            "wasm_hash"
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "kind": {
+                            "const": "stellar_asset"
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "owner"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "tag_hex"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "wasm_hash"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "executable"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 50,
+              "minItems": 1
+            },
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "tag_hex": {
+                    "type": "string",
+                    "pattern": "^(?:[a-fA-F0-9]{2})+$",
+                    "maxLength": 2048
+                  },
+                  "wasm_hash": {
+                    "type": "string",
+                    "pattern": "^[a-fA-F0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "owner",
+                  "tag_hex",
+                  "wasm_hash"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 50
+            }
+          },
+          "required": [
+            "schema_version",
+            "network",
+            "ledger"
+          ],
+          "additionalProperties": false
+        },
+        "ledgers": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sequence",
+              "header_hash",
+              "metadata_sha256",
+              "groups",
+              "events"
+            ],
+            "properties": {
+              "sequence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4294967295
+              },
+              "header_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "metadata_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "groups": {
+                "type": "array",
+                "maxItems": 10000,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "position",
+                    "change_ids",
+                    "before_digest",
+                    "after_digest"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "position": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "phase",
+                        "transaction_index",
+                        "operation_index",
+                        "upgrade_index",
+                        "change_index"
+                      ],
+                      "properties": {
+                        "phase": {
+                          "enum": [
+                            "FEE",
+                            "TX_BEFORE",
+                            "OPERATION",
+                            "TX_AFTER",
+                            "POST_FEE",
+                            "UPGRADE",
+                            "EVICTION_UNORDERED"
+                          ]
+                        },
+                        "transaction_index": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9999
+                            }
+                          ]
+                        },
+                        "operation_index": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9999
+                            }
+                          ]
+                        },
+                        "upgrade_index": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9999
+                            }
+                          ]
+                        },
+                        "change_index": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 99999
+                        }
+                      }
+                    },
+                    "change_ids": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 10000,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      }
+                    },
+                    "before_digest": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "after_digest": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    }
+                  }
+                }
+              },
+              "events": {
+                "type": "array",
+                "maxItems": 10000,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "group_id",
+                    "finding"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "group_id": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "finding": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code",
+                        "severity",
+                        "message",
+                        "authorization"
+                      ],
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "UNAPPROVED_REFERENCE_CHANGE",
+                            "POLICY_MATCHED_REFERENCE_CHANGE",
+                            "CONTRACT_EXECUTABLE_REPOINTED",
+                            "REFERENCE_NOT_OBSERVED",
+                            "UNRESOLVED_EXTERNAL_REFERENCE",
+                            "CONTRACT_NOT_OBSERVED",
+                            "NEW_REFERENCE_OBSERVED",
+                            "NEW_CONTRACT_OBSERVED"
+                          ]
+                        },
+                        "severity": {
+                          "enum": [
+                            "critical",
+                            "high",
+                            "warning",
+                            "info"
+                          ]
+                        },
+                        "message": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "authorization": {
+                          "const": "UNVERIFIED"
+                        },
+                        "owner": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "tag_hex": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 2048,
+                          "pattern": "^(?:[0-9a-f]{2})+$"
+                        },
+                        "contract_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "old_hash": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "new_hash": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "affected_contracts": {
+                          "type": "array",
+                          "maxItems": 20000,
+                          "uniqueItems": true,
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          }
+                        },
+                        "approval_ticket": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "enum": [
+              "BASELINE_RANGE_OR_NETWORK_MISMATCH",
+              "BASELINE_HEADER_LINK_MISMATCH",
+              "CANCELLED",
+              "NORMALIZATION_INCOMPLETE",
+              "RECONSTRUCTION_LIMIT",
+              "UNRESOLVED_WATCHED_REFERENCE",
+              "PREIMAGE_MISMATCH",
+              "UNSUPPORTED_FEE_EXECUTABLE_MUTATION",
+              "AMBIGUOUS_GROUP_MUTATION_ORDER",
+              "MISSING_GROUP_PREIMAGE",
+              "INVALID_PROJECTED_STATE",
+              "ENTRY_ALREADY_PRESENT",
+              "WATCHED_INSTANCE_UNAVAILABLE",
+              "WATCHED_REFERENCE_UNAVAILABLE",
+              "UNSUPPORTED_PROJECTED_CHANGE",
+              "UNORDERED_WATCHED_EVICTION",
+              "SOURCE_ATTEMPT_INCOMPLETE"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

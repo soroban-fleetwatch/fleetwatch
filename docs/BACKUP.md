@@ -76,6 +76,9 @@ deletes a published backup to hide an uncertain outcome.
    `new_binding=false` and its original receipt confirm that association survived.
    A revoked trust root can correctly reject this diagnostic; do not un-revoke it
    to make recovery pass. There is no automatic full-database semantic validator.
+   For each known reconstruction stream, run
+   `checkpoint --state recovered.db --network EXACT_NETWORK --stream ID` to rederive its retained prefix from raw
+   evidence. These streams are outside the older `doctor`/snapshot replay scope.
 5. Reconcile any observations, bindings and delivery acknowledgments after the
    snapshot. Replay the original journals to check retained observations and
    stable event IDs before resuming work. Do not infer that replay recreates

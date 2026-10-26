@@ -2,8 +2,10 @@
 
 `reconstruct` applies revalidated metadata to an **operator-asserted baseline**
 and compares the resulting watched executable state at metadata group boundaries.
-It is a diagnostic: no RPC, database checkpoint, approval binding or alert delivery
-is performed.
+It is a diagnostic: no RPC, approval binding or alert delivery is performed.
+Without `--state`, no checkpoint is written. Optional bounded
+[durable checkpoints](RECONSTRUCTION_CHECKPOINTS.md) retain accepted raw evidence
+and findings using `--state FILE --stream ID`.
 
 ```sh
 go build -o fleetwatch ./cmd/fleetwatch
@@ -148,6 +150,6 @@ or unusual history can stop partial rather than be silently skipped.
 
 Exit 0 remains an UNDETERMINED chain verdict. Snapshot `replay` rejects these
 diagnostic reports. Extracting a projected snapshot does not upgrade its source
-assurance or create a safe recovery checkpoint. Durable evidence/cursor storage,
+assurance or create an authenticated recovery checkpoint. Production evidence/cursor storage,
 archive/eviction reconciliation, independently trusted baselines/commitments,
 continuous workers and controlled live CAP-85 upgrade validation remain unfinished.
