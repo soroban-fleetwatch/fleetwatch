@@ -104,6 +104,8 @@ func TestHTTPRPCCaptureFunctionalRequest(t *testing.T) {
 		}
 		var result any
 		switch req.Method {
+		case "getLatestLedger":
+			result = Head{Sequence: 100, ProtocolVersion: 28, CloseTime: time.Now().Unix()}
 		case "getNetwork":
 			result = Network{Passphrase: "test network", ProtocolVersion: 28}
 		case "getLedgerEntries":

@@ -29,7 +29,13 @@ type Entries struct {
 	Entries      []Entry `json:"entries"`
 	LatestLedger uint32  `json:"latestLedger"`
 }
+type Head struct {
+	Sequence        uint32 `json:"sequence"`
+	ProtocolVersion uint32 `json:"protocolVersion"`
+	CloseTime       int64  `json:"closeTime,string"`
+}
 type RPC interface {
+	Head(context.Context) (Head, error)
 	Network(context.Context) (Network, error)
 	Entries(context.Context, []string) (Entries, error)
 }
@@ -41,6 +47,7 @@ type Evidence struct {
 	LastModified   uint32 `json:"last_modified_ledger"`
 }
 type Capture struct {
+	Head                 Head                `json:"head"`
 	SchemaVersion        int                 `json:"schema_version"`
 	Source               string              `json:"source"`
 	CollectedAt          string              `json:"collected_at"`
@@ -92,6 +99,15 @@ func CaptureCurrent(ctx context.Context, rpc RPC, network string, ids []string) 
 	if n.ProtocolVersion < 28 {
 		return c, errors.New("RPC protocol does not support CAP-85")
 	}
+	head, err := rpc.Head(ctx)
+	if err != nil {
+		return c, fmt.Errorf("head query failed: %w", err)
+	}
+	c.Head = head
+	age := time.Since(time.Unix(head.CloseTime, 0))
+	if head.Sequence == 0 || head.ProtocolVersion < 28 || int(head.ProtocolVersion) != n.ProtocolVersion || head.CloseTime <= 0 || age > 60*time.Second || age < -10*time.Second {
+		return c, errors.New("RPC ledger head is stale, invalid, or protocol-inconsistent")
+	}
 	c.Snapshot = fleetwatch.Snapshot{SchemaVersion: 1, Network: network, Contracts: []fleetwatch.Contract{}, References: []fleetwatch.Reference{}}
 	keys := make([]string, 0, len(ids))
 	for _, id := range ids {
@@ -107,6 +123,9 @@ func CaptureCurrent(ctx context.Context, rpc RPC, network string, ids []string) 
 		return c, fmt.Errorf("instance query failed: %w", err)
 	}
 	c.Snapshot.Ledger = result.LatestLedger
+	if result.LatestLedger < head.Sequence {
+		c.Errors = append(c.Errors, "entry response predates sampled ledger head")
+	}
 	found := indexEntries(&c, result, keys)
 	refs := map[string]fleetwatch.Executable{}
 	for i, id := range ids {

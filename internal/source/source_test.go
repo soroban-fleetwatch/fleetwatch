@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stellar/go-stellar-sdk/strkey"
 	"github.com/stellar/go-stellar-sdk/xdr"
@@ -109,6 +110,9 @@ type mockRPC struct {
 	err     error
 }
 
+func (m *mockRPC) Head(ctx context.Context) (Head, error) {
+	return Head{Sequence: 100, ProtocolVersion: 28, CloseTime: time.Now().Unix()}, ctx.Err()
+}
 func (m *mockRPC) Network(ctx context.Context) (Network, error) {
 	if err := ctx.Err(); err != nil {
 		return Network{}, err

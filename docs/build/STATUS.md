@@ -11,7 +11,7 @@
 | S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
-| S3 Real Testnet proof | BLOCKED | Public getNetwork denied by network proxy HTTP 403 | Apply saved Testnet allowance, then prepare real fixtures |
+| S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
 | S4 Sequential historical ingest | NOT STARTED | None | Identify supported ledger source |
 | S5 Watcher/alerts | NOT STARTED | None | Storage/replay prerequisite |
 | S6 Signed approvals | NOT STARTED | None | Cryptographic trust policy |
@@ -68,3 +68,13 @@ The uploaded roadmap is design material. Its instructions to push, create PRs, d
 - Environment publication has no callable tool in this session; the user must use environment settings to review/save and Publish. Full roadmap remains incomplete.
 
 Current checkpoint: 30 top-level unit tests pass (subtests and fuzz seeds reported separately).
+
+## Capture resilience increment
+
+- Sample and record getLatestLedger before capture; reject missing/stale/future-dated heads and protocol disagreement, and label regressing entry heights PARTIAL. Freshness is based on endpoint claims and the local clock.
+- Retry transient HTTP 429/502/503/504 with bounded attempts, bounded Retry-After and cancellable waits. Permanent denials and malformed responses fail promptly.
+- Four new unit tests cover recovery/retry exhaustion/permanent denial, cancellation, stale or unavailable heads, and response height regression.
+- Live Testnet now returns HTTP 403, body `error code: 1010`; this appears to be an endpoint edge denial rather than the earlier proxy tunnel denial. No live chain state or fixture evidence collected.
+- Normal/race tests, vet and CLI build pass for this increment. Full historical ingestion, alerts, signed approvals and production release remain unimplemented.
+
+Resilience checkpoint: 34 top-level unit tests pass; updated startup instructions saved.
