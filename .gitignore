@@ -1,0 +1,8 @@
+/fleetwatch
+/*.test
+/*.out
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
