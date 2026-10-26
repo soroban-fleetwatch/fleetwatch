@@ -132,16 +132,19 @@ func enqueue(tx *bolt.Tx, r fleetwatch.ReplayReport) error {
 	}
 	for _, issue := range r.Issues {
 		issue := issue
-		raw, _ := json.Marshal(struct {
-			Domain, Network, Source string
-			Issue                   fleetwatch.ReplayIssue
-		}{"fleetwatch.offline-issue.v1", r.Network, r.Source, issue})
-		hash := sha256.Sum256(raw)
-		if err := add(hex.EncodeToString(hash[:]), AlertPayload{SchemaVersion: 1, Network: r.Network, Source: r.Source, EvaluationStatus: r.EvaluationStatus, Issue: &issue}); err != nil {
+		if err := add(issueAlertID(r.Network, r.Source, issue), AlertPayload{SchemaVersion: 1, Network: r.Network, Source: r.Source, EvaluationStatus: r.EvaluationStatus, Issue: &issue}); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+func issueAlertID(network, source string, issue fleetwatch.ReplayIssue) string {
+	raw, _ := json.Marshal(struct {
+		Domain, Network, Source string
+		Issue                   fleetwatch.ReplayIssue
+	}{"fleetwatch.offline-issue.v1", network, source, issue})
+	hash := sha256.Sum256(raw)
+	return hex.EncodeToString(hash[:])
 }
 func (s *Store) Alerts(network, source string) ([]Alert, error) {
 	result := []Alert{}

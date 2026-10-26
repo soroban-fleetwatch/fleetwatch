@@ -13,9 +13,9 @@
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
 | S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot replay, atomic local state and restart fixtures | Real ledger-meta adapter and production Postgres remain |
-| S5 Watcher/alerts | IN PROGRESS: local outbox | Atomic enqueue, lease/retry dispatcher API and simulated delivery tests | Continuous watcher, telemetry and proxy-aware delivery transport remain |
+| S5 Watcher/alerts | IN PROGRESS: local outbox and diagnostics | Atomic enqueue, lease/retry dispatcher, local TLS delivery tests and read-only health report | Continuous watcher, live telemetry and proxy-aware delivery transport remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
-| S7 CLI/API integration | NOT STARTED | None | Stabilize config/schema |
+| S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/replay/outbox/approval commands and doctor JSON Schema | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | NOT STARTED | None | Fuzz/fault testing |
 | S9 Docs/repo hygiene | NOT STARTED | None | Documentation and CI review |
 | S10 Release candidate | NOT STARTED | None | Clean-room test and owner review |
@@ -138,3 +138,14 @@ Approval checkpoint: 83 top-level unit tests pass; one intentional crash-helper 
 - Added a synthetic binding journal and receipt JSON Schema. Replay protection is local to a single DB history; distributed coordination, binding recovery/migration, authenticated chain evidence, trust distribution and production storage remain unfinished. See docs/APPROVAL_BINDING.md.
 
 Binding checkpoint: 95 top-level unit tests pass; one intentional crash-helper skip. Race/vet/module verification/build pass. Fresh compiled processes verify first bind, idempotent retry and nonce-reuse rejection; positive receipts validate against JSON Schema.
+
+## Read-only health increment and requested push
+
+- User explicitly authorized pushing the saved work. `git push -u origin work` failed with HTTP 403: `remote: Write access to repository not granted.` No remote branch update, PR, release or merge succeeded. Existing local checkpoint before this increment was `d968527`; repository write access through the configured GitHub integration is required to push it and subsequent commits. Do not replace platform authentication or request raw tokens in chat.
+- Added `doctor --state FILE --network TEXT [--source synthetic|user_snapshot]`, using a read-only database open and one consistent transaction. It validates retained observations/findings, coverage diagnostics, outbox event correspondence and issue identities, and counts pending/scheduled/inflight/expired/delivered/dead records.
+- Missing scope and incomplete sequence return 4; delivery problems return 2; unavailable/locked/invalid database returns 5 without a success report. Missing files are not created. Tests verify database bytes remain unchanged and write operations on the read-only handle fail.
+- Repaired gaps stop affecting current coverage while historical alerts remain counted. Active final-attempt leases may finish; exhausted expired attempts require attention. No retry, acknowledgment, reclamation, alert send or remote source request occurs.
+- `OK_OFFLINE` is a local consistency status, not an absence-of-findings or chain-safety verdict. All reports retain UNKNOWN chain history, UNVERIFIED_INPUT evaluation, UNDETERMINED final verdict and null ledger lag. Approval-index checks, continuous monitoring, live metrics, backup verification and authenticated historical ingestion remain unfinished.
+- Added docs/HEALTH.md and schema/health-v1.json. Fresh compiled CLI checks verify gap exit 4, repair exit 0, absent scope exit 4, missing-file exit 5, byte preservation and schema-valid JSON.
+
+Health checkpoint: 101 top-level unit tests pass; one intentional crash-helper skip (parent invokes its subprocess). Full race suite passed; affected store/CLI race checks rerun after final adjustments. Vet, module verification, build, gofmt and diff checks pass. No new runtime dependency, service, secret or startup prerequisite was introduced; existing reusable environment setup remains applicable.
