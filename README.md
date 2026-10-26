@@ -59,7 +59,7 @@ Optional [reconstruction checkpoints](docs/RECONSTRUCTION_CHECKPOINTS.md) retain
 
 Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; live ledger-meta ingestion remains unimplemented.
 
-Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command.
+Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command. Explicit [dead-letter recovery](docs/ALERT_RECOVERY.md) preserves alert identity and records each operator retry.
 
 Use [doctor](docs/HEALTH.md) to inspect persisted replay coverage and alert delivery health without changing the database. Its `OK_OFFLINE` status does not establish live chain coverage.
 

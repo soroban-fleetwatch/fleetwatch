@@ -80,8 +80,8 @@ unavailable key, including unsupported proxy routing; 4 delivery failure/interru
 batch; 5 state/output failure. Some sends can succeed before a batch fails; inspect
 the durable outbox before retrying. Delivery remains at least once. A receiver may
 accept a request before its acknowledgement is committed; stable IDs are required
-to avoid duplicate side effects. Dead-letter recovery and continuous watching
-remain future work.
+to avoid duplicate side effects. Manual [dead-letter recovery](ALERT_RECOVERY.md) preserves the bound sink, payload
+and stable ID. Continuous watching remains future work.
 
 Reconstruction delivery uses `--source rpc_ledger_meta --stream ID`. Its inner
 payload uses version 2 with mandatory unverified labels; the outer v1 envelope

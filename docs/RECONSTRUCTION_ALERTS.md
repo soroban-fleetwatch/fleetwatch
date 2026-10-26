@@ -108,8 +108,9 @@ so receivers must deduplicate. Historical diagnostics can arrive after repair.
 
 There are at most 10,000 finding/diagnostic rows per stream and 1 MiB per stored
 alert. If an enqueue exceeds its bound, the complete checkpoint/attempt transaction
-fails. There is no pruning, automatic diagnostic resolution, operator dead-letter
-recovery or continuous dispatcher. Backup preserves all namespaces together.
+fails. Explicit [dead-letter recovery](ALERT_RECOVERY.md) retains the same alert
+ID, payload and sink with atomic audit receipts. There is no pruning, automatic
+diagnostic resolution or continuous dispatcher. Backup preserves all namespaces together.
 New checkpoint records include an alert-integration marker; older software that
 does not understand it may refuse those records. Preserve the database when
 changing software versions; no automatic downgrade/migration is provided.

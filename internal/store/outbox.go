@@ -37,6 +37,7 @@ type Alert struct {
 	Payload       AlertPayload `json:"payload"`
 	Status        string       `json:"status"`
 	Attempts      int          `json:"attempts"`
+	RecoveryCycle int          `json:"recovery_cycle,omitempty"`
 	Sink          string       `json:"sink,omitempty"`
 	NextAttempt   int64        `json:"next_attempt,omitempty"`
 	LeaseUntil    int64        `json:"lease_until,omitempty"`
@@ -64,7 +65,7 @@ func decodeAlert(data []byte, key, network, source string) (Alert, error) {
 	if a.Payload.SchemaVersion == 2 {
 		expectedSource = reconstructionQueuePrefix + a.Payload.Stream
 	}
-	if err != nil || len(raw) != 32 || a.ID != key || a.Payload.Network != network || expectedSource != source || ValidateAlertPayload(a.ID, a.Payload) != nil || a.Attempts < 0 || a.Attempts > MaxDeliveryAttempts || a.NextAttempt < 0 || a.LeaseUntil < 0 {
+	if err != nil || len(raw) != 32 || a.ID != key || a.Payload.Network != network || expectedSource != source || ValidateAlertPayload(a.ID, a.Payload) != nil || a.RecoveryCycle < 0 || a.RecoveryCycle > MaxRecoveryCycles || a.Attempts < 0 || a.Attempts > MaxDeliveryAttempts || a.NextAttempt < 0 || a.LeaseUntil < 0 {
 		return a, errors.New("invalid stored alert invariants")
 	}
 	switch a.Status {
