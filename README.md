@@ -61,7 +61,7 @@ Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient change
 
 Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command. Explicit [dead-letter recovery](docs/ALERT_RECOVERY.md) preserves alert identity and records each operator retry.
 
-Use [doctor](docs/HEALTH.md) to inspect persisted replay coverage and alert delivery health without changing the database. Its `OK_OFFLINE` status does not establish live chain coverage.
+Use [doctor](docs/HEALTH.md) to inspect persisted replay coverage and alert delivery health without changing the database. For reconstruction streams, add `--source rpc_ledger_meta --stream ID` to check the retained prefix, latest attempt, queue and recovery audit together. Its `OK_OFFLINE` status does not establish live chain coverage.
 
 Use [report](docs/FLEET_REPORT.md) to query an observed owner/tag fleet at an exact retained ledger, including adjacent membership changes, snapshot digests and related replay events. Membership outside the supplied snapshots remains unknown.
 

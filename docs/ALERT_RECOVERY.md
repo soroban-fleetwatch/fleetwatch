@@ -64,3 +64,11 @@ production proxy-backed delivery and a continuous worker remain unfinished.
 
 See [result/receipt schema](../schema/alert-recovery-v1.schema.json). Runtime also
 enforces identity, scope, audit sequence and state-transition constraints.
+
+
+For reconstruction streams, `doctor --source rpc_ledger_meta --stream ID`
+validates all recovery sequences together with the checkpoint and outbox and
+prints aggregate counts. It rejects receipts for missing alerts. Use `recoveries`
+for individual operator reasons and request IDs; requeue also returns its receipt.
+Snapshot-mode doctor continues to inspect replay/outbox consistency without
+validating recovery indices.

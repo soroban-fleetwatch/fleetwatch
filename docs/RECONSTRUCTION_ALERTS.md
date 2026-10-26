@@ -120,3 +120,9 @@ They verify exact-body MACs, labels, deduplication, acknowledgment, repair/resta
 pre-commit process crash, capacity, lease waiting and tamper rejection. No live
 recipient was contacted. Production monitoring, trusted chain evidence,
 continuous ingestion and signed-policy integration remain unfinished.
+
+
+Use `doctor --state FILE --network TEXT --source rpc_ledger_meta --stream ID`
+for one read-only checkpoint/attempt/outbox/recovery-audit consistency report.
+A COMPLETE retained prefix can coexist with a failed latest extension; doctor
+reports exit 4 in that case. See [health semantics](HEALTH.md#reconstruction-stream-inspection).

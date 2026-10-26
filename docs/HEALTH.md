@@ -21,7 +21,7 @@ transaction. Missing event or current-issue alerts, changed event payloads,
 invalid issue identities, and malformed coverage diagnostics fail inspection.
 This checks local consistency, not tamper-proof provenance: an attacker able to
 rewrite the complete database can replace the observations and recompute it.
-Approval receipt and nonce indices are outside this command's checks.
+Snapshot-mode approval receipt, nonce and recovery audit indices are outside this command's checks.
 
 `OK_OFFLINE` means the retained supplied sequence is complete and there are no
 dead letters, expired leases, or exhausted unsettled attempts. It does not mean
@@ -70,3 +70,64 @@ Missing files are never created. A scope absent from a recognized database
 produces a `NO_STATE` JSON report with exit 4. Unavailable or invalid databases
 produce no success report. This check does not perform page-level database
 recovery, verify external backups, or modify the retained state.
+
+
+## Reconstruction stream inspection
+
+```sh
+fleetwatch reconstruct --baseline testdata/reconstruction-baseline.json \
+  --capture testdata/reconstruction-capture.json --state reconstruction.db --stream demo
+# exit 2: synthetic findings retained and queued
+fleetwatch doctor --state reconstruction.db --network SYNTHETIC-NETWORK \
+  --source rpc_ledger_meta --stream demo
+# exit 0: OK_OFFLINE, retained ledger 100, two pending alerts
+```
+
+This mode has a separate [reconstruction health schema](../schema/reconstruction-health-v1.schema.json).
+Snapshot-mode health JSON stays unchanged. The reconstruction report includes
+retained ledger/event counts, the latest attempt summary, historical diagnostic
+count, delivery counters and aggregate recovery receipt/recovered-alert counts.
+The last attempt's status and code describe the latest offline invocation, not
+current source availability. When only a failed first attempt exists,
+`state_found=false` and `processed_through` is its asserted baseline ledger;
+`retained_ledgers=0`. An absent scope instead has cursor 0 and no last attempt.
+
+A single read transaction rederives the retained projection from the original
+baseline and raw evidence, checks checkpoint/attempt/outbox agreement, and
+validates each recovery sequence against its alert's cycle, payload digest and
+bound sink. Receipt inspection scans the bounded queue audit once. Missing,
+orphaned, duplicate or inconsistent receipts fail inspection. Recovery JSON
+rejects duplicate/case-aliased members, unknown fields and trailing data. These
+are local consistency checks; a writer able to replace the complete DB can
+replace the evidence and audit. They do not establish operator identity.
+
+The command does not claim leases, write attempt markers or send alerts. No
+lease tokens, bound sink values, individual alert payloads, operator request IDs
+or reasons appear in the health report. The latest attempt retains its bounded
+scope/range/digests and fixed diagnostic code. Revalidation has a 30-second CLI
+context deadline, in addition to the one-second file-lock timeout.
+
+`OK_OFFLINE` requires an integrated checkpoint and a COMPLETE latest attempt,
+with no dead letters, expired leases or exhausted unsettled attempts. Findings
+and pending delivery do not themselves change this status. A failed extension
+leaves `state_found=true` for the accepted prefix, but reports
+`LATEST_ATTEMPT_INCOMPLETE` and exit 4. Repairing the source clears that reason;
+historical diagnostic rows remain in the totals and their dead letters still
+require delivery attention. Explicit [requeue](ALERT_RECOVERY.md) can clear a
+dead letter without changing its evidence or sending it.
+
+Old checkpoints without outbox integration report `ALERTS_NOT_INTEGRATED` and
+`LATEST_ATTEMPT_UNKNOWN`, with exit 4. Opening them read-only does not backfill
+anything; the next explicit reconstruction call performs the existing backfill.
+An absent scope reports `NO_STATE` / `NO_RECONSTRUCTION_STATE`; a failed first
+attempt reports `NEEDS_ATTENTION` with that reason and
+`LATEST_ATTEMPT_INCOMPLETE`. Missing or incomplete latest attempts take exit 4
+precedence over delivery attention (exit 2). Invalid state or audit produces no
+success report and exits 5. Output failure also exits 5.
+
+Every reconstruction health report says `coverage=RETAINED_PREFIX_ONLY`,
+`source_freshness=UNKNOWN` and `ledger_lag=null`. The assurance block keeps
+baseline/source authentication UNVERIFIED, metadata commitment NOT_VERIFIED,
+membership/history completeness UNKNOWN and final verdict UNDETERMINED.
+`OK_OFFLINE` is not a live health probe or a chain-safety verdict. Continuous
+worker telemetry and independently authenticated chain evidence remain unfinished.

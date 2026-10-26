@@ -8,12 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/soroban-fleetwatch/fleetwatch/internal/jsoninput"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -87,10 +87,10 @@ func recoveryQueue(tx *bolt.Tx, network, source string, create bool) (*bolt.Buck
 	return root.Bucket(scope(network, source)), nil
 }
 
-// readRecoveries checks the bounded local audit sequence against the alert row.
+// readRecoveryAudit reads each receipt once for bounded whole-queue checks.
 // It provides consistency checking, not authentication against a DB writer.
-func readRecoveries(ctx context.Context, tx *bolt.Tx, network, source string, a Alert) ([]RecoveryReceipt, error) {
-	rows := make([]RecoveryReceipt, 0)
+func readRecoveryAudit(ctx context.Context, tx *bolt.Tx, network, source string) (map[string][]RecoveryReceipt, error) {
+	rows := make(map[string][]RecoveryReceipt)
 	b, err := recoveryQueue(tx, network, source, false)
 	if err != nil {
 		return nil, err
@@ -106,13 +106,7 @@ func readRecoveries(ctx context.Context, tx *bolt.Tx, network, source string, a 
 				return errors.New("invalid recovery audit bounds")
 			}
 			var r RecoveryReceipt
-			dec := json.NewDecoder(bytes.NewReader(v))
-			dec.DisallowUnknownFields()
-			if err := dec.Decode(&r); err != nil {
-				return err
-			}
-			var trailing any
-			if dec.Decode(&trailing) != io.EOF {
+			if err := jsoninput.Decode(bytes.NewReader(v), &r); err != nil {
 				return errors.New("invalid recovery audit JSON")
 			}
 			at, timeErr := time.Parse(time.RFC3339Nano, r.RecoveredAt)
@@ -120,15 +114,17 @@ func readRecoveries(ctx context.Context, tx *bolt.Tx, network, source string, a 
 			if r.SchemaVersion != 1 || !validRecoveryRequest(r.RecoveryRequest) || string(k) != r.RequestID || r.Network != network || scopeErr != nil || queueSource != source || !validDigest(r.PayloadSHA256) || r.RecoveryCycle != r.ExpectedCycle+1 || r.PreviousAttempts < 1 || r.PreviousAttempts > MaxDeliveryAttempts || r.Sink == "" || len(r.Sink) > 256 || timeErr != nil || at.Unix() <= 0 || at.Location() != time.UTC || !(r.PreviousStatus == "DEAD" && r.PreviousLeaseUntil == 0 || r.PreviousStatus == "INFLIGHT" && r.PreviousAttempts == MaxDeliveryAttempts && r.PreviousLeaseUntil > 0 && r.PreviousLeaseUntil <= at.Unix()) {
 				return errors.New("invalid recovery audit invariants")
 			}
-			if r.AlertID == a.ID {
-				rows = append(rows, r)
-			}
+			rows[r.AlertID] = append(rows[r.AlertID], r)
 			return nil
 		})
 		if err != nil {
 			return nil, err
 		}
 	}
+	return rows, nil
+}
+
+func validateAlertRecoveries(a Alert, rows []RecoveryReceipt) ([]RecoveryReceipt, error) {
 	if len(rows) != a.RecoveryCycle {
 		return nil, errors.New("missing or excess recovery audit")
 	}
@@ -143,6 +139,14 @@ func readRecoveries(ctx context.Context, tx *bolt.Tx, network, source string, a 
 	}
 	return ordered, nil
 }
+func readRecoveries(ctx context.Context, tx *bolt.Tx, network, source string, a Alert) ([]RecoveryReceipt, error) {
+	audit, err := readRecoveryAudit(ctx, tx, network, source)
+	if err != nil {
+		return nil, err
+	}
+	return validateAlertRecoveries(a, audit[a.ID])
+}
+
 func recoveryAlert(ctx context.Context, tx *bolt.Tx, network, source, id string) (*bolt.Bucket, Alert, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, Alert{}, err

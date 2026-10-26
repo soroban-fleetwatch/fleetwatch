@@ -261,33 +261,39 @@ func enqueueReconstruction(tx *bolt.Tx, stream string, r history.Reconstruction,
 	return nil
 }
 
-// inspectReconstructionQueue checks the accepted event projection and latest
+type reconstructionInspection struct {
+	State   *ReconstructionState
+	Attempt *ReconstructionAttempt
+	Alerts  []Alert
+}
+
+// inspectReconstruction checks the accepted event projection and latest
 // attempt together with its queue in one transaction. Historical diagnostics stay.
-func inspectReconstructionQueue(ctx context.Context, tx *bolt.Tx, network, stream string) ([]Alert, error) {
+func inspectReconstruction(ctx context.Context, tx *bolt.Tx, network, stream string) (reconstructionInspection, error) {
 	rows := []Alert{}
 	source, err := AlertSource(network, "rpc_ledger_meta", stream)
 	if err != nil {
-		return nil, err
+		return reconstructionInspection{}, err
 	}
 	attempt, err := loadAttempt(tx, network, stream)
 	if err != nil {
-		return nil, err
+		return reconstructionInspection{}, err
 	}
 	var state *ReconstructionState
 	if b := tx.Bucket(reconstructionBucket); b != nil {
 		if raw := b.Get(reconstructionScope(network, stream)); raw != nil {
 			s, err := decodeReconstruction(ctx, raw, network, stream)
 			if err != nil {
-				return nil, err
+				return reconstructionInspection{}, err
 			}
 			state = &s
 		}
 	}
 	if state != nil && attempt != nil && (state.Report.BaselineDigest != attempt.BaselineDigest || state.Baseline.HeaderHash != attempt.BaselineHeaderHash || state.Baseline.Snapshot.Ledger != attempt.BaselineLedger || state.Report.ProcessedThrough != attempt.RetainedThrough || !state.AlertsEnabled) {
-		return nil, errors.New("checkpoint/attempt mismatch")
+		return reconstructionInspection{}, errors.New("checkpoint/attempt mismatch")
 	}
 	if state == nil && attempt != nil && (attempt.Status != "PARTIAL" || attempt.RetainedThrough != attempt.BaselineLedger) {
-		return nil, errors.New("attempt refers to missing checkpoint")
+		return reconstructionInspection{}, errors.New("attempt refers to missing checkpoint")
 	}
 	expected := map[string]AlertPayload{}
 	if state != nil {
@@ -301,7 +307,7 @@ func inspectReconstructionQueue(ctx context.Context, tx *bolt.Tx, network, strea
 	latestDiagnostic := false
 	b, err := queue(tx, network, source, false)
 	if err != nil {
-		return nil, err
+		return reconstructionInspection{}, err
 	}
 	if b != nil {
 		if err := b.ForEach(func(k, raw []byte) error {
@@ -337,17 +343,22 @@ func inspectReconstructionQueue(ctx context.Context, tx *bolt.Tx, network, strea
 			rows = append(rows, a)
 			return nil
 		}); err != nil {
-			return nil, err
+			return reconstructionInspection{}, err
 		}
 	}
 	if state != nil && state.AlertsEnabled && (attempt == nil || len(expected) > 0) {
-		return nil, errors.New("checkpoint missing reconstruction alert records")
+		return reconstructionInspection{}, errors.New("checkpoint missing reconstruction alert records")
 	}
 	if attempt != nil && attempt.Status == "PARTIAL" && !latestDiagnostic {
-		return nil, errors.New("latest reconstruction diagnostic missing")
+		return reconstructionInspection{}, errors.New("latest reconstruction diagnostic missing")
 	}
-	return rows, nil
+	return reconstructionInspection{State: state, Attempt: attempt, Alerts: rows}, nil
 }
+func inspectReconstructionQueue(ctx context.Context, tx *bolt.Tx, network, stream string) ([]Alert, error) {
+	view, err := inspectReconstruction(ctx, tx, network, stream)
+	return view.Alerts, err
+}
+
 func (s *Store) ReconstructionAlerts(ctx context.Context, network, stream string) ([]Alert, error) {
 	var rows []Alert
 	err := s.db.View(func(tx *bolt.Tx) error {

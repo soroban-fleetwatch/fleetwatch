@@ -114,8 +114,7 @@ func (s *Store) Health(network, source string, now time.Time) (Health, error) {
 		issuesFound := make(map[string]bool)
 		if b != nil {
 			if err := b.ForEach(func(key, data []byte) error {
-				out.Outbox.Total++
-				if out.Outbox.Total > fleetwatch.MaxRecords || !out.StateFound {
+				if out.Outbox.Total >= fleetwatch.MaxRecords || !out.StateFound {
 					return errors.New("outbox exceeds limit or lacks replay state")
 				}
 				a, err := decodeAlert(data, string(key), network, source)
@@ -136,27 +135,7 @@ func (s *Store) Health(network, source string, now time.Time) (Health, error) {
 					}
 					issuesFound[a.ID] = true
 				}
-				switch a.Status {
-				case "PENDING":
-					out.Outbox.Pending++
-					if a.NextAttempt <= now.Unix() {
-						out.Outbox.Due++
-					} else {
-						out.Outbox.Scheduled++
-					}
-				case "INFLIGHT":
-					out.Outbox.Inflight++
-					if a.LeaseUntil <= now.Unix() {
-						out.Outbox.ExpiredLeases++
-					}
-				case "DELIVERED":
-					out.Outbox.Delivered++
-				case "DEAD":
-					out.Outbox.Dead++
-				}
-				if (a.Status == "PENDING" || (a.Status == "INFLIGHT" && a.LeaseUntil <= now.Unix())) && a.Attempts >= MaxDeliveryAttempts {
-					out.Outbox.ExhaustedUnsettled++
-				}
+				countOutboxHealth(&out.Outbox, a, now)
 				return nil
 			}); err != nil {
 				return err
