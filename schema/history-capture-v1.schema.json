@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch diagnostic ledger metadata capture v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "source",
+    "network",
+    "from_ledger",
+    "to_ledger",
+    "processed_through",
+    "sequence_coverage",
+    "source_authentication",
+    "history_completeness",
+    "metadata_commitment",
+    "state_changes",
+    "final_verdict",
+    "ledgers",
+    "errors"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "ledger_metadata_capture"
+    },
+    "source": {
+      "const": "rpc_ledger_meta"
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "from_ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "to_ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "processed_through": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "sequence_coverage": {
+      "enum": [
+        "PARTIAL",
+        "COMPLETE_ENDPOINT_SEQUENCE"
+      ]
+    },
+    "source_authentication": {
+      "const": "UNVERIFIED"
+    },
+    "history_completeness": {
+      "const": "UNKNOWN"
+    },
+    "metadata_commitment": {
+      "const": "NOT_VERIFIED"
+    },
+    "state_changes": {
+      "const": "NOT_APPLIED"
+    },
+    "final_verdict": {
+      "const": "UNDETERMINED"
+    },
+    "ledgers": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sequence",
+          "protocol_version",
+          "close_time",
+          "hash",
+          "previous_hash",
+          "metadata_version",
+          "metadata_sha256",
+          "header_xdr",
+          "metadata_xdr"
+        ],
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "protocol_version": {
+            "enum": [
+              28,
+              29
+            ]
+          },
+          "close_time": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "previous_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "metadata_version": {
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "metadata_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "header_xdr": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 8192,
+            "contentEncoding": "base64"
+          },
+          "metadata_xdr": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 5592408,
+            "contentEncoding": "base64"
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "enum": [
+          "CANCELLED",
+          "NETWORK_QUERY_FAILED",
+          "NETWORK_MISMATCH",
+          "UNSUPPORTED_NETWORK_PROTOCOL",
+          "LEDGER_QUERY_FAILED",
+          "RETENTION_RANGE_UNAVAILABLE",
+          "MISSING_OR_UNEXPECTED_LEDGER",
+          "EVIDENCE_BYTE_LIMIT",
+          "INVALID_OR_UNSUPPORTED_LEDGER_METADATA",
+          "HEADER_CHAIN_DIVERGENCE"
+        ]
+      }
+    }
+  }
+}

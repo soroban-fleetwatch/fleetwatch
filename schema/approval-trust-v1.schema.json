@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "network_passphrase_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "owner_contract": {
+      "type": "string",
+      "pattern": "^C[A-Z2-7]{55}$"
+    },
+    "allowed_tags_hex": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(?:[0-9a-f]{2})+$",
+        "maxLength": 2048
+      },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "public_key_base64": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9+/]{43}=$"
+          },
+          "valid_from_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "valid_until_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "revoked_at_ledger": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          }
+        },
+        "required": [
+          "key_id",
+          "public_key_base64",
+          "valid_from_ledger",
+          "valid_until_ledger"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "network_passphrase_hash",
+    "owner_contract",
+    "allowed_tags_hex",
+    "threshold",
+    "keys"
+  ],
+  "additionalProperties": false
+}

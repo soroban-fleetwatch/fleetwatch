@@ -1,0 +1,497 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch diagnostic CAP-85 metadata changes v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "source",
+    "network",
+    "processed_through",
+    "normalization_status",
+    "fleet_scope",
+    "membership_coverage",
+    "source_authentication",
+    "metadata_commitment",
+    "history_completeness",
+    "state_changes",
+    "final_verdict",
+    "ledgers",
+    "errors"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "ledger_change_diagnostic"
+    },
+    "source": {
+      "const": "rpc_ledger_meta"
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "processed_through": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "normalization_status": {
+      "enum": [
+        "PARTIAL",
+        "COMPLETE_CAPTURE"
+      ]
+    },
+    "fleet_scope": {
+      "const": "CHANGED_ENTRIES_ONLY"
+    },
+    "membership_coverage": {
+      "const": "UNKNOWN"
+    },
+    "source_authentication": {
+      "const": "UNVERIFIED"
+    },
+    "metadata_commitment": {
+      "const": "NOT_VERIFIED"
+    },
+    "history_completeness": {
+      "const": "UNKNOWN"
+    },
+    "state_changes": {
+      "const": "NOT_APPLIED"
+    },
+    "final_verdict": {
+      "const": "UNDETERMINED"
+    },
+    "ledgers": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sequence",
+          "header_hash",
+          "metadata_sha256",
+          "changes",
+          "unordered_evictions"
+        ],
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "header_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "metadata_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "changes": {
+            "type": "array",
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/$defs/change"
+            }
+          },
+          "unordered_evictions": {
+            "type": "array",
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/$defs/change"
+            }
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "enum": [
+          "INVALID_CAPTURE_ENVELOPE",
+          "CANCELLED",
+          "INPUT_BYTE_LIMIT",
+          "INVALID_LEDGER_EVIDENCE",
+          "HEADER_CHAIN_DIVERGENCE",
+          "INVALID_OR_UNSUPPORTED_CHANGES",
+          "OUTPUT_LIMIT",
+          "CAPTURE_INCOMPLETE"
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "position",
+        "type",
+        "key_xdr"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "position": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase",
+            "transaction_index",
+            "operation_index",
+            "upgrade_index",
+            "change_index"
+          ],
+          "properties": {
+            "phase": {
+              "enum": [
+                "FEE",
+                "TX_BEFORE",
+                "OPERATION",
+                "TX_AFTER",
+                "POST_FEE",
+                "UPGRADE",
+                "EVICTION_UNORDERED"
+              ]
+            },
+            "transaction_index": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9999
+                }
+              ]
+            },
+            "operation_index": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9999
+                }
+              ]
+            },
+            "upgrade_index": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9999
+                }
+              ]
+            },
+            "change_index": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 99999
+            }
+          }
+        },
+        "transaction_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "type": {
+          "enum": [
+            "STATE",
+            "CREATED",
+            "UPDATED",
+            "REMOVED",
+            "RESTORED",
+            "EVICTED"
+          ]
+        },
+        "key_xdr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 8192,
+          "contentEncoding": "base64"
+        },
+        "entry_xdr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 3145728,
+          "contentEncoding": "base64"
+        },
+        "last_modified": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "contract_id": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        },
+        "owner": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        },
+        "tag_hex": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2048,
+          "pattern": "^(?:[0-9a-f]{2})+$"
+        },
+        "contract": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "executable": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "wasm",
+                    "external_ref",
+                    "stellar_asset"
+                  ]
+                },
+                "wasm_hash": {
+                  "type": "string",
+                  "pattern": "^[a-fA-F0-9]{64}$"
+                },
+                "owner": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "tag_hex": {
+                  "type": "string",
+                  "pattern": "^(?:[a-fA-F0-9]{2})+$",
+                  "maxLength": 2048
+                }
+              },
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false,
+              "oneOf": [
+                {
+                  "properties": {
+                    "kind": {
+                      "const": "wasm"
+                    }
+                  },
+                  "required": [
+                    "wasm_hash"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "owner"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "tag_hex"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "kind": {
+                      "const": "external_ref"
+                    }
+                  },
+                  "required": [
+                    "owner",
+                    "tag_hex"
+                  ],
+                  "not": {
+                    "required": [
+                      "wasm_hash"
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "kind": {
+                      "const": "stellar_asset"
+                    }
+                  },
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "owner"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "tag_hex"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "wasm_hash"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "executable"
+          ],
+          "additionalProperties": false
+        },
+        "reference": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "tag_hex": {
+              "type": "string",
+              "pattern": "^(?:[a-fA-F0-9]{2})+$",
+              "maxLength": 2048
+            },
+            "wasm_hash": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
+            }
+          },
+          "required": [
+            "owner",
+            "tag_hex",
+            "wasm_hash"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "contract_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "owner"
+                ]
+              },
+              {
+                "required": [
+                  "tag_hex"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "owner",
+            "tag_hex"
+          ],
+          "not": {
+            "required": [
+              "contract_id"
+            ]
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "REMOVED",
+                  "EVICTED"
+                ]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "entry_xdr"
+                  ]
+                },
+                {
+                  "required": [
+                    "last_modified"
+                  ]
+                },
+                {
+                  "required": [
+                    "contract"
+                  ]
+                },
+                {
+                  "required": [
+                    "reference"
+                  ]
+                }
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "entry_xdr",
+              "last_modified"
+            ],
+            "oneOf": [
+              {
+                "required": [
+                  "contract"
+                ],
+                "not": {
+                  "required": [
+                    "reference"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "reference"
+                ],
+                "not": {
+                  "required": [
+                    "contract"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

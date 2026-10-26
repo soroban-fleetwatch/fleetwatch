@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch offline reconstruction health v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "network",
+    "source",
+    "stream",
+    "checked_at",
+    "status",
+    "reasons",
+    "state_found",
+    "coverage",
+    "processed_through",
+    "retained_ledgers",
+    "events",
+    "diagnostics",
+    "outbox_integrated",
+    "last_attempt",
+    "outbox",
+    "recovery_receipts",
+    "recovered_alerts",
+    "evaluation_status",
+    "assurance",
+    "source_freshness",
+    "ledger_lag"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source": {
+      "const": "rpc_ledger_meta"
+    },
+    "stream": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "NO_STATE",
+        "OK_OFFLINE",
+        "NEEDS_ATTENTION"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 7,
+      "items": {
+        "enum": [
+          "NO_RECONSTRUCTION_STATE",
+          "LATEST_ATTEMPT_INCOMPLETE",
+          "LATEST_ATTEMPT_UNKNOWN",
+          "ALERTS_NOT_INTEGRATED",
+          "DELIVERY_DEAD_LETTERS",
+          "DELIVERY_EXPIRED_LEASES",
+          "DELIVERY_ATTEMPTS_EXHAUSTED"
+        ]
+      }
+    },
+    "state_found": {
+      "type": "boolean"
+    },
+    "coverage": {
+      "const": "RETAINED_PREFIX_ONLY"
+    },
+    "processed_through": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "retained_ledgers": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16
+    },
+    "events": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "diagnostics": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "outbox_integrated": {
+      "type": "boolean"
+    },
+    "last_attempt": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/attempt"
+        }
+      ]
+    },
+    "outbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "pending": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "due": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "scheduled": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "inflight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "expired_leases": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "delivered": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "dead": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "exhausted_unsettled": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      },
+      "required": [
+        "total",
+        "pending",
+        "due",
+        "scheduled",
+        "inflight",
+        "expired_leases",
+        "delivered",
+        "dead",
+        "exhausted_unsettled"
+      ]
+    },
+    "recovery_receipts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "recovered_alerts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "evaluation_status": {
+      "const": "UNVERIFIED_PROJECTED_STATE"
+    },
+    "assurance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_authentication",
+        "source_authentication",
+        "metadata_commitment",
+        "membership_coverage",
+        "history_completeness",
+        "final_verdict"
+      ],
+      "properties": {
+        "baseline_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "source_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "metadata_commitment": {
+          "const": "NOT_VERIFIED"
+        },
+        "membership_coverage": {
+          "const": "UNKNOWN"
+        },
+        "history_completeness": {
+          "const": "UNKNOWN"
+        },
+        "final_verdict": {
+          "const": "UNDETERMINED"
+        }
+      }
+    },
+    "source_freshness": {
+      "const": "UNKNOWN"
+    },
+    "ledger_lag": {
+      "type": "null"
+    }
+  },
+  "$defs": {
+    "attempt": {
+      "title": "FleetWatch local reconstruction attempt summary v1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "network",
+        "stream",
+        "baseline_ledger",
+        "baseline_digest",
+        "baseline_header_hash",
+        "from_ledger",
+        "to_ledger",
+        "retained_through",
+        "input_digest",
+        "status"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "network": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "stream": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "baseline_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "baseline_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "baseline_header_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "from_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "to_ledger": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "retained_through": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "PARTIAL",
+            "COMPLETE"
+          ]
+        },
+        "code": {
+          "enum": [
+            "BASELINE_RANGE_OR_NETWORK_MISMATCH",
+            "BASELINE_HEADER_LINK_MISMATCH",
+            "NORMALIZATION_INCOMPLETE",
+            "RECONSTRUCTION_LIMIT",
+            "UNRESOLVED_WATCHED_REFERENCE",
+            "PREIMAGE_MISMATCH",
+            "UNSUPPORTED_FEE_EXECUTABLE_MUTATION",
+            "AMBIGUOUS_GROUP_MUTATION_ORDER",
+            "MISSING_GROUP_PREIMAGE",
+            "INVALID_PROJECTED_STATE",
+            "ENTRY_ALREADY_PRESENT",
+            "WATCHED_INSTANCE_UNAVAILABLE",
+            "WATCHED_REFERENCE_UNAVAILABLE",
+            "UNSUPPORTED_PROJECTED_CHANGE",
+            "UNORDERED_WATCHED_EVICTION",
+            "SOURCE_ATTEMPT_INCOMPLETE",
+            "EVIDENCE_CONFLICT"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "PARTIAL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "code"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "code"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

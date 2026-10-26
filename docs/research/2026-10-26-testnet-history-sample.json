@@ -1,0 +1,29 @@
+{
+  "kind": "endpoint-observation-summary-not-a-replay-journal",
+  "observed_date": "2026-10-26",
+  "rpc_url": "https://soroban-testnet.stellar.org",
+  "network_claim": "Test SDF Network ; September 2015",
+  "assurance": "Endpoint claims with locally checked header hashes/links; not independently authenticated consensus or metadata commitments. No transactions submitted.",
+  "ledgers": [
+    {
+      "sequence": 5403432,
+      "protocol_version": 29,
+      "close_time": 1793040747,
+      "hash": "062f5c521a7d31677b88ebfbc03e293117c3855a190407ea28b5843cefca35ed",
+      "previous_hash": "4fcfc1669d0886e9c02309c42f4c73fc1456ef24013f592ea0551406390934b6",
+      "metadata_version": 2,
+      "metadata_sha256": "9e00eb14a14bc51f8beaaef3934f73fa6e5b8b86843ab6911b329be15cf707c1",
+      "header_xdr": "Bi9cUhp9MWd7iOv7wD4pMRfDhVoZBAfqKLWEPO/KNe0AAAAdT8/BZp0IhunAIwnEL0xz/BRW7yQBP1kuoFUUBjkJNLYnLtE/d4p3RGwOIMiaSIZb6ku81bBplvFRmbPhPZXXBQAAAABq36FrAAAAAAAAAAEAAAAAtV0Qsrt9KE7VwDpHpeG1kMkPV4NVRxzEUHu+ggTSPIsAAABAOLbIZgkoPuBT650yOgrZHkLjpTAkkvLP5IPVZoWD+EBlmWTcbznCixEJkcnx5emcQM/T2IP4D75izIDUElw9A1+shsDJh95gyJtWJ1NG4TZoXdXEJ/T5D1ytdNal1sEzUM6Ntz4gXElgHKKSOm+zh/FYLCQSf0fvfrtC+EmzxaIAUnMoDeC2s6dkAAAAACyA5gQybQAAAAAAAAAAAA49FQAAAGQATEtAAAAAyLnjPZ+460sxCkCzw0kDfhVXFlBolwB6iW62ghrmICTzq/E23IeCb2hra2R9ZaEUej6hcg2AwbODCzvqDoaX82lLSVCTyou4ZK2LUHLcwwGCcdABMXSsxjhe0y8R7XY4dLZybqvx5w3/rvnIFyg6izRzhopGHpoNuKi7sOm3GcvVAAAAAAAAAAA="
+    },
+    {
+      "sequence": 5403433,
+      "protocol_version": 29,
+      "close_time": 1793040752,
+      "hash": "274a85ea735736343bc0b77ff4031e289b49e71b9c61ee7d46e1772d5247953a",
+      "previous_hash": "062f5c521a7d31677b88ebfbc03e293117c3855a190407ea28b5843cefca35ed",
+      "metadata_version": 2,
+      "metadata_sha256": "f75e99fc8fa902bdf65b60b819efff3a74c1ae245f565bb85dc13802d97fd190",
+      "header_xdr": "J0qF6nNXNjQ7wLd/9AMeKJtJ5xucYe59RuF3LVJHlToAAAAdBi9cUhp9MWd7iOv7wD4pMRfDhVoZBAfqKLWEPO/KNe3tr5b0YRyiLn+oQzZWct3HE5iJHbWktPzZonrfZcrSFQAAAABq36FwAAAAAAAAAAEAAAAAtV0Qsrt9KE7VwDpHpeG1kMkPV4NVRxzEUHu+ggTSPIsAAABAhUuaz7WS9hNNCkpt79fdO29Zh1dvnSK4HwNqY6zUhizMr2KU2U+NXJDLEDwhbXB8q3f8dYDJQQSm9uHvNFoCA3rbI66xvQ1oEvzNnKT41eWLOiO8jbf2ETtXVjz8ui3CGiAIduJYu8LLIOt3WosrZ88SBSFLbl7X6+UU8veyvN4AUnMpDeC2s6dkAAAAACyA5nE3mwAAAAAAAAAAAA49FQAAAGQATEtAAAAAyLnjPZ+460sxCkCzw0kDfhVXFlBolwB6iW62ghrmICTzq/E23IeCb2hra2R9ZaEUej6hcg2AwbODCzvqDoaX82lLSVCTyou4ZK2LUHLcwwGCcdABMXSsxjhe0y8R7XY4dLZybqvx5w3/rvnIFyg6izRzhopGHpoNuKi7sOm3GcvVAAAAAAAAAAA="
+    }
+  ]
+}

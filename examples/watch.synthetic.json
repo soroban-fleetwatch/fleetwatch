@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "rpc_url": "https://rpc.example.invalid",
+  "baseline": "../testdata/reconstruction-baseline.json",
+  "state": "../watched.db",
+  "stream": "synthetic-demo",
+  "to_ledger": 101,
+  "poll_interval_seconds": 5,
+  "max_attempts": 3,
+  "max_duration_seconds": 60
+}

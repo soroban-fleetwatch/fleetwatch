@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch offline health report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "network",
+    "source",
+    "checked_at",
+    "status",
+    "reasons",
+    "state_found",
+    "processed_through",
+    "sequence_coverage",
+    "evaluation_status",
+    "chain_history",
+    "final_verdict",
+    "ledger_lag",
+    "events",
+    "issues",
+    "outbox"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source": {
+      "enum": [
+        "synthetic",
+        "user_snapshot"
+      ]
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "NO_STATE",
+        "OK_OFFLINE",
+        "NEEDS_ATTENTION"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 5,
+      "items": {
+        "enum": [
+          "NO_REPLAY_STATE",
+          "INPUT_SEQUENCE_INCOMPLETE",
+          "DELIVERY_DEAD_LETTERS",
+          "DELIVERY_EXPIRED_LEASES",
+          "DELIVERY_ATTEMPTS_EXHAUSTED"
+        ]
+      }
+    },
+    "state_found": {
+      "type": "boolean"
+    },
+    "processed_through": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "sequence_coverage": {
+      "enum": [
+        "UNKNOWN",
+        "PARTIAL",
+        "COMPLETE_INPUT_SEQUENCE"
+      ]
+    },
+    "evaluation_status": {
+      "const": "UNVERIFIED_INPUT"
+    },
+    "chain_history": {
+      "const": "UNKNOWN"
+    },
+    "final_verdict": {
+      "const": "UNDETERMINED"
+    },
+    "ledger_lag": {
+      "type": "null"
+    },
+    "events": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "issues": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "from_ledger",
+          "to_ledger"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "OBSERVATION_GAP",
+              "SOURCE_DIVERGENCE"
+            ]
+          },
+          "from_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "to_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          }
+        }
+      }
+    },
+    "outbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "pending": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "due": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "scheduled": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "inflight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "expired_leases": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "delivered": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "dead": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "exhausted_unsettled": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      },
+      "required": [
+        "total",
+        "pending",
+        "due",
+        "scheduled",
+        "inflight",
+        "expired_leases",
+        "delivered",
+        "dead",
+        "exhausted_unsettled"
+      ]
+    }
+  }
+}

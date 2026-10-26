@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "statement": {
+    "schema_version": 1,
+    "network_passphrase_hash": "deb8b3feefb5e787942c2aaea171f11188f5857469f1799d3ba8fe821112039d",
+    "owner_contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+    "tag_hex": "ff0061",
+    "from_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "to_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "ticket": "SYNTHETIC-TEST-ONLY",
+    "reviewed_artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "valid_from_ledger": 100,
+    "valid_until_ledger": 200,
+    "nonce": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "signatures": [
+    {
+      "key_id": "8183065bf7e528e18d34a7ed62f09353a8afdbf80ab142e456346d7773f959ba",
+      "signature_base64": "cVvbH9kjgB94uwG48TmbxiR9QSPvzbg/lKG9Pep+0c/v+Mz6ltFJkq7s43hQAHfKgnMQaYwQQwAt/IP00rjnBA=="
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "approved_changes": [
+    {
+      "owner": "OWNER_DEMO",
+      "tag_hex": "72656c656173652d737461626c65",
+      "from_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "to_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "ticket": "DEMO-APPROVAL-1"
+    }
+  ]
+}

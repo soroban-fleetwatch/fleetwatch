@@ -1,0 +1,23 @@
+# Live research notes — 2026-10-26
+
+Source links below were reviewed during handoff preparation. These are **planning evidence**, not a claim the SDK code has been implemented or the current GitHub repo inspected. Codex must re-check source files and releases directly before implementing or pinning any version.
+
+## Verified protocol concepts
+
+1. **CAP-85 external references.** Stellar protocol specification: https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md . Introduces `CONTRACT_EXECUTABLE_EXTERNAL_REF` with an owner contract + tag, owner-held persistent data keyed with `SCV_EXECUTABLE_TAG`, Wasm hash lookup, executable-update events, and shared code updates. Developer blog: https://stellar.org/blog/developers/introducing-adapter-protocol-28-on-stellar . Distinguish owner of a tag from administrator permissions; do not infer control history from a snapshot alone.
+2. **Protocol 30 / Bell is upcoming at research date.** Official guide: https://stellar.org/blog/developers/bell-protocol-30-upgrade-guide ; as last updated October 23, planned validator votes Nov 3 Testnet / Nov 23 Mainnet. CAP-84 W-addresses, CAP-88 new XDR ledger-header value variants. Guide lists Go SDK v0.8.0 for protocol-30 support. **Verify exact latest Go release, package paths and signatures in implementation environment; do not blindly pin based on a blog.** Plans are contingent on votes; no claim activation yet.
+3. **`getLedgerEntries` is current-state, not full history.** Stellar's Hubble comparison: https://developers.stellar.org/docs/data/analytics/hubble/analyst-guide/history-vs-state-tables . History pipelines preserve ledger-entry transitions; RPC current-state lookup returns current values. Default RPC ledger history retention is described as roughly seven days where that setting applies: https://developers.stellar.org/docs/data/indexers/build-your-own/ingest-sdk/developer_guide/ledgerbackends/rpcledgerbackend . To capture A→B→A, ingest sequential ledger metadata instead of relying solely on polling.
+4. **Historical acquisition options.** https://developers.stellar.org/docs/data/indexers/build-your-own , https://developers.stellar.org/docs/data/indexers/build-your-own/ingest-sdk/developer_guide/ledgerreaders and https://developers.stellar.org/docs/data/indexers/build-your-own/galexie . Ingest SDK includes ledger-change readers; Galexie exports ledger metadata. Confirm availability, operational cost and API semantics for chosen source.
+5. **Prior art.** https://github.com/ShippedLabs/soroban-upgrade-safeguard is a pre-deployment Wasm interface/layout comparison tool (including signed attestations and CI helpers). https://github.com/stellar/security-tools provides monitoring patterns. Differentiator: trustworthy **observed** fleet blast radius and historical update monitoring, not a general duplicate code analyzer.
+6. **Wave program list.** https://www.drips.network/wave/stellar/repos displayed approved Stellar repositories on access, but this page can change and search pagination may hide matches. Recheck immediately before preparing any eligibility or submission claim. Source skill says do not apply before verified evidence and honest comparison.
+
+## Things NOT verified yet
+
+- Exact GitHub URL/visibility/default branch of the user's newly created FleetWatch repo. The linked GitHub account's accessible repository listing did **not** conclusively identify it during this handoff. Codex must use the repository actually opened by the user, or ask for its URL before remote writes.
+- Which current Stellar Go SDK package and exact types/functions implement every CAP-85 variant and `SCV_EXECUTABLE_TAG`, and whether Testnet endpoints provide reproducible capture at a uniform sequence. Must inspect source, compile fixtures and verify network behaviors.
+- Existence of a currently reusable CAP-85 Testnet fixture with owner tag + two contract members, or a clean script with real transaction evidence. Must generate or verify before claiming live proof.
+- Appropriateness of hosting platform, pricing, alert destinations, operational benchmarks, audit reviewer, or current Wave eligibility. Do not fill with made-up values.
+
+## Source-vs-assumption discipline
+
+Use `docs/research/YYYY-MM-DD.md` with columns: Claim; Primary source URL; Observed version/date; API or field confirmed by source/compile test; Confidence; Consequence if wrong. Assertions about on-chain behavior need either CAP text plus typed fixture or actual ledger evidence; do not use a marketing page as proof of code behavior. Uncertainty must appear in the CLI/API's status if it affects operator safety.

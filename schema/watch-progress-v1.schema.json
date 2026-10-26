@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch bounded watch progress v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "sequence",
+    "network",
+    "stream",
+    "target_ledger",
+    "status",
+    "code",
+    "attempts",
+    "partial_attempts",
+    "cursor_conflicts",
+    "failed_attempts",
+    "fetched_ledgers",
+    "accepted_ledgers",
+    "processed_through",
+    "target_remaining",
+    "observed_events",
+    "latest_attempt_status",
+    "source_query",
+    "fetch_errors",
+    "elapsed_milliseconds",
+    "assurance",
+    "source_freshness",
+    "ledger_lag"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "watch_progress"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 121
+    },
+    "network": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "stream": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "target_ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "status": {
+      "enum": [
+        "RETRYING",
+        "COMPLETE",
+        "ALREADY_RETAINED",
+        "STOPPED"
+      ]
+    },
+    "code": {
+      "enum": [
+        "TARGET_RETAINED",
+        "RETRYABLE_SOURCE_FAILURE",
+        "CURSOR_CHANGED",
+        "ATTEMPT_LIMIT",
+        "APPLICATION_REJECTED",
+        "SOURCE_REJECTED",
+        "CANCELLED",
+        "DEADLINE_EXCEEDED",
+        "STATE_FAILURE"
+      ]
+    },
+    "attempts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "partial_attempts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "cursor_conflicts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "failed_attempts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "fetched_ledgers": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1920
+    },
+    "accepted_ledgers": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16
+    },
+    "processed_through": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "target_remaining": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 16
+    },
+    "observed_events": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "latest_attempt_status": {
+      "enum": [
+        "UNKNOWN",
+        "PARTIAL",
+        "COMPLETE"
+      ]
+    },
+    "source_query": {
+      "enum": [
+        "UNKNOWN",
+        "NOT_QUERIED",
+        "PARTIAL",
+        "COMPLETE_ENDPOINT_SEQUENCE"
+      ]
+    },
+    "fetch_errors": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "enum": [
+          "CANCELLED",
+          "EVIDENCE_BYTE_LIMIT",
+          "HEADER_CHAIN_DIVERGENCE",
+          "INVALID_OR_UNSUPPORTED_LEDGER_METADATA",
+          "LEDGER_QUERY_FAILED",
+          "MISSING_OR_UNEXPECTED_LEDGER",
+          "NETWORK_MISMATCH",
+          "NETWORK_QUERY_FAILED",
+          "RETENTION_RANGE_UNAVAILABLE",
+          "UNSUPPORTED_NETWORK_PROTOCOL"
+        ]
+      }
+    },
+    "elapsed_milliseconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "assurance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_authentication",
+        "source_authentication",
+        "metadata_commitment",
+        "membership_coverage",
+        "history_completeness",
+        "final_verdict"
+      ],
+      "properties": {
+        "baseline_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "source_authentication": {
+          "const": "UNVERIFIED"
+        },
+        "metadata_commitment": {
+          "const": "NOT_VERIFIED"
+        },
+        "membership_coverage": {
+          "const": "UNKNOWN"
+        },
+        "history_completeness": {
+          "const": "UNKNOWN"
+        },
+        "final_verdict": {
+          "const": "UNDETERMINED"
+        }
+      }
+    },
+    "source_freshness": {
+      "const": "UNKNOWN"
+    },
+    "ledger_lag": {
+      "type": "null"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "COMPLETE",
+              "ALREADY_RETAINED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "const": "TARGET_RETAINED"
+          },
+          "target_remaining": {
+            "const": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "RETRYING"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "RETRYABLE_SOURCE_FAILURE",
+              "CURSOR_CHANGED"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

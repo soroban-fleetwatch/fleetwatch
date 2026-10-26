@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "network_passphrase": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "owner_contract": {
+      "type": "string",
+      "pattern": "^C[A-Z2-7]{55}$"
+    },
+    "tag_hex": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{2})+$",
+      "maxLength": 2048
+    },
+    "from_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "to_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "completeness": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "UNKNOWN"
+      ]
+    },
+    "source": {
+      "enum": [
+        "synthetic",
+        "user_snapshot",
+        "rpc_current"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "network_passphrase",
+    "owner_contract",
+    "tag_hex",
+    "from_hash",
+    "to_hash",
+    "ledger",
+    "completeness",
+    "source"
+  ],
+  "additionalProperties": false
+}

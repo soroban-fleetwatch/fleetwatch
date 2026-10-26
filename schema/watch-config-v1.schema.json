@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FleetWatch bounded watch configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "rpc_url",
+    "baseline",
+    "state",
+    "stream",
+    "to_ledger",
+    "poll_interval_seconds",
+    "max_attempts",
+    "max_duration_seconds"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "rpc_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "baseline": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "state": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "stream": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "to_ledger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "poll_interval_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60
+    },
+    "max_attempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 120
+    },
+    "max_duration_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    }
+  }
+}

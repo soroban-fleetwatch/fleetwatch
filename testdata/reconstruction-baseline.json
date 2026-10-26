@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "kind": "watched_baseline",
+  "source": "user_asserted",
+  "header_hash": "0700000000000000000000000000000000000000000000000000000000000000",
+  "snapshot": {
+    "schema_version": 1,
+    "network": "SYNTHETIC-NETWORK",
+    "ledger": 99,
+    "contracts": [
+      {
+        "id": "CAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABDQF",
+        "executable": {
+          "kind": "external_ref",
+          "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+          "tag_hex": "FF0061"
+        }
+      },
+      {
+        "id": "CABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARHO",
+        "executable": {
+          "kind": "external_ref",
+          "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+          "tag_hex": "FF0061"
+        }
+      }
+    ],
+    "references": [
+      {
+        "owner": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
+        "tag_hex": "FF0061",
+        "wasm_hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      }
+    ]
+  }
+}
