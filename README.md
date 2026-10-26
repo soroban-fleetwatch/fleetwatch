@@ -4,7 +4,7 @@
 
 Soroban FleetWatch is a Go-based, open-source tool for observing **Soroban contract fleets** that share executable code through externally managed references (CAP-85, Stellar Protocol 28). A single update to the owner contract's tagged Wasm hash can change the executable of many referenced contracts. FleetWatch compares captured ledger-state snapshots, identifies such changes, calculates the affected contracts, and evaluates observed hash transitions against an explicit approval file.
 
-> **Security boundary:** These inputs are JSON supplied by an operator. The current version does not authenticate ledger entries, validate network consensus, verify policy signers, attribute an on-chain actor, or provide continuous alerting. An apparently approved change only matches a local policy record; this is not proof of on-chain authorization.
+> **Security boundary:** Snapshot comparisons use JSON supplied by an operator. They do not authenticate ledger entries, validate network consensus, attribute an on-chain actor, or provide continuous alerting. An unsigned policy match is not proof of authorization. The separate signed approval verifier checks scoped signatures against operator-provided trust roots; it does not authenticate chain observations.
 
 ## Quick start
 
@@ -48,6 +48,8 @@ For CI reporting:
 Reports explicitly label coverage as `UNKNOWN` and authorization as `UNVERIFIED`, including unsigned policy matches. Input bounds and compatibility are documented in [snapshot format](docs/SNAPSHOT_FORMAT.md).
 
 Experimental read-only capture is documented in [CAPTURE.md](docs/CAPTURE.md). Multi-call consistency remains unproven and produces a partial diagnostic result.
+
+Diagnostic [historical metadata collection](docs/HISTORY.md) reads bounded consecutive ledger-close metadata from RPC and checks header hashes/linkage. Two real Testnet protocol-29 records have been parsed; metadata commitments and fleet state reconstruction remain unimplemented.
 
 Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; live ledger-meta ingestion remains unimplemented.
 

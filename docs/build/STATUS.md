@@ -11,8 +11,8 @@
 | S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
-| S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
-| S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot replay, atomic local state and restart fixtures | Real ledger-meta adapter and production Postgres remain |
+| S3 Real Testnet proof | IN PROGRESS: read-only metadata evidence | Native Go collected/decoded two protocol-29 Testnet ledgers; historical endpoint denial resolved for this client | Controlled CAP-85 deployment/update and actual fleet fixtures remain |
+| S4 Sequential historical ingest | IN PROGRESS: collector and offline scaffolding | Bounded getLedgers collection, snapshot replay, atomic local state and restart fixtures | Metadata commitments, change application, trustworthy baseline and production Postgres remain |
 | S5 Watcher/alerts | IN PROGRESS: local outbox and diagnostics | Atomic enqueue, lease/retry dispatcher, local TLS delivery tests and read-only health report | Continuous watcher, live telemetry and proxy-aware delivery transport remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/replay/outbox/approval commands, doctor and at-ledger fleet report with JSON Schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
@@ -22,7 +22,7 @@
 | S11 Wave readiness optional | NOT STARTED | None | Eligibility and submission evidence |
 | S12 Maintenance | NOT STARTED | None | Runbooks and triage |
 
-## Running checks
+## Initial baseline checks (historical)
 
 - Local: Go 1.27.3 linux/amd64 installed from official archive with published SHA-256 verification. Module: `github.com/soroban-fleetwatch/fleetwatch`; pinned SDK v0.8.0 dependencies.
 - `go test -count=1 -v ./...`: PASS, 21 unit tests plus fuzz seeds.
@@ -44,9 +44,10 @@ Update after each milestone. A status becomes PASS only when tests and reference
 
 ## Next implementation steps
 
-1. Strict Stellar identifiers remain deferred to a versioned chain-capture schema; v1 synthetic labels now have explicit bounds and validation. Source authenticity and history coverage remain unverified.
-2. Finish S1: compile SDK/XDR compatibility fixtures, decide the capture schema and consistency rules, verify history sources and supported protocol ranges. Preliminary source evidence is in docs/research/2026-10-26-cap85-sdk.md.
-3. Continue S2 typed RPC capture with offline failure fixtures before any live Testnet proof. S4 now has offline replay scaffolding; S5 and later stages remain NOT STARTED.
+1. Extend diagnostic ledger metadata collection into sequential change application: trustworthy baseline, transaction/fee/upgrade/eviction/restore ordering, raw evidence, exact member/reference reconstruction and within-ledger transient changes. Never relabel current-state polling or supplied snapshots as comprehensive chain history.
+2. Decide independently trusted header anchoring, metadata/transaction commitment verification and provenance requirements before allowing chain-safe verdicts or approval-based severity changes. Source authentication and fleet completeness remain unverified.
+3. Prepare controlled CAP-85 Testnet contract fixtures and actual update evidence. Read-only metadata retrieval now works, but no contract deployment/transaction was performed and the full Testnet acceptance gate is not passed.
+4. Implement continuous worker/configuration, production storage, operational recovery, trust distribution and release validation. Existing local replay, outbox, approval, report and backup features remain experimental.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
 
@@ -170,3 +171,14 @@ Health checkpoint: 101 top-level unit tests pass; one intentional crash-helper s
 - Tests verify cold reopen and recovery of cursor/findings, all delivery states, retry metadata, active fencing tokens, idempotent approval receipts and same-/cross-source nonce rejection. Failure tests cover copy bounds, cancellation, pre-publication abort, destination races, existing paths, output failure and byte-preserving read-only source access. Added docs/BACKUP.md, a backup-receipt JSON Schema, recovery guidance, and ignores for local database/backup artifacts.
 - `go test -timeout=45s -count=1 -json ./...`: 115 top-level unit tests PASS; one intentional crash-helper skip (parent runs its subprocess). Vet, module verification, CLI build and full race suite PASS. Targeted backup tests passed after adding the fencing-token assertion. Fresh compiled CLI backup-to-recovery drill verified SHA-256/size/mode, receipt schema, unchanged source bytes, restored doctor status, original receipt identity and nonce rejection; overwrite/missing-source cases fail without replacing/creating the source.
 - No new dependency, runtime service, secret or environment startup prerequisite. Live Testnet proof, authenticated ledger-meta ingestion, production Postgres, continuous watcher, external backup storage, automated semantic recovery/migrations and release-candidate validation remain unfinished.
+
+## Bounded ledger metadata collection and live read-only Testnet evidence
+
+- Added typed getLedgers transport and `history --rpc-url HTTPS_URL --network-passphrase TEXT --from-ledger N --to-ledger M`. It requests exact consecutive sequences one at a time, validates retention/sequence fields, bounded full LedgerCloseMeta v0/v1/v2 XDR, header-history-entry identity, inner-header SHA-256 and previous-header links. Supported network/header protocols are explicitly 28–29; future/older protocols fail closed.
+- Corrected an initial header wire-format assumption against the official RPC implementation and real endpoint response: getLedgers.headerXdr is LedgerHeaderHistoryEntry, unlike getLatestLedger's bare LedgerHeader. Research pins RPC commit dac748d2d793443d9b3595ac50a5e912db8a62a5 and SDK v0.8.0; see docs/research/2026-10-26-ledger-history.md.
+- The environment tool reported current, enforced restricted networking with the Testnet host allowed. Native curl getNetwork and the compiled Go collector succeeded through inherited proxy/TLS configuration. An exploratory Python urllib request returned 403; earlier blanket endpoint-denial observations are historical, not the current native Go result.
+- Actual read-only Testnet collection: ledger 5403432 hash 062f5c521a7d31677b88ebfbc03e293117c3855a190407ea28b5843cefca35ed; ledger 5403433 hash 274a85ea735736343bc0b77ff4031e289b49e71b9c61ee7d46e1772d5247953a. Both decode as protocol 29, metadata v2, and the second links to the first. Header/digest summary saved under docs/research; full transaction metadata remains outside the repository. No transaction, deployment, asset movement or external alert was performed.
+- Capture retains only an accepted prefix on failure. COMPLETE_ENDPOINT_SEQUENCE is an endpoint structural/linkage claim; all captures retain UNVERIFIED source authentication, UNKNOWN history completeness, NOT_VERIFIED metadata commitments, NOT_APPLIED state changes and UNDETERMINED final verdict. Tests demonstrate that altered non-header metadata can still have a matching embedded header; no false authentication guarantee is made. Snapshot replay deliberately rejects these diagnostic envelopes.
+- Bounds: 16-ledger range, 4 MiB decoded metadata/ledger, 8 KiB header base64, 20 MiB aggregate retained base64; XDR depth/memory budgets, existing bounded HTTPS/retry transport, two-minute CLI deadline. No current-state-to-history interpolation or database ingestion checkpoint.
+- Verification: 122 top-level unit tests PASS; one intentional crash-helper skip (parent executes its subprocess). Full race suite, vet, module verification and CLI build PASS; CLI race checks rerun after the TLS end-to-end test. Metadata fuzz exercise: 2,999 executions across two workers, PASS. Live compiled output validates against schema/history-capture-v1.schema.json and is rejected by replay. TLS tests retain certificate verification and cover complete/partial capture, output failure and exact wire requests; deterministic tests cover mixed protocols, all supported metadata versions, hash/header tampering, gaps/divergence, allocation bombs, retention and cancellation.
+- Docs/HISTORY.md describes the limits and next adapter work. No new dependency, service, secret or environment startup requirement. The controlled CAP-85 Testnet upgrade gate, authenticated metadata ingestion, state reconstruction, continuous watcher and release remain unfinished. Remote CI has not been verified.

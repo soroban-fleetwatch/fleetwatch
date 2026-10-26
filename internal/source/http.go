@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"sync/atomic"
 	"time"
+
+	protocol "github.com/stellar/go-stellar-sdk/protocols/rpc"
 )
 
 // HTTPRPC uses HTTPS with ordinary certificate verification, bounded replies,
@@ -142,4 +144,10 @@ func (r *HTTPRPC) Head(ctx context.Context) (Head, error) {
 	var h Head
 	err := r.call(ctx, "getLatestLedger", struct{}{}, &h)
 	return h, err
+}
+
+func (r *HTTPRPC) Ledgers(ctx context.Context, request protocol.GetLedgersRequest) (protocol.GetLedgersResponse, error) {
+	var result protocol.GetLedgersResponse
+	err := r.call(ctx, protocol.GetLedgersMethodName, request, &result)
+	return result, err
 }
