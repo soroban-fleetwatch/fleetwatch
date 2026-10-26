@@ -51,6 +51,8 @@ Experimental read-only capture is documented in [CAPTURE.md](docs/CAPTURE.md). M
 
 Diagnostic [historical metadata collection](docs/HISTORY.md) reads bounded consecutive ledger-close metadata from RPC and checks header hashes/linkage. Two real Testnet protocol-29 records have been parsed; metadata commitments and fleet state reconstruction remain unimplemented.
 
+The offline [changes command](docs/METADATA_CHANGES.md) projects executable-related metadata in transaction-phase order, preserving preimages, intermediate writes and restores. It does not yet apply a baseline or infer complete fleet membership.
+
 Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; live ledger-meta ingestion remains unimplemented.
 
 Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command.

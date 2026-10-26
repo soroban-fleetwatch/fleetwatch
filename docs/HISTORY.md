@@ -91,8 +91,10 @@ and linkage, and emitted schema-valid output. See the dated
 [research record](research/2026-10-26-ledger-history.md) and its small evidence
 summary. This is not a controlled CAP-85 deployment/update demonstration.
 
-Sequential state ingestion still needs a trustworthy baseline, normalization of
-transaction/fee/upgrade/eviction/restore changes with transaction ordering,
+The offline [changes normalizer](METADATA_CHANGES.md) now projects executable-related
+transaction/fee/upgrade/restore records and separate unordered eviction markers.
+Sequential state ingestion still needs a trustworthy baseline, application and
+validation of these changes with transaction ordering,
 reference/member reconstruction, commitment/provenance decisions, durable
 evidence/cursor storage, restart reconciliation and continuous worker tests.
 Within-ledger A→B→A detection is not provided by this collector or snapshot replay.
