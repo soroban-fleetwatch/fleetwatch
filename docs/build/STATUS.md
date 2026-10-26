@@ -12,7 +12,7 @@
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | BLOCKED | Public getNetwork denied: HTTP 403, edge code 1010 | Resolve endpoint access, then prepare real fixtures |
-| S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot-journal replay and gap/divergence fixtures | Real ledger-meta adapter, transactional persistence and restart recovery remain |
+| S4 Sequential historical ingest | IN PROGRESS: offline scaffolding only | Snapshot replay, atomic local state and restart fixtures | Real ledger-meta adapter and production Postgres remain |
 | S5 Watcher/alerts | NOT STARTED | None | Storage/replay prerequisite |
 | S6 Signed approvals | NOT STARTED | None | Cryptographic trust policy |
 | S7 CLI/API integration | NOT STARTED | None | Stabilize config/schema |
@@ -87,3 +87,13 @@ Resilience checkpoint: 34 top-level unit tests pass; updated startup instruction
 - Historical chain ingest, Postgres state, crash recovery, alerts, cryptographic approvals, and live chain proof remain unimplemented/unverified.
 
 Replay checkpoint: 40 top-level unit tests pass; race/vet/build and structural schema checks pass.
+
+## Durable offline replay increment
+
+- Pinned bbolt v1.4.3. Added replay --state FILE, atomic observation/finding/cursor commits, cold reopen and segment merging, canonical conflict rejection, namespace isolation, locked database access and stored-report invariant validation. Existing stateless mode is preserved.
+- Added cold-resume, idempotence, gap/conflict rollback, pre-commit failure injection, process-crash/restart, file/namespace safety, missing-baseline recovery and corrupt-report checks. One subprocess helper test is intentionally skipped in ordinary test runs and executed by the parent crash test.
+- Fresh compiled CLI processes verified baseline cursor 100 -> cursor 102 with two events; repeated full replay returns the same two event IDs and unchanged report.
+- Store bounds: 1,000 ledgers / 10,000 events / 25 MiB encoded state per scope. No encryption, schema migration, outbox, continuous worker, live ledger-meta or production Postgres implementation.
+- See docs/adr/0002-offline-replay-store.md and docs/REPLAY.md. Historical notes above describe prior checkpoints; this increment adds optional persistence.
+
+Durable checkpoint: 50 top-level unit tests pass; one intentional crash-helper skip (the parent test runs its subprocess). Race/vet/module verification/build pass.

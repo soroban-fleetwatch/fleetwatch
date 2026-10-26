@@ -62,3 +62,20 @@ func TestCLIReplayTransientAndGap(t *testing.T) {
 		}
 	}
 }
+
+func TestCLIReplayDurableRepeat(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "state.db")
+	var first string
+	for i := 0; i < 2; i++ {
+		var out, errs bytes.Buffer
+		code := run([]string{"replay", "--journal", fixture("replay-transient.json"), "--state", path}, &out, &errs)
+		if code != 2 || errs.Len() != 0 {
+			t.Fatalf("code=%d err=%s", code, errs.String())
+		}
+		if i == 0 {
+			first = out.String()
+		} else if out.String() != first {
+			t.Fatal("durable repeated replay changed output")
+		}
+	}
+}

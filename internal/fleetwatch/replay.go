@@ -146,3 +146,11 @@ func snapshotDigest(s Snapshot) string {
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:])
 }
+
+// SnapshotDigest returns the canonical v1 observation digest used by replay.
+func SnapshotDigest(s Snapshot) (string, error) {
+	if err := s.Validate(); err != nil {
+		return "", err
+	}
+	return snapshotDigest(canonicalSnapshot(s)), nil
+}
