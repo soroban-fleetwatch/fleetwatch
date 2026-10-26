@@ -4,22 +4,53 @@ on:
   pull_request:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  GOFLAGS: -mod=readonly
+  GOTOOLCHAIN: local
+  GOTELEMETRY: 'off'
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           cache: false
+      - name: Verify modules
+        run: go mod verify
+      - name: Verify dependency declarations
+        run: go mod tidy -diff
       - name: Verify formatting
         run: test -z "$(gofmt -l cmd internal)"
       - name: Unit tests
-        run: go test ./...
+        run: go test -timeout=60s -count=1 ./...
       - name: Static checks
         run: go vet ./...
       - name: Race tests
-        run: go test -race ./...
+        run: go test -race -timeout=90s -count=1 ./...
+      - name: Build CLI
+        run: go build -trimpath -o /tmp/fleetwatch ./cmd/fleetwatch
+  vulnerabilities:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Scan modules, source, tests and compiled CLI
+        run: ./scripts/check-vulnerabilities.sh

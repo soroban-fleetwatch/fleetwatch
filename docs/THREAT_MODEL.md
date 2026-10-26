@@ -69,7 +69,8 @@ hashes. Local hashes/receipts do not provide independent provenance.
    malicious or unauthorized on-chain operation. Final chain verdicts remain
    UNDETERMINED, including when local health reports OK_OFFLINE.
 6. Parser/resource/fuzz/race and local TLS/crash tests are internal evidence.
-   They are not an independent audit. Dependency vulnerability scanning,
+   They are not an independent audit. [Dependency scans](DEPENDENCY_CHECKS.md)
+   now gate known module/source/binary advisories; ongoing advisory monitoring,
    representative fleet/load measurements, production availability/backup
    validation and controlled live CAP-85 upgrade proof remain unfinished.
 

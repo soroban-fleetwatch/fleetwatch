@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-27",
+  "baseline_commit": "981b9e5915b7dade1a435ddf40f4addb13847ff3",
+  "platform": {
+    "goos": "linux",
+    "goarch": "amd64",
+    "toolchain": "go1.27.3"
+  },
+  "scanner": {
+    "module": "golang.org/x/vuln",
+    "version": "v1.9.0",
+    "database": "https://vuln.go.dev",
+    "database_updated_at": "2026-10-21T00:27:29Z"
+  },
+  "before": {
+    "compress_version": "v1.17.6",
+    "advisory": "GO-2026-5841",
+    "affected_package": "github.com/klauspost/compress/s2",
+    "fixed_version": "v1.18.7",
+    "module_scan_exit_code": 3,
+    "source_test_reachable_findings": 0,
+    "imported_package_findings": 0,
+    "binary_reachable_findings": 0,
+    "required_module_findings": 1
+  },
+  "after": {
+    "compress_version": "v1.18.7",
+    "module_scan": {
+      "command": "govulncheck -C cmd/fleetwatch -scan=module",
+      "exit_code": 0,
+      "findings": 0
+    },
+    "source_test_scan": {
+      "command": "govulncheck -test ./...",
+      "exit_code": 0,
+      "findings": 0
+    },
+    "binary_scan": {
+      "command": "govulncheck -mode=binary <fresh trimpath CLI>",
+      "exit_code": 0,
+      "findings": 0
+    }
+  },
+  "network": {
+    "initial_result": "Forbidden; no verdict",
+    "later_result": "official database readiness and real scans succeeded",
+    "saved_custom_domain_addition": "vuln.go.dev",
+    "environment_publication_by_agent": false
+  },
+  "ci_actions": {
+    "actions/checkout": {
+      "version": "v7.0.1",
+      "commit": "3d3c42e5aac5ba805825da76410c181273ba90b1"
+    },
+    "actions/setup-go": {
+      "version": "v7.0.0",
+      "commit": "b7ad1dad31e06c5925ef5d2fc7ad053ef454303e"
+    }
+  },
+  "local_workflow_linter": "actionlint v1.7.12",
+  "remote_ci": "UNVERIFIED",
+  "independent_audit": false,
+  "limits": [
+    "Known advisory data only",
+    "Module gate uses CLI runtime dependency graph",
+    "Source symbol scan includes tests",
+    "linux/amd64 context; no all-platform/build-tag verdict",
+    "No authenticated chain safety verdict",
+    "New-task environment restoration not validated"
+  ],
+  "sources": [
+    "https://pkg.go.dev/vuln/GO-2026-5841",
+    "https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck",
+    "https://vuln.go.dev"
+  ]
+}

@@ -55,6 +55,8 @@ The offline [changes command](docs/METADATA_CHANGES.md) projects executable-rela
 
 The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-asserted baseline to a fixed watchlist, checks executable preimages and reports operation-boundary changes. It stops on conflicts and uncertain watched evictions; baseline/source authentication and metadata commitments remain unverified.
 
+[Dependency checks](docs/DEPENDENCY_CHECKS.md) cover required-module advisories, source/tests and the compiled CLI with a pinned scanner. CI also pins its compiler and action revisions; remote CI results remain unverified.
+
 [RPC response guards](docs/RPC_JSON.md) reject ambiguous or oversized JSON before typed capture and reconstruction. Provider extensions remain supported; chain authentication remains unverified.
 
 The [bounded polling worker](docs/WATCH.md) retries a fixed target with strict JSON configuration, cancellation and NDJSON progress. It retains the original 16-ledger interval bound and does not send alerts.

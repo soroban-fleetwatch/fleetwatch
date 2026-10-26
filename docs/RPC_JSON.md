@@ -62,5 +62,8 @@ worst-case resource bound. The 30-second fuzz exercise completed 171,088
 executions without failure; this is not an exhaustive security review.
 
 These checks reduce parsing ambiguity and constrain input work. Authenticated
-baseline/chain/metadata commitments, production retention, dependency scanning,
+baseline/chain/metadata commitments, production retention, ongoing dependency monitoring,
 representative load tests and an independent security audit remain unfinished.
+
+Known module/source/binary advisory checks are now available through the
+[pinned dependency gates](DEPENDENCY_CHECKS.md); they do not establish an audit.
