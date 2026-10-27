@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-27",
+  "base_commit": "615eaa6",
+  "kind": "OFFLINE_FOLLOW_SYNC_AND_LOCAL_TLS_DELIVERY",
+  "captured_testnet_tls_validation": {
+    "baseline_ledger": 5407791,
+    "delivered_findings": 3,
+    "external_deliveries": 0,
+    "final_verdict": "UNDETERMINED",
+    "forged_assurance_rejected": true,
+    "hmac_and_idempotency_verified": true,
+    "new_chain_requests": 0,
+    "processed_through": 5407803,
+    "received_requests": 3,
+    "reopened_resync_attempted": 0,
+    "retained_ledgers": 12
+  },
+  "empty_pilot_sync": {
+    "schema_version": 1,
+    "binding": {
+      "network": "Test SDF Network ; September 2015",
+      "stream": "testnet-pilot",
+      "baseline_digest": "a9257b40eb076d913db509115f4297baefc61de25e57d161201b63fb73e8d4dc",
+      "baseline_header_hash": "896f0b0d34c3e516241e83964d49f6c7d2854e314b40e961fbf75e032b45ed68",
+      "baseline_ledger": 5413741,
+      "processed_through": 5413758,
+      "header_hash": "3d1117159380882b482d75094f15658af8985123e80281f2f024eff0ce7b37b8"
+    },
+    "added": 0,
+    "retained": 0,
+    "offline": true,
+    "final_verdict": "UNDETERMINED"
+  },
+  "empty_pilot_resync_matches": true,
+  "external_deliveries": 0,
+  "new_chain_requests": 0,
+  "transactions_submitted": 0,
+  "production_receiver_validated": false,
+  "unattended_sync_implemented": false
+}

@@ -239,6 +239,34 @@ func (s *Store) Head() Head {
 	return result
 }
 
+// HeaderAt anchors a prior sync point to this fully replay-validated history.
+func (s *Store) HeaderAt(ctx context.Context, sequence uint32) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var header string
+	err := s.db.View(func(tx *bolt.Tx) error {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		root := tx.Bucket(rootName)
+		var baseline history.Baseline
+		if jsoninput.Decode(bytes.NewReader(root.Get([]byte("baseline"))), &baseline) != nil {
+			return ErrState
+		}
+		if sequence == baseline.Snapshot.Ledger {
+			header = baseline.HeaderHash
+			return nil
+		}
+		var record Record
+		if jsoninput.Decode(bytes.NewReader(root.Bucket(ledgerName).Get(seqKey(sequence))), &record) != nil || record.Applied.Sequence != sequence {
+			return ErrState
+		}
+		header = record.Applied.HeaderHash
+		return nil
+	})
+	return header, err
+}
+
 // Findings returns a bounded page ordered by stable event ID, not wall clock.
 // The follow journal has no delivery/acknowledgement implementation yet.
 func (s *Store) Findings(ctx context.Context, after string, limit int) ([]Finding, bool, error) {

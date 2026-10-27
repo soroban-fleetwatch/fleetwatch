@@ -176,8 +176,9 @@ Upgrades require stopping, retaining a backup, staging a separately verified
 binary and smoke-checking the unchanged config/state. There is no automatic
 schema migration or downgrade guarantee.
 
-The follow journal can be inspected/exported locally but is not connected to
-the legacy webhook sender. Production receiver routing, signed notifications,
-shared SQL storage, authentication and fully hosted end-to-end operations remain
-open Phase 9 work. The Dripwave skill's production hosting gate is not claimed
-complete merely because these portable files exist.
+The offline [follow-sync bridge](FOLLOW_DELIVERY.md) can import validated findings
+into a separate durable outbox for the existing signed webhook sender. It does
+not schedule unattended sync, configure a receiver or clear the native journal.
+Production receiver/proxy routing, shared SQL storage, authentication and fully
+hosted end-to-end operations remain open Phase 9 work. The Dripwave skill's
+production hosting gate is not claimed complete merely because these files exist.

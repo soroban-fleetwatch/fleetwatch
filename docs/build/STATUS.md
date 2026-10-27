@@ -13,7 +13,7 @@
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
 | S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
-| S5 Watcher/alerts | IN PROGRESS: continuous pilot and local health/metrics | Follow/restart/gap checks, bounded polling/outboxes, manual recovery and local TLS delivery | Follow journal dispatch, production receiver transport, archive and hosted validation remain |
+| S5 Watcher/alerts | IN PROGRESS: continuous pilot, local telemetry and offline follow delivery bridge | Follow/restart/gap checks; replay-validated sync to durable signed-delivery outbox; local TLS and audited recovery | Automated follow sync, production receiver/proxy routing, retention rollover and hosted validation remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
@@ -662,3 +662,53 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   Phase 9 remains IN PROGRESS for archive chaining/rollover, production follow
   delivery, sizing and permanent-host validation. No release, merge, provisioning
   or Wave submission. Keep original state and verified backups until reviewed.
+
+## Phase 9 offline follow delivery bridge — 2026-10-27
+
+- Continues `615eaa6` on feat/portable-linux-follow. Added `follow-sync --config
+  FILE --delivery-state FILE --stream ID`. This is an offline operator step:
+  source must be stopped; it opens/replays native state read-only, scans all
+  hash-ordered findings and atomically imports them into a separate durable
+  outbox with a retained event manifest and network/baseline/head/stream binding.
+  No sender, source request, configuration change or service start runs at sync.
+- Prior sync header must still be present in native history. Rewinds, header/
+  baseline conflicts, omitted imported findings and stale expected binding are
+  rejected. Every sync scans the full journal; new hash IDs can sort before old
+  IDs. Import preserves leases, attempts, acknowledgements, dead letters and
+  audited recovery state. Native findings/counters remain unchanged; their
+  pending_findings count is not an undelivered-outbox count.
+- Added payload schema 3/source follow_ledger_meta with original inner event ID
+  and a distinct network/stream/event-bound outer delivery ID. Fixed projected
+  uncertainty is validated by storage and sender. Existing deliver/alerts/
+  requeue/recoveries source routing supports the imported scope. Claims and
+  inspection compare all queued payloads with the retained manifest; manifests
+  contain event claims, not raw metadata, and do not independently authenticate
+  chain evidence. Legacy payload/queue validation remains separate and passes.
+- Reuses existing signed HTTPS sender without weakening public DNS/IP pinning,
+  TLS, redirect, response-size, sink-binding or proxy restrictions. Direct-only
+  transport still rejects required proxy-backed routing. HMAC authenticates the
+  delivered envelope, never baseline/chain/upgrade approval. No external receiver
+  is configured or contacted. Schema-3 support is required at future receivers.
+- New tests cover forty-ledger upgrade/rollback sync with stable original IDs,
+  cold reopen/resync without repeat delivery, backup/ack preservation, dead-letter
+  persistence, fenced expired leases and audited recovery, atomic rollback,
+  conflicts, omitted findings, manifest/queue corruption, missing source, path
+  collisions, prior-source rewind and forged assurance. Native source unchanged.
+- Reused captured real Testnet transitions entirely offline: native follow
+  baseline 5407791, twelve ledgers through 5407803, three findings delivered to
+  the isolated local verified-TLS test receiver. Exact HMAC/idempotency and
+  UNDETERMINED assurance verified; cold reopen/resync produced zero new attempts;
+  forged APPROVED assurance refused. Separate real seventeen-ledger pilot sync/
+  resync correctly imported zero findings and preserved source DB SHA256. Evidence
+  in docs/research/2026-10-27-follow-delivery-validation.md and JSON. No new RPC,
+  transaction, external delivery or persistent running service.
+- Local checks PASS: 239 default top-level tests, six fuzz seed targets, four
+  intentional skips; affected store/alert/follow/CLI race suites; separately
+  invoked real-data local TLS race test; vet/module verify/tidy-diff; pinned
+  module/source-test/binary vulnerability gates; actionlint/Bash/schema syntax;
+  package/install smoke and diff checks. Remote CI unverified. No dependency or
+  default secret requirement added. Guide and schema ship in the Linux candidate.
+- Phase 9 remains IN PROGRESS: unattended sync, source-gap notification policy,
+  production receiver/proxy routing, archive chaining/retention rollover, sizing
+  and permanent-host validation remain open. No logical retention or source-
+  assurance upgrade, release, protected merge, provisioning or Wave submission.

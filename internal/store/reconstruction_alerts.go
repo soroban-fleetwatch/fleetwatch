@@ -83,6 +83,12 @@ func validateAttempt(a ReconstructionAttempt) error {
 	return errors.New("invalid reconstruction attempt status")
 }
 func AlertSource(network, source, stream string) (string, error) {
+	if source == "follow_ledger_meta" {
+		if err := ValidateReconstructionScope(network, stream); err != nil {
+			return "", err
+		}
+		return followQueuePrefix + stream, nil
+	}
 	if source == "rpc_ledger_meta" {
 		if err := ValidateReconstructionScope(network, stream); err != nil {
 			return "", err
@@ -142,7 +148,8 @@ func ValidateAlertPayload(id string, p AlertPayload) error {
 		}
 		return nil
 	}
-	if p.SchemaVersion != 2 || p.Source != "rpc_ledger_meta" || ValidateReconstructionScope(p.Network, p.Stream) != nil || p.EvaluationStatus != "UNVERIFIED_PROJECTED_STATE" || p.Assurance == nil || *p.Assurance != projectionAssurance() || p.Event != nil || p.Issue != nil || (p.Reconstruction == nil) == (p.Diagnostic == nil) {
+	follow := p.SchemaVersion == 3 && p.Source == "follow_ledger_meta" && p.Diagnostic == nil
+	if (!follow && (p.SchemaVersion != 2 || p.Source != "rpc_ledger_meta")) || ValidateReconstructionScope(p.Network, p.Stream) != nil || p.EvaluationStatus != "UNVERIFIED_PROJECTED_STATE" || p.Assurance == nil || *p.Assurance != projectionAssurance() || p.Event != nil || p.Issue != nil || (p.Reconstruction == nil) == (p.Diagnostic == nil) {
 		return errors.New("invalid reconstruction alert payload")
 	}
 	if p.Diagnostic != nil {
@@ -163,7 +170,11 @@ func ValidateAlertPayload(id string, p AlertPayload) error {
 		Finding                                                                            fleetwatch.Finding
 	}{"fleetwatch.reconstruction-event.v1", p.Network, e.BaselineDigest, e.BaselineHeaderHash, e.HeaderHash, e.MetadataSHA256, e.Event.GroupID, e.Event.Finding})
 	h := sha256.Sum256(raw)
-	if e.Event.ID != hex.EncodeToString(h[:]) || id != reconstructionAlertID(p.Network, p.Stream, *e) {
+	expectedID := reconstructionAlertID(p.Network, p.Stream, *e)
+	if follow {
+		expectedID = followAlertID(p.Network, p.Stream, *e)
+	}
+	if e.Event.ID != hex.EncodeToString(h[:]) || id != expectedID {
 		return errors.New("reconstruction event identity mismatch")
 	}
 	return nil
@@ -391,6 +402,9 @@ func (s *Store) LastReconstructionAttempt(ctx context.Context, network, stream s
 }
 
 func validateQueueBeforeClaim(ctx context.Context, tx *bolt.Tx, network, source string) error {
+	if strings.HasPrefix(source, followQueuePrefix) {
+		return inspectFollowQueue(ctx, tx, network, strings.TrimPrefix(source, followQueuePrefix))
+	}
 	if !strings.HasPrefix(source, reconstructionQueuePrefix) {
 		return nil
 	}

@@ -18,13 +18,14 @@ sha256sum --check --strict SHA256SUMS >/dev/null
 [[ -d "$(dirname -- "$install_root")" ]] || { echo 'install parent directory must exist' >&2; exit 3; }
 staging="$(mktemp -d "$(dirname -- "$install_root")/.fleetwatch-install.XXXXXXXX")"
 trap 'if [[ -d "$staging" ]]; then rm -rf -- "$staging"; fi' EXIT
-mkdir -p "$staging/bin" "$staging/etc/fleetwatch" "$staging/var/lib/fleetwatch" "$staging/systemd" "$staging/docs"
+mkdir -p "$staging/bin" "$staging/etc/fleetwatch" "$staging/var/lib/fleetwatch" "$staging/systemd" "$staging/docs" "$staging/schema"
 install -m 0755 bin/fleetwatch "$staging/bin/fleetwatch"
 install -m 0755 bin/host-check.py "$staging/bin/host-check.py"
 install -m 0600 "$baseline" "$staging/etc/fleetwatch/baseline.json"
 install -m 0644 LICENSE "$staging/LICENSE"
 cp -R licenses "$staging/"
-install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md "$staging/docs/"
+install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/WEBHOOKS.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$staging/docs/"
+install -m 0644 schema/follow-alert-v3.schema.json "$staging/schema/"
 python3 - "$staging" "$install_root" "$3" <<'PY'
 import json,pathlib,sys
 stage=pathlib.Path(sys.argv[1]);root=sys.argv[2]

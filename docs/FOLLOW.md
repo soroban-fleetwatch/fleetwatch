@@ -133,10 +133,13 @@ new store, with original evidence/findings and explicitly reset operational
 counters. Archives do not prune, rotate or raise capacity. Keep database backups
 and prior operational evidence for recovery; see the archive guide before use.
 
-The follow finding journal is distinct from the legacy delivery outbox. It has
-no dispatch/acknowledgement integration yet; `deliver` does not send these
-findings. No receiver URL or signing secret is accepted in this configuration.
-Production proxy-aware notification delivery remains separate work.
+The follow finding journal is distinct from the delivery outbox. The offline
+[follow-sync bridge](FOLLOW_DELIVERY.md) imports replay-validated findings into
+a separate durable outbox, preserving delivery state across resync. Existing
+`deliver --source follow_ledger_meta --stream ID` can send those imported alerts.
+Sync requires a stopped follower; it sends nothing itself. No receiver URL or
+signing secret is accepted in the follow configuration. Automated sync and
+production proxy-aware notification delivery remain separate work.
 
 | Exit | Meaning |
 | --- | --- |
