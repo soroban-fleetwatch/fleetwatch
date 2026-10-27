@@ -77,6 +77,11 @@ alerts to an explicitly configured receiver, with optional
 [pinned CONNECT proxy routing](docs/WEBHOOK_PROXY.md). Actual receiver/proxy
 compatibility and permanent-host validation remain unverified.
 
+[Zero-cost deployment](docs/ZERO_COST_DEPLOYMENT.md) requires an existing owned
+Linux host or a confirmed free persistent VM. Both amd64 and arm64 packages are
+available; Phase 9 stays blocked until real host access and the
+[acceptance evidence](docs/PHASE9_ACCEPTANCE.md) are supplied.
+
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 
 Optional [reconstruction checkpoints](docs/RECONSTRUCTION_CHECKPOINTS.md) retain the original baseline, accepted raw metadata and findings atomically. Use `checkpoint` to inspect and revalidate a retained prefix after restart; this does not establish current source health or authenticate the chain.

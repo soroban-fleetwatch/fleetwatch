@@ -15,14 +15,31 @@ baseline="$(realpath -e -- "$2")"
 package_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$package_root"
 sha256sum --check --strict SHA256SUMS >/dev/null
+python3 - <<'PY'
+import json,pathlib,platform,sys
+try:
+    build=json.loads(pathlib.Path('BUILD.json').read_text())
+except (OSError,ValueError):
+    raise SystemExit('invalid package build metadata')
+if not isinstance(build,dict):
+    raise SystemExit('invalid package build metadata')
+host_arch={'x86_64':'amd64','amd64':'amd64','aarch64':'arm64','arm64':'arm64'}.get(platform.machine().lower())
+if platform.system()!='Linux' or build.get('os')!='linux' or build.get('arch') not in ('amd64','arm64') or build['arch']!=host_arch:
+    raise SystemExit('package architecture does not match host')
+PY
 [[ -d "$(dirname -- "$install_root")" ]] || { echo 'install parent directory must exist' >&2; exit 3; }
 staging="$(mktemp -d "$(dirname -- "$install_root")/.fleetwatch-install.XXXXXXXX")"
 trap 'if [[ -d "$staging" ]]; then rm -rf -- "$staging"; fi' EXIT
 mkdir -p "$staging/bin" "$staging/etc/fleetwatch" "$staging/var/lib/fleetwatch" "$staging/systemd" "$staging/docs" "$staging/schema"
+mkdir -p "$staging/docs/research"
 install -m 0755 bin/fleetwatch "$staging/bin/fleetwatch"
 install -m 0755 bin/host-check.py "$staging/bin/host-check.py"
+install -m 0755 bin/phase9-preflight.sh "$staging/bin/phase9-preflight.sh"
 install -m 0600 "$baseline" "$staging/etc/fleetwatch/baseline.json"
 install -m 0644 LICENSE "$staging/LICENSE"
+install -m 0644 BUILD.json "$staging/BUILD.json"
+install -m 0644 docs/PHASE9_ACCEPTANCE.md docs/ZERO_COST_DEPLOYMENT.md "$staging/docs/"
+install -m 0644 docs/research/2026-10-27-phase9-sizing.json "$staging/docs/research/"
 cp -R licenses "$staging/"
 install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/DELIVERY_LOOP.md docs/WEBHOOKS.md docs/WEBHOOK_PROXY.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$staging/docs/"
 install -m 0644 schema/follow-alert-v3.schema.json schema/delivery-loop-status-v1.schema.json "$staging/schema/"

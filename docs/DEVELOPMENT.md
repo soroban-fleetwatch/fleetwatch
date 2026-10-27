@@ -27,13 +27,20 @@ installation and remaining hosted-production gates. It requires no new Go
 dependency, database server or credential. `follow --check` is offline; ordinary
 tests use synthetic typed metadata. Live follow validation is read-only.
 
-Run `./scripts/check-linux-package.sh` on Linux amd64 to exercise the portable
+Run `./scripts/check-linux-package.sh` on Linux amd64 or arm64 to exercise the portable
 candidate's archive checksums, extracted installation, offline host report and
 failure cases (overwrite, invalid baseline, insufficient space, unsafe state
 permissions and tampering). CI runs the same check in its Go test job. It uses
 temporary directories and reserved `.invalid` RPC URLs, starts no observer and
 requires no Testnet or receiver access. Dependencies must already be cached for
 the Go build to be offline. The report does not certify production hosting.
+
+Packaging now accepts `./scripts/package-linux.sh NEW_DIR [amd64|arm64]`.
+Default remains amd64. Package checks build both targets, inspect ELF/static and
+Go target metadata, run only the host-native binary, and reject installation of
+the foreign architecture before staging. Linux ARM64 execution is not validated
+by cross-building on this amd64 workspace. Zero-cost host access and actual
+Dripwave Phase 9 completion evidence remain separate gates.
 
 
 Run `./scripts/check-vulnerabilities.sh` for the pinned module, source/test and

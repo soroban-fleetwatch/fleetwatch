@@ -1,7 +1,10 @@
 # Portable Linux pilot deployment
 
 The chosen Phase 9 target is a portable Linux deployment, with no new paid
-resources. This package supports one read-only follower on one Linux amd64 host,
+resources. The user's hosting constraint is now **zero cost**; see
+[ZERO_COST_DEPLOYMENT.md](ZERO_COST_DEPLOYMENT.md) for the current access blocker
+and [PHASE9_ACCEPTANCE.md](PHASE9_ACCEPTANCE.md) for the required host evidence.
+The package supports one read-only follower on one Linux amd64 or arm64 host,
 one local persistent disk and loopback health/metrics. It does not provision a
 host, publish a release or claim production validation. There is no mandatory
 frontend, contract deployment or separate SQL service.
@@ -34,12 +37,17 @@ From the repository, activate Go from `.go-version`, then:
 ```sh
 mkdir -p dist
 ./scripts/package-linux.sh dist/linux-candidate
+# For a confirmed ARM64 Linux host (cross-build only on amd64):
+./scripts/package-linux.sh dist/linux-arm64-candidate arm64
 ```
 
 The candidate contains a static Linux amd64 binary, user installer, systemd
 template, guides, license/linked-module notices, per-file SHA256SUMS and BUILD.json with the source
 commit, dirty-tree flag and compiler. A dirty candidate is explicitly labelled;
-it is not a release artifact. Other platforms are not validated by this package.
+it is not a release artifact. Both Linux architectures are built/inspected;
+only amd64 execution is validated in this environment. Native ARM64 runtime and
+actual target-host operation remain unverified. Choose the bundle matching the
+host; the installer rejects a mismatch before creating an installation.
 On the destination, install OS CA certificates plus Bash, Python 3, coreutils
 and tar. TLS verification remains enabled. Verify the archive checksum from your
 trusted handoff, extract it, then install to a **new** user-owned absolute path:
@@ -50,6 +58,11 @@ fleetwatch-linux-amd64/bin/install-user.sh \
   "$HOME/fleetwatch-pilot" /path/to/actual-asserted-baseline.json \
   https://soroban-testnet.stellar.org
 ```
+
+For an arm64 host, extract and use fleetwatch-linux-arm64 instead. Installed
+BUILD.json records the target architecture. The bundled bin/phase9-preflight.sh
+collects offline evidence (or fixed loopback observations with --running) and
+always leaves production_validated=false; see the acceptance guide.
 
 The installer checks file hashes, validates configuration/baseline using the
 packaged binary, and writes a fresh installation atomically without overwriting

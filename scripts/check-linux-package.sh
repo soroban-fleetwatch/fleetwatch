@@ -6,14 +6,24 @@ repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 scratch="$(mktemp -d /tmp/fleetwatch-package-check.XXXXXXXX)"
 trap 'rm -rf -- "$scratch"' EXIT
-./scripts/package-linux.sh "$scratch/artifacts"
+[[ "$(uname -s)" == Linux ]] || { echo 'package checks require Linux' >&2; exit 3; }
+case "$(uname -m)" in
+  x86_64|amd64) native_arch=amd64; cross_arch=arm64 ;;
+  aarch64|arm64) native_arch=arm64; cross_arch=amd64 ;;
+  *) echo 'package checks require Linux amd64 or arm64' >&2; exit 3 ;;
+esac
+if [[ "$native_arch" == amd64 ]]; then
+  ./scripts/package-linux.sh "$scratch/artifacts"
+else
+  ./scripts/package-linux.sh "$scratch/artifacts" "$native_arch"
+fi
 (
   cd "$scratch/artifacts"
   sha256sum --check --strict ARCHIVE.sha256
   mkdir "$scratch/extracted"
-  tar -xzf fleetwatch-linux-amd64.tar.gz --no-same-owner -C "$scratch/extracted"
+  tar -xzf "fleetwatch-linux-$native_arch.tar.gz" --no-same-owner -C "$scratch/extracted"
 )
-bundle="$scratch/extracted/fleetwatch-linux-amd64"
+bundle="$scratch/extracted/fleetwatch-linux-$native_arch"
 baseline="$repo_root/testdata/reconstruction-baseline.json"
 "$bundle/bin/install-user.sh" "$scratch/installed" "$baseline" https://rpc.example.invalid
 export XDG_RUNTIME_DIR="$scratch/runtime"
@@ -53,4 +63,46 @@ expect_failure "$bundle/bin/install-user.sh" "$scratch/tampered-install" "$basel
 test ! -e "$scratch/tampered-install"
 test -z "$(ls -A "$scratch/installed/var/lib/fleetwatch")"
 test -z "$(find "$scratch" -maxdepth 1 -name '.fleetwatch-install.*' -print -quit)"
-echo 'Linux package checks PASS: archive, extracted install, offline preflight, no overwrite, invalid baseline, capacity/mode rejection and tamper rejection.'
+# Inspect the other target architecture without running its binary on this host.
+./scripts/package-linux.sh "$scratch/cross-artifacts" "$cross_arch"
+(
+  cd "$scratch/cross-artifacts"
+  sha256sum --check --strict ARCHIVE.sha256
+  mkdir "$scratch/cross-extracted"
+  tar -xzf "fleetwatch-linux-$cross_arch.tar.gz" --no-same-owner -C "$scratch/cross-extracted"
+)
+cross_bundle="$scratch/cross-extracted/fleetwatch-linux-$cross_arch"
+(
+  cd "$cross_bundle"
+  sha256sum --check --strict SHA256SUMS >/dev/null
+)
+python3 - "$bundle" "$native_arch" "$cross_bundle" "$cross_arch" <<'PY'
+import json,pathlib,struct,subprocess,sys
+if not __debug__:raise SystemExit('package checks require Python assertions enabled')
+for root_arg,arch in [(sys.argv[1],sys.argv[2]),(sys.argv[3],sys.argv[4])]:
+ root=pathlib.Path(root_arg);meta=json.loads((root/'BUILD.json').read_text())
+ assert meta['os']=='linux' and meta['arch']==arch and meta['public_release'] is False
+ binary=root/'bin/fleetwatch'
+ with binary.open('rb') as stream:
+  header=stream.read(64)
+  assert header[:4]==b'\x7fELF' and header[4:6]==b'\x02\x01'
+  assert struct.unpack_from('<H',header,18)[0]=={'amd64':62,'arm64':183}[arch]
+  offset=struct.unpack_from('<Q',header,32)[0]
+  entry_size,entries=struct.unpack_from('<HH',header,54)
+  assert entry_size>=4 and entry_size*entries<=1<<20
+  stream.seek(offset);programs=stream.read(entry_size*entries)
+  assert len(programs)==entry_size*entries
+  assert all(struct.unpack_from('<I',programs,i*entry_size)[0]!=3 for i in range(entries))
+ # go version -m reads build metadata and does not execute the target binary.
+ info=subprocess.check_output(['go','version','-m',str(binary)],text=True)
+ assert 'GOOS=linux' in info and 'GOARCH='+arch in info and 'CGO_ENABLED=0' in info
+print('Both Linux ELF architectures, static linkage and target build metadata verified without executing the foreign binary.')
+PY
+expect_failure "$cross_bundle/bin/install-user.sh" "$scratch/wrong-arch-install" "$baseline" https://rpc.example.invalid
+python3 - "$scratch/expected-failure.log" <<'PY'
+import pathlib,sys
+if 'package architecture does not match host' not in pathlib.Path(sys.argv[1]).read_text():
+ raise SystemExit('foreign package was not rejected by the installer architecture guard')
+PY
+test ! -e "$scratch/wrong-arch-install"
+echo 'Linux package checks PASS: native install/preflight/failures, both archives/ELF targets, and foreign-architecture install rejection. Foreign runtime remains unverified.'

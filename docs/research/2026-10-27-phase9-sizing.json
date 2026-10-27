@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-27",
+  "binary_commit": "ebca09c",
+  "kind": "LOCAL_WARM_FILESYSTEM_SINGLE_SAMPLE_SIZING",
+  "source_sha256_unchanged": "80a9bb5a729d94ba82ddd3edaf9e2709aef19eda465335bdf1ff8a84528bd0ce",
+  "retained_ledgers": 17,
+  "retained_payload_bytes": 5741419,
+  "source_physical_bytes": 16777216,
+  "ledger_close_interval_seconds": 5.0,
+  "average_payload_bytes_per_ledger": 337730.53,
+  "illustrative_64mib_budget_minutes": 16.56,
+  "illustrative_256mib_budget_minutes": 66.24,
+  "measurements": {
+    "startup_inspect": {
+      "samples": [
+        {
+          "wall_seconds": 0.632194,
+          "user_seconds": 0.454102,
+          "system_seconds": 0.291601,
+          "peak_rss_kib": 22148
+        },
+        {
+          "wall_seconds": 0.494391,
+          "user_seconds": 0.474042,
+          "system_seconds": 0.230587,
+          "peak_rss_kib": 24048
+        },
+        {
+          "wall_seconds": 0.49064,
+          "user_seconds": 0.502499,
+          "system_seconds": 0.217396,
+          "peak_rss_kib": 25024
+        },
+        {
+          "wall_seconds": 0.295444,
+          "user_seconds": 0.344487,
+          "system_seconds": 0.129111,
+          "peak_rss_kib": 24124
+        },
+        {
+          "wall_seconds": 0.334,
+          "user_seconds": 0.349837,
+          "system_seconds": 0.188228,
+          "peak_rss_kib": 22468
+        }
+      ],
+      "median_wall_seconds": 0.49064,
+      "max_peak_rss_kib": 25024
+    },
+    "verify_archive": {
+      "samples": [
+        {
+          "wall_seconds": 0.345894,
+          "user_seconds": 0.376824,
+          "system_seconds": 0.136361,
+          "peak_rss_kib": 22656
+        },
+        {
+          "wall_seconds": 0.349744,
+          "user_seconds": 0.39197,
+          "system_seconds": 0.137654,
+          "peak_rss_kib": 21064
+        },
+        {
+          "wall_seconds": 0.347043,
+          "user_seconds": 0.370459,
+          "system_seconds": 0.141828,
+          "peak_rss_kib": 22068
+        },
+        {
+          "wall_seconds": 0.499242,
+          "user_seconds": 0.387609,
+          "system_seconds": 0.296949,
+          "peak_rss_kib": 23340
+        },
+        {
+          "wall_seconds": 0.532222,
+          "user_seconds": 0.4625,
+          "system_seconds": 0.254829,
+          "peak_rss_kib": 21560
+        }
+      ],
+      "median_wall_seconds": 0.349744,
+      "max_peak_rss_kib": 23340
+    }
+  },
+  "production_sizing_validated": false,
+  "limitations": [
+    "Five fresh processes per operation; filesystem cache warmed by local copy/read.",
+    "Same seventeen-ledger captured Testnet sample; no representative load/fleet variation.",
+    "Linux fork/wait4 resource accounting; peak RSS is per child process.",
+    "Budget times extrapolate one tiny sample and do not predict actual stop times.",
+    "No network calls, external receiver, source writes or production host involved."
+  ]
+}

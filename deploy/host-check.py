@@ -34,8 +34,24 @@ def main():
         except (OSError, subprocess.TimeoutExpired):
             return False
 
-    supported = platform.system() == "Linux" and platform.machine() in ("x86_64", "amd64")
-    record("platform", "PASS" if supported else "FAIL", "requires Linux amd64")
+    machine_arch = {"x86_64": "amd64", "amd64": "amd64", "aarch64": "arm64", "arm64": "arm64"}.get(platform.machine().lower())
+    try:
+        with (root / "BUILD.json").open("rb") as metadata:
+            raw_metadata = metadata.read(16385)
+        if len(raw_metadata) > 16384:
+            raise ValueError("oversized build metadata")
+        build = json.loads(raw_metadata)
+        expected_arch = build["arch"]
+        metadata_valid = build["os"] == "linux" and expected_arch in ("amd64", "arm64")
+        if not metadata_valid:
+            expected_arch = None
+    except (OSError, ValueError, KeyError, TypeError):
+        expected_arch = None
+        metadata_valid = False
+    supported = metadata_valid and platform.system() == "Linux" and machine_arch == expected_arch
+    record("platform", "PASS" if supported else "FAIL",
+           dict(required_os="linux", package_arch=expected_arch, host_arch=machine_arch,
+                metadata_valid=metadata_valid))
     tools = all(shutil.which(name) for name in ("bash", "sha256sum", "realpath", "tar"))
     record("tools", "PASS" if tools else "FAIL", "Bash, coreutils and tar required; Python is running")
     cert = ssl.get_default_verify_paths()

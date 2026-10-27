@@ -6,6 +6,13 @@
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
 
+**Dripwave Phase 9 hosting gate: BLOCKED on deployment inputs.** The user now
+requires zero-cost hosting. No permanent host/account or authorized receiver is
+connected. Portable preparation and local tests do not satisfy the guide's
+production end-to-end gate. Use [the zero-cost handoff](../ZERO_COST_DEPLOYMENT.md)
+and [host acceptance checklist](../PHASE9_ACCEPTANCE.md); do not mark Phase 9 or
+later Dripwave phases complete from this ephemeral workspace.
+
 | Stage | State | Commit/PR/test or evidence | Blocker / next action |
 |---|---|---|---|
 | S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
@@ -843,3 +850,57 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   permanent-host validation remain open. Real cloud sidecar numeric CONNECT
   compatibility is unverified and may be denied; no workaround or policy bypass
   is introduced. No release, protected merge, hosting provision or Wave submission.
+
+## Phase 9 zero-cost handoff and explicit deployment gate — 2026-10-27
+
+- User instructed continuing through Phase 9, following Dripwave and using zero-
+  cost deployment only. The earlier paid-VM suggestion is superseded; no paid
+  resource/account was created. Current environment is a development executor,
+  PID 1 tail, with no connected provider identity/capability/SSH host or authorized
+  receiver. It is not a permanent production host. The Dripwave gate explicitly
+  requires the deployed topology to work end-to-end in production.
+- Completed a zero-cost deployment handoff for an existing owner-controlled
+  host or a confirmed free persistent VM, without inventing provider eligibility.
+  Official Oracle free-tier/documentation reads returned HTTP 403 via the normal
+  proxy; free allocation, availability and cost safeguards remain unverified.
+  No policy bypass, billable trial, hardware purchase, credential or provider
+  permission was introduced. Paid fallback is disallowed by the user constraint.
+- Added Linux arm64 alongside default amd64 packaging, with target-specific Go
+  dependency notices/BUILD metadata. Both ELF/static targets are inspected;
+  only native amd64 executes here. Installer verifies architecture before staging
+  or running the binary and copies BUILD.json into the install. Mismatched target
+  installation is rejected without creating a destination. ARM runtime, actual
+  free host, unit operation and boot behavior remain unverified.
+- Added bundled read-only phase9-preflight collector and concrete acceptance
+  table. Optional --running contacts only fixed loopback status/readiness; no
+  source/receiver request or service start. The collector always emits
+  phase9_complete=false and production_validated=false; successful collection
+  cannot fabricate host/receiver/cost/retention acceptance. Offline, mock-running,
+  public-listener rejection and argument checks PASS.
+- Measured five fresh processes per operation on the same captured seventeen-
+  ledger pilot: startup inspection median 0.490640 s / max RSS 25,024 KiB;
+  archive verification median 0.349744 s / max RSS 23,340 KiB. Warm filesystem,
+  isolated copies, original DB unchanged. Detailed samples are retained in
+  docs/research/2026-10-27-phase9-sizing.json. Extrapolating this tiny sample gives
+  roughly 16.6 minutes at 64 MiB / 66.2 minutes at 256 MiB, not a production
+  forecast. A reviewed capacity/retention policy is materially necessary; a
+  larger VM alone does not bypass logical limits or prove unattended operation.
+- Independent review found one wrong-path integrity defect: writable bbolt open
+  could change foreign NoFreelistSync metadata before rejecting its namespace.
+  Fixed OpenExisting in `d65f200` with read-only recognition before writable open, pinned
+  file identity and no creation. Regression tests preserve foreign/invalid/swapped
+  file bytes and confirm valid imported outboxes still persist acknowledgements.
+  No proxy defect requiring changes was found; this is not an external audit.
+- Local checks PASS: 254 default top-level tests, six fuzz seed targets, four
+  intentional skips; affected store/alert/followdelivery/CLI race tests;
+  formatting/vet/modules/tidy-diff; pinned module/source-test/binary vulnerability
+  scans; actionlint/Bash/Python checks; two-architecture package/ELF metadata,
+  native install/preflight, mismatch rejection and all existing package failure
+  cases. Remote CI unverified. No dependency or default secret requirement added.
+- Phase 9 is BLOCKED, not complete: actual confirmed-zero-cost host/access,
+  authorized receiver/key, real routing, service/reboot/backup/resume evidence
+  and reviewed host capacity remain outstanding. Shared SQL, full lifecycle and
+  independent chain authentication are separate roadmap gaps, not reasons to
+  keep inventing unrelated Phase 9 utility milestones. Do not proceed past the
+  real hosting gate or claim approval. No source assurance upgrade, release,
+  protected merge, service start, chain write or Wave submission occurred.
