@@ -1,0 +1,230 @@
+{
+  "network": "Test SDF Network ; September 2015",
+  "owner": "CCSC3UOXCCNB3VV7MM2P63IPNVKHQQ3TUMBCIW6OW42F75FBGMI4Y3VA",
+  "members": [
+    "CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY",
+    "CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM"
+  ],
+  "initial_upgrade_ledger": 5407730,
+  "transition_baseline_ledger": 5407791,
+  "processed_through": 5407803,
+  "findings": [
+    {
+      "code": "UNAPPROVED_REFERENCE_CHANGE",
+      "severity": "critical",
+      "message": "Externally managed executable changed without an exact approved hash transition in the supplied policy.",
+      "owner": "CCSC3UOXCCNB3VV7MM2P63IPNVKHQQ3TUMBCIW6OW42F75FBGMI4Y3VA",
+      "tag_hex": "666c65657477617463682d64656d6f",
+      "old_hash": "10c093251bf8e70fba073bdfea8868d6c5229397049a8be2aa880cb82c26eb28",
+      "new_hash": "8d68f7ede8dd8656c8068736054f8991e2f29a8ff6d1215a5116875f7ea8987d",
+      "affected_contracts": [
+        "CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM",
+        "CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY"
+      ],
+      "authorization": "UNVERIFIED"
+    },
+    {
+      "code": "CONTRACT_EXECUTABLE_REPOINTED",
+      "severity": "high",
+      "message": "Contract executable identity changed (direct Wasm, external owner/tag, or asset executable type).",
+      "contract_id": "CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY",
+      "new_hash": "8d68f7ede8dd8656c8068736054f8991e2f29a8ff6d1215a5116875f7ea8987d",
+      "authorization": "UNVERIFIED"
+    },
+    {
+      "code": "UNAPPROVED_REFERENCE_CHANGE",
+      "severity": "critical",
+      "message": "Externally managed executable changed without an exact approved hash transition in the supplied policy.",
+      "owner": "CCSC3UOXCCNB3VV7MM2P63IPNVKHQQ3TUMBCIW6OW42F75FBGMI4Y3VA",
+      "tag_hex": "666c65657477617463682d64656d6f",
+      "old_hash": "8d68f7ede8dd8656c8068736054f8991e2f29a8ff6d1215a5116875f7ea8987d",
+      "new_hash": "10c093251bf8e70fba073bdfea8868d6c5229397049a8be2aa880cb82c26eb28",
+      "affected_contracts": [
+        "CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM"
+      ],
+      "authorization": "UNVERIFIED"
+    }
+  ],
+  "transactions": {
+    "smoke-deploy-owner-0": {
+      "transaction_hash": "7b9940edb07f6e9d2c22a64872abcd06fdb5ecea21086ec64d27ac10aa93ae5e",
+      "ledger": 5407725,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "5791c62c38d3a1c8d1290f96655eebbbf47f588d92f60fec7892e7c579d8cc85"
+    },
+    "smoke-deploy-owner-1": {
+      "transaction_hash": "676f9d8ccac6b09e3df03db885b01d4b8644f4de764f4984afc816618a537104",
+      "ledger": 5407726,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "4e22d6ddce79949d33669a56f814fdaed5ae14dacf77f1ab8d699d0ed18b185a"
+    },
+    "smoke-member-1-0": {
+      "transaction_hash": "d15b57e528f72afcf0dfdacac47d70a30fb299b349cef41a177ba6fd29544443",
+      "ledger": 5407728,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "d56ec0e16de3a1f011dca6d9992eb8db070d84e1b6540abfa915797150ab6979"
+    },
+    "smoke-member-2-0": {
+      "transaction_hash": "045ce4cb8e31f4063aa6fb07acca49d5490991292a29f99f34dadfe2d3a24644",
+      "ledger": 5407729,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "39a765c85acfa607e0b4a6ab7e389bacccc6b82f2b5c1bb4d3dc672128a9ee6d"
+    },
+    "smoke-publish-a-0": {
+      "transaction_hash": "d1fde7ff7fefc7cd121b441e12801efe0d8081adf458ba01e0433e6be287affe",
+      "ledger": 5407727,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "760cee7ef14d48fbd75982c5370f8bf1175234743c4474219839b090333a1103"
+    },
+    "smoke-publish-b-0": {
+      "transaction_hash": "87d17163405a84414649879a859904b05416f37a6695c1f708080c5ccea99405",
+      "ledger": 5407730,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "d63a4e6a35ec2f9b3b3a9c4c3e9e9039f5d107fdef0b3a2217825950400627a9"
+    },
+    "smoke-upload-a-0": {
+      "transaction_hash": "50b6386710c211a71dbf2b3af922b16b85d70728c8a7dc707b85823cd7444d97",
+      "ledger": 5407723,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "3c6c10fcee83e18100a0331e33fb7b4da6140e838b7f7ed403c2ebcf3501e1c4"
+    },
+    "smoke-upload-b-0": {
+      "transaction_hash": "d265abaa919c07844f067979f3438ec8d7aae1317c64162b8df9880eca01f5ba",
+      "ledger": 5407724,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "ce0e02e884f7039a1275e0e3b3f596e4a2269573e283b43e9f13ba3015f478c3"
+    },
+    "rollback": {
+      "transaction_hash": "18524b37ecc6af823ca88ae81c1af38afccd82fbeadb12012f176cfb2c09e58d",
+      "ledger": 5407793,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "6fb2f2b97e26addfa41341e94f966d3b4221e4bd5843caee9c85de80ac9c8d4e"
+    },
+    "rollback-version-0": {
+      "transaction_hash": "65471d84a33b3b187b96db5da80744acd92518d0e1a239344151a323b5cb1c5f",
+      "ledger": 5407794,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "d9b401a8c45517555f6dcbebd65d09156dbc06515d5a21d9f424f7481c0a6f88"
+    },
+    "rollback-version-1": {
+      "transaction_hash": "984b168ba973b39538dd04d77e74769f7e8709aecd2e057dc7b37474f7a2014c",
+      "ledger": 5407795,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "ae812f079732a37b8d64bd9767c599e3f4ad44cf20809ef7500c2e456b428710"
+    },
+    "repoint": {
+      "transaction_hash": "ce990c0ea9f53d9aad500b772e4a997fb62e8928e6689c5de84827cadddc24d7",
+      "ledger": 5407796,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "d1ca3d81bacec6b593a7a3b192e61d4fa7b14f4650abe60165dc14b2d15b88bb"
+    },
+    "republish-b": {
+      "transaction_hash": "a09957ea7da0da7c922aee36819f37434625db8eac59dd4c9ef4a3de08a4d65b",
+      "ledger": 5407797,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "8d2c5d7858f344a1a26ea706963ad45a9799bb08162caa636fed505ddddb3565"
+    },
+    "detached-version-0": {
+      "transaction_hash": "53203bba2ceaf92c74293a483652e3ae9f994be20fd0002f8b833fc8ecc85a8c",
+      "ledger": 5407798,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "c99aa2f3c5c8a20f26eca0042b8a710d3314ff5c1129950a3cfda238f81c8edb"
+    },
+    "detached-version-1": {
+      "transaction_hash": "347f5780a67277139ff874079ad53f8bc88cab3a76056e078bd2768c067d3742",
+      "ledger": 5407799,
+      "status": "SUCCESS",
+      "envelope_hash_matches_testnet": true,
+      "metadata_sha256": "19ddad4b466f4586527e37a2fe496a3262ef084e7297efea1974c332f9476f2e"
+    }
+  },
+  "local_receiver": {
+    "cold_reopen_repeated_attempts": 0,
+    "delivered": 26,
+    "exact_body_hmac_verified": true,
+    "external_deliveries": 0,
+    "ids": {
+      "0a69906ed91609ece67f39154163580324af8f05593c8576c726a5f9e44cb269": true,
+      "1f7cf929c0cdad3b8e0485cba89f1a6275489c1308e8bfaba8810d5159a2684b": true,
+      "219ed3a65463d3629172e5beb8503801e97359157963063f56d61bc07b082059": true,
+      "21eb2f060b5d7ebaccfe0ecadd4cdb1f3f022c1ae42582187cae7a24b5275650": true,
+      "23d34e6851b3143265edc096d6d9b1caab1a1ea24272abb523a38675d3b3f5b6": true,
+      "2e1175787af1f8cfe3be7668d6d15c4346b4d9a9623e0b67b550c36ec612eaae": true,
+      "2eb5faaea7c8a1f04c11e0ac999b3ef0cc2018ba204b14e5aac508145975b467": true,
+      "33d3e0eb9faeeb271a768f3af75c985ed54d5f88192562d00b30e90249675ad4": true,
+      "49f9cc19e108b096c48845ee452fe475e29c86dfafe99e6cbb5df0dc4e2aab79": true,
+      "6b9a9d59e1c63c212d7e1ccc7224519aad52ee6c908ee1f5148c2fec7a96da98": true,
+      "733f53ee08ad73f6d966feb3631530937e1b66115a5c2af2d978a2672d0a81c9": true,
+      "90666fe0c8bd2446b2b70abce7eca05d3873e044776c504bac08d99c7e5301d8": true,
+      "9c8bcf4b40c400f3fbb0a109116c3484e4c89a6a4341cdf68dfa5003485b42b4": true,
+      "a1e5b6c3bcc44c3bc713242d5c55dd4601dba0a9af54539bc88fc17a1f981d4c": true,
+      "a7f696dfd3cfb1aa6b1ef7aa5798444d253e42bb151601e2d21cb7cb7fe0efde": true,
+      "bb5f1d10b9e29959e9fd023ca75fbdff79cb50735f3c88df33e3fd1db9d313b6": true,
+      "bbe8f68dcd2814f0a5bdaf4bf8f157140ab17709a59849765270299ea0bc9bb0": true,
+      "bc8e7188bd4bf45055835a6aaf63a984bdf2c72d2b33899f3b7c7a4d626d8d4e": true,
+      "cae1387f89cc0ecf3632e043e72069a04d28f6218116672e4fcabd069e9c0485": true,
+      "d5f24e6c47235ff02fb689bd665a97dfa9cc9eb737b5cd38cf5376ce002d2671": true,
+      "d670aeaf0731cbeff84371426d1256ee0b0006305c417c143b5781b5d5123a70": true,
+      "d7566fd19c231ed5ad0187172bba145334b72a9f2f1a33ebaba0c26a2c3f73e1": true,
+      "e00921048d27b7332d3a6b1fa776f046f9b9cb8feef10d82d44415a5246e8dd1": true,
+      "e66e0e1a99ced0e722d78a97660bb3032e07cecf076e27951cf85f6bd22991e1": true,
+      "e6f1e7dd8e2c74097efe8a5738c2243445d49fbc295f19c5e313b088eaa9dd1e": true,
+      "e953a1d24ae5f16c6910de8a5c87156d65f395f99dc14b1e03f4d0a2288ca9b3": true
+    },
+    "receiver": "LOCAL_VERIFIED_TLS_TEST_FIXTURE",
+    "finding_messages": 3,
+    "historical_diagnostic_messages": 23
+  },
+  "source_authentication": "UNVERIFIED",
+  "metadata_commitment": "NOT_VERIFIED",
+  "final_verdict": "UNDETERMINED",
+  "gap_exercise": "requested future target unavailable; cancelled and resumed; not a claim of missing closed-chain history",
+  "closed_ledger_gap_test": {
+    "cold_reopen_repaired_through": 5407803,
+    "error": "MISSING_OR_UNEXPECTED_LEDGER",
+    "final_verdict": "UNDETERMINED",
+    "kind": "LOCAL_FAULT_INJECTION_OVER_CAPTURED_TESTNET_METADATA",
+    "omitted_closed_ledger": 5407793,
+    "outbox_entries": 4,
+    "repeat_status": "ALREADY_RETAINED",
+    "retained_prefix": 5407792
+  },
+  "committed_prefix_sigterm_recovery": {
+    "baseline_ledger": 5407826,
+    "accepted_before_sigterm": 1,
+    "retained_after_sigterm": 5407827,
+    "resumed_through": 5407830,
+    "stop_exit": 4,
+    "resume_exit": 0,
+    "final_verdict": "UNDETERMINED"
+  },
+  "schema_version": 1,
+  "kind": "fleetwatch_testnet_validation_evidence",
+  "phase": "Dripwave Phase 8: scoped Testnet validation",
+  "recorded_at": "2026-10-27T01:01:12.957565+00:00",
+  "baseline_authentication": "UNVERIFIED",
+  "membership_coverage": "UNKNOWN",
+  "live_transactions_checked": 15,
+  "funding": {
+    "network": "TESTNET",
+    "service": "friendbot.stellar.org",
+    "successful": true,
+    "transaction_hash": "f9ca280c8af39d5fb52ed23b5bd9753a253e08441e0eb98fe05f29f7f9994467",
+    "assurance": "faucet response plus subsequent successful fixture transactions"
+  },
+  "proof_limit": "Receipts and ledger metadata came from one public RPC endpoint. Envelope hashes and successful XDR results were checked; consensus/inclusion and metadata commitments were not independently authenticated."
+}

@@ -3,11 +3,13 @@ package source
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -137,6 +139,20 @@ func (r *HTTPRPC) Ledgers(ctx context.Context, request protocol.GetLedgersReques
 	err := r.call(ctx, protocol.GetLedgersMethodName, request, &result)
 	if err != nil {
 		return protocol.GetLedgersResponse{}, err
+	}
+	return result, nil
+}
+
+// Transaction retrieves an endpoint claim for a canonical transaction hash.
+// Callers must separately validate its envelope/result and any chain inclusion.
+func (r *HTTPRPC) Transaction(ctx context.Context, hash string) (protocol.GetTransactionResponse, error) {
+	raw, err := hex.DecodeString(hash)
+	if err != nil || len(raw) != 32 || hash != strings.ToLower(hash) {
+		return protocol.GetTransactionResponse{}, errors.New("invalid transaction hash")
+	}
+	var result protocol.GetTransactionResponse
+	if err := r.call(ctx, protocol.GetTransactionMethodName, protocol.GetTransactionRequest{Hash: hash}, &result); err != nil {
+		return protocol.GetTransactionResponse{}, err
 	}
 	return result, nil
 }

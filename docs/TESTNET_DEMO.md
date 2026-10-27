@@ -1,9 +1,11 @@
 # CAP-85 Testnet validation
 
-Phase 8 is in progress. The compiled fixture tests and read-only RPC preflight
-pass. No fixture contract has been deployed and no upgrade transaction has been
-submitted by this workflow. The live smoke below has not yet run successfully.
-This is a test-only contract workspace, separate from the Go watcher.
+Dripwave Phase 8's scoped Testnet validation passed on 2026-10-27. Actual fixture
+deployments, shared upgrades/rollback, direct repointing, bounded history,
+restart recovery and local signed alert delivery were exercised. See the
+[recorded evidence](research/2026-10-27-testnet-validation.md). This is a test-only
+contract workspace, separate from the Go watcher. Chain authentication and
+production readiness remain unfinished; every chain verdict is UNDETERMINED.
 
 ## Local preparation
 
@@ -53,10 +55,9 @@ keeps source authentication UNVERIFIED and metadata commitments NOT_VERIFIED.
 
 ## Controlled live smoke
 
-The cloud funding request currently fails with proxy `Forbidden` for
-`friendbot.stellar.org`. A draft adds only that domain to the existing custom
-allowlist. Review/save the draft and publish the cloud environment before retrying.
-Saving the draft alone does not activate the change.
+The cloud policy now permits `friendbot.stellar.org`; faucet funding and
+subsequent fixture transactions succeeded. Other environments need that hostname
+as well as the public Testnet RPC. Preserve the managed proxy and CA trust.
 
 The official CLI's jsonrpsee RPC transport uses a direct connector instead of
 the managed HTTP proxy. The live runner starts a loopback-only adapter for the
@@ -106,19 +107,49 @@ PARTIAL capture and UNVERIFIED authorization are never upgraded to chain proof.
 The `UNAPPROVED_REFERENCE_CHANGE` code describes absence of a supplied policy
 match, not verified maliciousness or a verdict about the administrator.
 
-The live runner is prepared but its transaction path remains unverified. Do not
-present its future output filenames as evidence that those transactions happened.
+The live transaction path passed. A run creates new test-only contracts, spends
+Testnet faucet funds for fees, and leaves public transaction evidence. Keep its
+signing identity only for the duration of the test; the recorded run's identity
+was removed after validation and was never committed or printed.
 
-## Full live acceptance still required
+## Full scoped validation
 
-After the snapshot smoke, retain actual transaction hashes and fetch their
-successful transaction/ledger metadata through a separate read path. Establish
-the baseline and bounded ledger interval, reconstruct both members' transition,
-and compare the result with the known submitted upgrade. Repeat for rollback and
-direct repoint. Exercise a deliberate history gap, process restart with no
-duplicate events, and a local verified-TLS alert receiver. External delivery
-requires an explicitly authorized receiver. A snapshot comparison alone does not
-pass this acceptance gate.
+After a fresh snapshot smoke, continue with the same disposable identity:
+
+```sh
+python3 scripts/validate-testnet.py fleetwatch-demo \
+  /workspace/.private/fleetwatch-testnet testnet-runs/first-upgrade \
+  testnet-runs/first-validation
+```
+
+This performs additional Testnet writes to those fixture contracts. It checks
+the original deployment/upgrade receipts through a separate Go read path,
+recomputes network-bound envelope hashes, decodes successful XDR results and
+reconstructs the observed transition from real ledger metadata and an asserted
+baseline. It then exercises rollback, direct repoint, another shared update and
+submitted version calls, whose actual result metadata must show 1/1 then 1/2.
+It runs a finite watcher, cancels after an accepted prefix, resumes it, and
+checks stable outbox contents across another process restart.
+
+The target is twelve ledgers beyond the new baseline, inside the existing
+sixteen-ledger bound. Slow transactions or source failures can exhaust that
+window and fail the run; the script does not expand the bound or relabel a
+partial run as success. Use a fresh smoke/fleet for another attempt rather than
+changing the acceptance assertions. Output directories are never overwritten.
+
+Two opt-in tests use retained real Testnet data: a local RPC fault replay omits
+one closed ledger and proves rejection/cold-reopen recovery, and a backup of the
+real outbox is delivered to the existing loopback-only verified-TLS fixture.
+The receiver verifies exact-body HMAC, alert IDs and unchanged assurance, then
+reopens the DB and checks that acknowledged deliveries are not repeated. These
+tests skip in normal CI unless their explicit evidence paths are supplied by
+the runner. CI does not perform live transactions or contact an external receiver.
+
+The fault replay is an injected local omission, not a real missing Testnet
+ledger. Future-target availability failures from the live watcher are recorded
+separately. Local TLS delivery does not establish production webhook routing;
+external delivery still requires an explicitly authorized receiver. A snapshot
+comparison alone does not pass this validation.
 
 Baseline authentication, independent header anchoring, metadata commitments,
 broader fleet completeness and production monitoring remain separate engineering

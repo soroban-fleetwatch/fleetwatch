@@ -57,7 +57,7 @@ The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-a
 
 [Dependency checks](docs/DEPENDENCY_CHECKS.md) cover required-module advisories, source/tests and the compiled CLI with a pinned scanner. CI also pins its compiler and action revisions; remote CI results remain unverified.
 
-The [Testnet validation guide](docs/TESTNET_DEMO.md) includes compiled CAP-85 fixture tests, a read-only preflight and a prepared live snapshot smoke. Local fixture tests pass; live deployment and full history/alert acceptance remain unfinished.
+The [Testnet validation guide](docs/TESTNET_DEMO.md) includes compiled fixtures and a completed controlled two-member CAP-85 demonstration: upgrade/rollback, direct repoint, bounded history, restart/gap recovery and local signed alerts. [Actual evidence](docs/research/2026-10-27-testnet-validation.md) retains unverified chain assurance; production operations remain unfinished.
 
 [RPC response guards](docs/RPC_JSON.md) reject ambiguous or oversized JSON before typed capture and reconstruction. Provider extensions remain supported; chain authentication remains unverified.
 

@@ -11,7 +11,7 @@
 | S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
-| S3 Real Testnet proof | IN PROGRESS: compiled fixtures and read-only preflight | Three actual-Wasm host tests pass; fresh protocol-29 metadata preflight passes | Testnet faucet access blocked; live upgrade/history/restart/alert acceptance remains |
+| S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
 | S4 Sequential historical ingest | IN PROGRESS: bounded resumable RPC ingestion | Exact-range RPC fetch, cursor-fenced commit, asserted-baseline projection, atomic evidence/alerts and crash/restart tests | Authenticated baseline/metadata commitments, lifecycle reconciliation, production retention and Postgres remain |
 | S5 Watcher/alerts | IN PROGRESS: bounded polling worker and outboxes | Finite configured polling, cancellation/progress, atomic outboxes, manual recovery/audit and local TLS tests | Unbounded worker, production retention/live telemetry and proxy-aware delivery transport remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
@@ -46,7 +46,7 @@ Update after each milestone. A status becomes PASS only when tests and reference
 
 1. Extend bounded diagnostic reconstruction checkpoints into authenticated continuous ingestion: trusted baseline, metadata commitments, full lifecycle reconciliation, durable gap/delivery handling, production retention and restart recovery. Never relabel current-state polling or supplied snapshots as comprehensive chain history.
 2. Decide independently trusted header anchoring, metadata/transaction commitment verification and provenance requirements before allowing chain-safe verdicts or approval-based severity changes. Source authentication and fleet completeness remain unverified.
-3. Prepare controlled CAP-85 Testnet contract fixtures and actual update evidence. Read-only metadata retrieval now works, but no contract deployment/transaction was performed and the full Testnet acceptance gate is not passed.
+3. Controlled CAP-85 Testnet fixtures and scoped update/restart/alert evidence now pass (see the 2026-10-27 Testnet validation checkpoint). Preserve those regressions while addressing source authentication and production operation; do not relabel the diagnostic as authenticated chain approval.
 4. Extend the finite polling worker into a continuous production service with retention/storage, durable telemetry, trust distribution and release validation. Existing local replay, outbox, approval, report and backup features remain experimental.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
@@ -386,3 +386,65 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   instructions saved in the same network draft; save confirmed, requires_publish
   true. Public checkpoint `3eae690` is on the new branch; transport follow-up is
   recorded in the subsequent commit. No live deployment or public release.
+
+## Dripwave Phase 8 scoped Testnet validation PASS — 2026-10-27
+
+- Continues published `dd0784a` on feat/testnet-cap85-demo. Current environment
+  policy is enforced and includes friendbot.stellar.org. Faucet funding succeeded;
+  the source-access blocker is resolved. The official CLI's default cache write
+  failed on the read-only filesystem; supported --no-cache fixes it without
+  disabling TLS, signatures, RPC validation or managed proxy routing.
+- Actual owner/two-member fixtures deployed. Shared A→B at ledger 5407730 affected
+  both; B→A rollback at 5407793 affected both; direct repoint of the first at
+  5407796 detached it; shared A→B at 5407797 affected only the second. Submitted
+  version calls' successful result metadata showed 1/1 then 1/2. These were actual
+  Testnet transactions, not simulation results. Fifteen fixture receipts checked
+  through a separate Go read path: network-bound envelope hashes, successful XDR
+  results and decoded metadata. Same upstream endpoint, not independent consensus.
+- Added typed read-only HTTPRPC.Transaction using existing bounded/strict RPC
+  decoding, canonical hash validation and zero-valued failure behavior. Regression
+  test covers invalid hash rejection before network access and ambiguous receipts.
+  Developer testnet-receipt tool rejects unsuccessful/mismatched envelope results;
+  it explicitly retains inclusion NOT_VERIFIED and final UNDETERMINED.
+- Actual initial upgrade reconstructed from 5407729 asserted baseline and 5407730
+  metadata. Cold-process ingest returned ALREADY_RETAINED without DB byte changes.
+  Another real twelve-ledger range, 5407792–5407803, reconstructed three controlled
+  changes. A cancelled future-target worker preserved an incomplete attempt and
+  restarted to COMPLETE; repeated completed watch preserved the exact outbox.
+- Additional read-only SIGTERM test proves accepted-prefix persistence: baseline
+  5407826, one ledger accepted, cancellation exit 4 retained 5407827, fresh worker
+  resumed through 5407830 with exit 0. This is separate from the first cancellation,
+  which occurred before any accepted ledger and retained only its diagnostic.
+- Opt-in local fault replay omitted actual closed ledger 5407793 from captured
+  metadata, stopping at 5407792 with MISSING_OR_UNEXPECTED_LEDGER. Cold reopen and
+  complete replay repaired through 5407803; repeat was ALREADY_RETAINED with stable
+  outbox IDs. This was injected locally, not a real missing Testnet ledger.
+- Opt-in local verified-TLS receiver delivered a backup of the real outbox: three
+  findings plus 23 historical diagnostics, exact-body HMAC/IDs/assurance verified,
+  zero repeated attempts after reopening. External deliveries zero. Production
+  webhook URL/DNS/proxy controls were not weakened. Both opt-in tests PASS when
+  explicitly run against captured real data; normal CI skips them.
+- Added a repeatable continuation driver scripts/validate-testnet.py for receipt,
+  reconstruction, rollback/repoint/version, bounded watcher, gap-replay and local
+  receiver checks. It requires an explicit dedicated alias/config outside the repo
+  and fresh output directory. Assertion-disabled Python is rejected. The initial
+  full run and separate committed-prefix/gap checks passed; later guard/refactoring
+  changes were checked locally without repeating unnecessary Testnet writes.
+- Evidence: docs/research/2026-10-27-testnet-validation.md and matching JSON, with
+  actual contract IDs, transaction hashes, ledger bounds and assurance limitations.
+  Raw captures/DBs/binaries remain ignored under testnet-runs. Disposable signing
+  identity removed after the controlled writes, never printed/tracked. No Mainnet
+  write, public release/tag, hosted production service or Wave
+  submission. Testnet faucet credits were used for fixture transaction fees only.
+- Checks PASS: 208 top-level default Go tests, five fuzz targets' seed runs, full
+  race suite, vet, module verify/tidy-diff, module/source-test/binary vulnerability
+  gates, actionlint, Bash/Python syntax and diff checks. Three default skips are
+  the intentional crash helper (parent runs it) and the two opt-in evidence tests;
+  their separate real-data invocations passed. Affected tests rerun after final
+  cleanup/assertion guards. Remote CI on this new checkpoint remains unverified.
+- S3 / Dripwave Phase 8 scoped demo is PASS; this does not complete internal S8
+  security/performance or the overall roadmap. Next Dripwave phase is operations
+  and hosting topology. Baseline/source UNVERIFIED, metadata commitments and
+  inclusion NOT_VERIFIED, membership/history UNKNOWN, final UNDETERMINED remain.
+  Authentication, continuous retention, production/proxy-aware delivery, load and
+  external review, release validation, docs site and Wave readiness remain open.

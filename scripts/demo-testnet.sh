@@ -4,6 +4,7 @@ set -euo pipefail
 umask 077
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
+[[ -z "${PYTHONOPTIMIZE:-}" || "${PYTHONOPTIMIZE:-}" == 0 ]] || { echo 'validation requires Python assertions' >&2; exit 3; }
 
 case "${1:-check}" in
   check)
@@ -49,7 +50,7 @@ for ((ready_attempt=0; ready_attempt<50; ready_attempt++)); do
 done
 bridge_url="$(cat "$output_dir/bridge-url.txt")"
 [[ "$bridge_url" =~ ^http://127\.0\.0\.1:[0-9]+$ ]] || { echo 'Testnet bridge did not become ready' >&2; exit 4; }
-common=(--config-dir "$config_dir" --rpc-url "$bridge_url" --network-passphrase "$passphrase" --source-account "$alias_name" --inclusion-fee 100)
+common=(--no-cache --config-dir "$config_dir" --rpc-url "$bridge_url" --network-passphrase "$passphrase" --source-account "$alias_name" --inclusion-fee 100)
 admin="$(stellar keys address "$alias_name" --config-dir "$config_dir")"
 [[ "$admin" =~ ^G[A-Z2-7]{55}$ ]] || { echo 'invalid test-only account address' >&2; exit 3; }
 
