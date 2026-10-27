@@ -1,12 +1,17 @@
 # Soroban FleetWatch
 
-**Experimental prototype — offline comparisons and diagnostic RPC capture; live Testnet validation is pending.**
+**Experimental prototype — qualified Testnet observations and offline analysis; chain authentication remains unverified.**
 
 Soroban FleetWatch is a Go-based, open-source tool for observing **Soroban contract fleets** that share executable code through externally managed references (CAP-85, Stellar Protocol 28). A single update to the owner contract's tagged Wasm hash can change the executable of many referenced contracts. FleetWatch compares captured ledger-state snapshots, identifies such changes, calculates the affected contracts, and evaluates observed hash transitions against an explicit approval file.
 
 > **Security boundary:** Snapshot comparisons use JSON supplied by an operator. They do not authenticate ledger entries, validate network consensus, attribute an on-chain actor, or provide continuous alerting. An unsigned policy match is not proof of authorization. The separate signed approval verifier checks scoped signatures against operator-provided trust roots; it does not authenticate chain observations.
 
 ## Quick start
+
+**No Linux machine or hosting account:** download the self-contained
+[browser edition](web/published/FleetWatch.html) and open the saved HTML file.
+It reads Testnet with the existing Go/XDR decoder and exports evidence.
+Observation runs while the page is open. See [instructions and limits](docs/BROWSER.md).
 
 Requires Go 1.25+ for pinned Stellar SDK v0.8.0. The cloud environment uses verified Go 1.27.3.
 
@@ -77,10 +82,10 @@ alerts to an explicitly configured receiver, with optional
 [pinned CONNECT proxy routing](docs/WEBHOOK_PROXY.md). Actual receiver/proxy
 compatibility and permanent-host validation remain unverified.
 
-[Zero-cost deployment](docs/ZERO_COST_DEPLOYMENT.md) requires an existing owned
-Linux host or a confirmed free persistent VM. Both amd64 and arm64 packages are
-available; Phase 9 stays blocked until real host access and the
-[acceptance evidence](docs/PHASE9_ACCEPTANCE.md) are supplied.
+[Zero-cost deployment](docs/ZERO_COST_DEPLOYMENT.md) includes a self-contained
+browser option with no account or host setup. Linux packages remain available
+for the native follower. Public hosting and unattended operations have distinct
+[acceptance evidence](docs/PHASE9_ACCEPTANCE.md).
 
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 

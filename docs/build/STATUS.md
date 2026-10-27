@@ -6,12 +6,14 @@
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
 
-**Dripwave Phase 9 hosting gate: BLOCKED on deployment inputs.** The user now
-requires zero-cost hosting. No permanent host/account or authorized receiver is
-connected. Portable preparation and local tests do not satisfy the guide's
-production end-to-end gate. Use [the zero-cost handoff](../ZERO_COST_DEPLOYMENT.md)
-and [host acceptance checklist](../PHASE9_ACCEPTANCE.md); do not mark Phase 9 or
-later Dripwave phases complete from this ephemeral workspace.
+**Dripwave Phase 9: zero-host browser delivery implemented; public hosting gate unverified.**
+The user explicitly rejected a Linux-machine/account prerequisite. A self-contained
+Go WebAssembly browser client now performs qualified foreground Testnet observation
+and evidence export without those inputs. See [browser instructions](../BROWSER.md),
+[zero-cost decision](../ZERO_COST_DEPLOYMENT.md) and [acceptance](../PHASE9_ACCEPTANCE.md).
+It is current-state observation while open, not the native historical follower.
+Public static-site activation and unattended-service deployment remain unverified;
+Phase 9 is not declared complete from a local package or pushed branch.
 
 | Stage | State | Commit/PR/test or evidence | Blocker / next action |
 |---|---|---|---|
@@ -54,7 +56,7 @@ Update after each milestone. A status becomes PASS only when tests and reference
 1. Extend bounded diagnostic reconstruction checkpoints into authenticated continuous ingestion: trusted baseline, metadata commitments, full lifecycle reconciliation, durable gap/delivery handling, production retention and restart recovery. Never relabel current-state polling or supplied snapshots as comprehensive chain history.
 2. Decide independently trusted header anchoring, metadata/transaction commitment verification and provenance requirements before allowing chain-safe verdicts or approval-based severity changes. Source authentication and fleet completeness remain unverified.
 3. Controlled CAP-85 Testnet fixtures and scoped update/restart/alert evidence now pass (see the 2026-10-27 Testnet validation checkpoint). Preserve those regressions while addressing source authentication and production operation; do not relabel the diagnostic as authenticated chain approval.
-4. Validate the portable follow pilot on the selected permanent Linux host. Continuous advancement and loopback operational telemetry now work locally; production archive/retention, follow-journal delivery, trust distribution and release validation remain unfinished.
+4. Publish/verify the zero-host browser client; native unattended deployment is a separate option. Validate the portable follow pilot only if that mode is selected. Continuous advancement and loopback operational telemetry now work locally; production archive/retention, follow-journal delivery, trust distribution and release validation remain unfinished.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
 
@@ -904,3 +906,33 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   keep inventing unrelated Phase 9 utility milestones. Do not proceed past the
   real hosting gate or claim approval. No source assurance upgrade, release,
   protected merge, service start, chain write or Wave submission occurred.
+
+## Zero-host browser delivery increment
+
+- Continued from pushed 38ddf56 after the user explicitly rejected supplying a
+  machine/account. Added a self-contained Go WebAssembly current-state viewer,
+  default actual Testnet watchlist, qualified live values, visible-tab refresh,
+  stale handling and schema-v2 raw evidence download. No server, key or signup.
+  Native sequential state, assurance and outbox semantics are unchanged.
+- Browser transport explicitly uses Fetch CORS/omit-credentials/error-redirect;
+  the native HTTP transport retains inherited proxy/TLS behavior. Package embeds
+  all runtime/dependency notices and records source/dirty state plus hashes.
+- All default Go tests PASS. Source race, native/WASM vet, module verify/tidy,
+  workflow/JS/Python syntax checks PASS. Chromium/Playwright integration PASS in
+  ten deterministic scenarios. CI now cross-builds WASM; remote CI unverified.
+- Real Testnet observation at 2026-10-27T19:14:03Z: ledger 5420960, two contracts,
+  one owner/tag reference, three raw records. The live browser check used a
+  TLS-verified test relay because this managed Chromium lacks the proxy CA;
+  direct CORS preflight/POST origin headers were verified separately. File URLs
+  are blocked by this managed browser policy; no policy or TLS bypass was used.
+  See docs/research/2026-10-27-browser-validation.md and the full qualified capture.
+- GitHub Actions was rejected as perpetual serverless hosting based on current
+  official terms, default-branch schedule behavior and private billing limits.
+  Static Pages is a valid optional host, but activation/visibility cannot be
+  inspected via the currently denied GitHub API. Downloadable HTML removes that
+  prerequisite for use; public hosting is not claimed from branch publication.
+- Phase 9 remains incomplete for a verified public deployment/unattended native
+  service. The browser mode does not silently replace sequential history with
+  polling or claim permanent monitoring. No Linux machine is requested for it.
+  No paid resource, account, secret, real-asset write, external send, merge, tag
+  or Wave submission was performed.

@@ -1,0 +1,74 @@
+{
+  "head": {
+    "sequence": 5420960,
+    "protocolVersion": 29,
+    "closeTime": "1793128440"
+  },
+  "schema_version": 2,
+  "source": "rpc_current",
+  "collected_at": "2026-10-27T19:14:03Z",
+  "fleet_scope": "EXPLICIT_WATCHLIST",
+  "watchlist": [
+    "CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY",
+    "CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM"
+  ],
+  "completeness": "PARTIAL",
+  "ledger_consistency": "UNKNOWN",
+  "history_completeness": "UNKNOWN",
+  "source_authentication": "UNVERIFIED",
+  "snapshot": {
+    "schema_version": 1,
+    "network": "Test SDF Network ; September 2015",
+    "ledger": 5420960,
+    "contracts": [
+      {
+        "id": "CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY",
+        "executable": {
+          "kind": "wasm",
+          "wasm_hash": "8d68f7ede8dd8656c8068736054f8991e2f29a8ff6d1215a5116875f7ea8987d"
+        }
+      },
+      {
+        "id": "CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM",
+        "executable": {
+          "kind": "external_ref",
+          "owner": "CCSC3UOXCCNB3VV7MM2P63IPNVKHQQ3TUMBCIW6OW42F75FBGMI4Y3VA",
+          "tag_hex": "666c65657477617463682d64656d6f"
+        }
+      }
+    ],
+    "references": [
+      {
+        "owner": "CCSC3UOXCCNB3VV7MM2P63IPNVKHQQ3TUMBCIW6OW42F75FBGMI4Y3VA",
+        "tag_hex": "666c65657477617463682d64656d6f",
+        "wasm_hash": "10c093251bf8e70fba073bdfea8868d6c5229397049a8be2aa880cb82c26eb28"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "key_xdr": "AAAABgAAAAHX4/Warhbo934Y6G/KF1JauQByQprWH6S249j3sMp0qwAAABQAAAAB",
+      "data_xdr": "AAAABgAAAAAAAAAB1+P1mq4W6Pd+GOhvyhdSWrkAckKa1h+ktuPY97DKdKsAAAAUAAAAAQAAABMAAAAAjWj37ejdhlbIBoc2BU+JkeLymo/20SFaURaHX36omH0AAAABAAAAAQAAAA8AAAAFYWRtaW4AAAAAAAASAAAAAAAAAAAn0kqMLQYmt0D3HxE4GcmUULImbsWNxRgeSjBUSMEWRw==",
+      "raw_sha256": "a6ae9dbfa2dbc033cfae5711c699dd877545cb7b6664fe68a8f71802e881e79a",
+      "response_ledger": 5420960,
+      "last_modified_ledger": 5407796
+    },
+    {
+      "key_xdr": "AAAABgAAAAH8bKniCXTi0r+oDBKyzOH1LQQvR7woe/yLCwBVcq5cCwAAABQAAAAB",
+      "data_xdr": "AAAABgAAAAAAAAAB/Gyp4gl04tK/qAwSsszh9S0EL0e8KHv8iwsAVXKuXAsAAAAUAAAAAQAAABMAAAACAAAAAaQt0dcQmh3Wv2M0/20PbVR4Q3OjAiRbzrc0X/ShMxHMAAAAD2ZsZWV0d2F0Y2gtZGVtbwAAAAABAAAAAQAAAA8AAAAFYWRtaW4AAAAAAAASAAAAAAAAAAAn0kqMLQYmt0D3HxE4GcmUULImbsWNxRgeSjBUSMEWRw==",
+      "raw_sha256": "338d0e52d87f9273f87bb51906781d388c3ef8b05088effc808865c7d7806935",
+      "response_ledger": 5420960,
+      "last_modified_ledger": 5407729
+    },
+    {
+      "key_xdr": "AAAABgAAAAGkLdHXEJod1r9jNP9tD21UeENzowIkW863NF/0oTMRzAAAABYAAAAPZmxlZXR3YXRjaC1kZW1vAAAAAAE=",
+      "data_xdr": "AAAABgAAAAAAAAABpC3R1xCaHda/YzT/bQ9tVHhDc6MCJFvOtzRf9KEzEcwAAAAWAAAAD2ZsZWV0d2F0Y2gtZGVtbwAAAAABAAAADQAAACAQwJMlG/jnD7oHO9/qiGjWxSKTlwSai+KqiAy4LCbrKA==",
+      "raw_sha256": "52363f28dee27c34c692eee18eede7f6a7e27776ec48632e35b23cc3feb2437d",
+      "response_ledger": 5420960,
+      "last_modified_ledger": 5407797
+    }
+  ],
+  "errors": [
+    "multi-call ledger consistency is not proven; capture is diagnostic"
+  ]
+}

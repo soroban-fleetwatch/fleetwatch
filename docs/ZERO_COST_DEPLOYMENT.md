@@ -1,76 +1,42 @@
-# Zero-cost deployment decision
+# Zero-cost deployment
 
-The user requires no deployment charge. The first candidate is an
-**existing owner-controlled, already-running Linux machine with persistent local
-disk and network access**, with owner-confirmed spare capacity and no additional
-hosting, hardware, power or network charge for FleetWatch. It must still have
-enough resources, uptime and an allowed receiver route. An ephemeral development
-workspace is not a permanent production host merely because it costs nothing.
+FleetWatch now has a **self-contained browser edition**. A Linux machine,
+hosting account, receiver and key are not required to use it. Download the
+published HTML and open it, or serve it on a static site. Instructions and
+actual topology are in [BROWSER.md](BROWSER.md).
 
-No such host is connected in this session. The current managed environment has
-no configured cloud identity, provider capability, SSH host or authorized
-external receiver. Its PID 1 is tail, with no working permanent user-systemd
-deployment established. Do not treat it as the host, start an unattended service
-there or claim reboot/persistence acceptance.
+Go WebAssembly reads the fixed Stellar Testnet RPC directly while the page is
+open and visible. It has no paid service, server/database dependency, signup or
+background CI compute. Normal Internet/device costs remain those of the person
+opening it. It does not provide unattended ledger-by-ledger monitoring, a durable
+alarm queue or complete history. Native follow evidence/outbox state is untouched.
+Its portable Linux deployment remains in [OPERATIONS.md](OPERATIONS.md), but a
+host is no longer the only way to run FleetWatch end-to-end.
 
-An always-free cloud VM could be an alternative **only after current account
-eligibility, capacity and billing rules are confirmed in the provider account**.
-Oracle OCI Always Free is a possible candidate, not a verified allocation or
-current eligibility promise. Read-only fetches of the official Oracle free-tier
-and Always Free documentation URLs returned HTTP 403 through this session's
-normal proxy on 2026-10-27. No network control was bypassed. Free capacity may
-depend on architecture/region/account conditions; do not substitute a paid
-instance or expiring paid trial if free resources are unavailable. Current
-provider plan names, quotas and cost safeguards have not been verified here.
+GitHub Pages is an optional static URL. Standard Pages is free for public repos;
+private-repo availability depends on the existing plan. Do not change visibility
+or buy a plan to make deployment green. A gh-pages branch alone does not prove
+Pages is enabled. Initial activation requires repository Pages configuration;
+the built-in Actions token cannot auto-enable a new site via configure-pages.
+Check the actual URL before claiming a live deployment.
 
-The official pages to review in an authorized browser/account are:
+Here, normal Git read/push works. GitHub API calls to api.github.com are denied
+at managed-proxy CONNECT. Unauthenticated repo web requests return 404; visibility
+and Pages settings are unknown. This does not prove the token invalid. No Git
+proxy credential is extracted, no policy bypassed and no public URL invented.
+The downloadable client avoids that hosting prerequisite.
 
-- https://www.oracle.com/cloud/free/
-- https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier.htm
+Actions builds and tests software; it is **not** a perpetual production host.
+Official terms restrict serverless application hosting. Schedules are default
+branch only, can be delayed/dropped and disable after inactivity. Private usage
+can exceed included quotas. No scheduled daemon was created.
 
-If a VM is actually allocated, verify its architecture before selecting the
-matching bundle. A Linux ARM64 allocation requires an ARM64 binary; an amd64
-archive cannot be assumed to work. Use the candidate's BUILD.json and checksum,
-and the current packaging guide. Do not guess an unavailable cloud shape or use
-an API call copied from an unverified provider example.
+Official sources checked live on 2026-10-27:
 
-## Information still needed
+- [Pages publishing sources](https://github.com/github/docs/blob/main/content/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site.md)
+- [configure-pages enablement/token requirements](https://github.com/actions/configure-pages/blob/main/action.yml)
+- [Actions product terms](https://github.com/github/docs/blob/main/content/site-policy/github-terms/github-terms-for-additional-products-and-features.md#actions)
+- [Actions billing](https://github.com/github/docs/blob/main/content/billing/concepts/product-billing/github-actions.md)
 
-Provide one owner-controlled existing Linux host or an actually allocated,
-confirmed-free cloud VM, together with its normal authorized access mechanism.
-Put credentials/SSH private keys in the supported environment connection/secret
-settings, not chat or the repository. A host address alone does not supply login
-authority. Also identify an authorized HTTPS notification receiver and provision
-its HMAC key through the host's supported secret mechanism. No public callback
-port is needed for FleetWatch itself: its status listener stays loopback-only.
-
-Before deployment, verify in the provider account that the chosen allocation and
-disk/network usage will not incur charges, and that paid fallback/upgrade is
-disabled. Budgets/alerts alone are not proof of a hard spending cap. No purchase,
-new account, billing instrument, paid resource or provider permission is created
-by any FleetWatch script in this package.
-
-## Once a real zero-cost host is available
-
-1. Confirm Linux architecture, persistent local storage, owner access and actual
-   cost policy. Keep source and delivery DBs on that host, not an ephemeral or
-   network-mounted filesystem. Review sizing and retention before unattended use.
-2. Transfer the final clean candidate, archive checksum and original asserted
-   baseline through the normal authorized connection. Verify hashes before
-   extraction/install. Follow [OPERATIONS.md](OPERATIONS.md); installer refuses
-   overwrite and starts/enables nothing.
-3. Run installed host-check and [Phase 9 evidence collection](PHASE9_ACCEPTANCE.md).
-   Review the default follower versus automatic-sync follower unit; choose one.
-   Confirm actual unit hardening/cgroups, boot/login behavior and loopback health.
-4. Configure the separate dispatcher only for the authorized receiver, with a
-   private environment/secret setup. Review [DELIVERY_LOOP.md](DELIVERY_LOOP.md)
-   and [WEBHOOK_PROXY.md](WEBHOOK_PROXY.md), preserving required proxy/CA policy.
-   Local preflight does not prove the real route is permitted.
-5. Exercise controlled finding → queue → verified receiver ACK → restart/resume,
-   source outage/not-ready, backup/separate restore, logout and reboot. Record
-   actual evidence in [PHASE9_ACCEPTANCE.md](PHASE9_ACCEPTANCE.md).
-
-This is a concrete zero-cost handoff, not a completed deployment. Until host,
-access, receiver and cost conditions are supplied/verified, the Dripwave Phase 9
-production hosting gate remains blocked. No approval, uptime SLA, production
-chain authentication or guaranteed free allocation is claimed.
+The runnable browser package and a completed public hosting gate are separate
+claims. See [Phase 9 acceptance](PHASE9_ACCEPTANCE.md) for precise status.

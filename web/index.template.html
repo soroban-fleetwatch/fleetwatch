@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; connect-src https://soroban-testnet.stellar.org; img-src data:; base-uri 'none'; form-action 'none'">
+<title>FleetWatch · Testnet observer</title>
+<style>
+:root{color-scheme:dark;font:16px/1.5 system-ui,sans-serif;background:#101820;color:#e8eff5}*{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:0 auto;padding:40px 24px}header{display:flex;align-items:center;gap:14px}header .mark{font-size:32px;color:#71ebca}h1{font-size:30px;margin:0;letter-spacing:-1px}h2{font-size:18px;margin:0 0 16px}.subtle{color:#a7bacb;font-size:14px}a{color:#71ebca}.tag{font:12px ui-monospace,monospace;padding:5px 8px;border:1px solid #48606f;border-radius:20px;white-space:nowrap}.intro{max-width:740px;color:#c0ced9;margin:25px 0}.notice{padding:14px 18px;background:#243029;border-left:3px solid #b5cc7f;border-radius:5px;font-size:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}.panel{padding:22px;border:1px solid #334654;border-radius:12px;background:#17222d}.wide{grid-column:1/-1}label{display:block;font-size:14px;margin-bottom:9px}textarea{width:100%;min-height:114px;resize:vertical;padding:12px;border:1px solid #536b7c;border-radius:7px;background:#101820;color:#e8eff5;font:12px/1.7 ui-monospace,monospace}button{padding:11px 16px;border:0;border-radius:7px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;background:#8be4ce;color:#101820}button.secondary{background:#2d4354;color:#e8eff5}button:disabled{opacity:.45;cursor:wait}.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px}.check{display:flex;align-items:center;gap:6px;margin:0;font-size:13px}.metric{font-size:28px;font-weight:650;letter-spacing:-1px}.metrics{display:flex;justify-content:space-between;gap:12px;margin:10px 0 20px}.metric small{display:block;font-size:12px;font-weight:400;letter-spacing:0;color:#a7bacb}.status{font-weight:550;color:#8be4ce;white-space:pre-wrap}.warn{color:#edc87e}code{font:12px/1.7 ui-monospace,monospace;overflow-wrap:anywhere}.entry{padding:14px 0;border-top:1px solid #334654}.entry:first-child{border:0;padding-top:0}.entry strong{font-size:13px;color:#a7bacb;display:block;margin-top:5px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,monospace;max-height:300px;overflow:auto}footer{margin-top:24px;color:#8ca4b7;font-size:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}main{padding:24px 16px}.metrics{flex-wrap:wrap}header{flex-wrap:wrap}}
+</style>
+</head>
+<body><main>
+<header><span class="mark" aria-hidden="true">◈</span><h1>FleetWatch</h1><span class="tag">STELLAR TESTNET</span></header>
+<p class="intro">Inspect the executable code used by a Soroban contract fleet. Live Testnet reads and typed XDR decoding run in your browser. No server, account, wallet or key is needed.</p>
+<div class="notice">Foreground observer: updates run while this page is open and visible. Changes between reads can be missed. Source authentication and history coverage remain unverified; this page cannot declare a contract safe or an upgrade approved.</div>
+<div class="grid">
+<section class="panel"><h2>Your watchlist</h2><label for="contracts">One contract address per line · up to 50</label><textarea id="contracts" spellcheck="false" maxlength="8192">CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY
+CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM</textarea><p class="subtle">Starts with the two FleetWatch Testnet demonstration contracts. Testnet data can expire or reset.</p><div class="actions"><button id="refresh" disabled>Loading decoder…</button><label class="check"><input id="auto" type="checkbox" checked>Refresh every 60 seconds</label></div></section>
+<section class="panel" aria-live="polite"><h2>Latest observation</h2><div class="metrics"><div class="metric" id="ledger">—<small>RPC response ledger</small></div><div class="metric" id="count">—<small>contracts observed</small></div></div><p id="status" class="status">Starting the Go/XDR decoder…</p><p id="time" class="subtle">No observation collected yet.</p><div class="actions"><button id="export" class="secondary" disabled>Download evidence JSON</button></div></section>
+<section class="panel wide"><h2>Observed executable values</h2><div id="values" class="subtle">Current values will appear here after the first read.</div></section>
+<section class="panel wide"><h2>Evidence and coverage</h2><p id="assurance" class="subtle">Current state only · source UNVERIFIED · history UNKNOWN · verdict UNDETERMINED</p><pre id="diagnostics">External-reference resolution uses multiple RPC calls. Equal response ledger numbers do not prove an atomic observation.</pre><details><summary class="subtle">Full capture JSON</summary><pre id="raw">No capture yet.</pre></details></section>
+</div><footer>Read-only HTTPS endpoint: https://soroban-testnet.stellar.org · Session observations are held in memory; download evidence to keep it. Closing the page stops observation. No transaction signing, external notifications or unattended monitoring.<br>Build: <span id="build">@@BUILD@@</span> · Apache-2.0 · Go runtime and linked dependencies: see the package license inventory.</footer>
+</main>
+<script>@@GO_RUNTIME@@</script>
+<script id="wasm-data" type="application/octet-stream">@@WASM_GZIP_BASE64@@</script>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);
+let busy=false, latest=null, lastSuccess=0, lastAttempt=0;
+function status(text,warning=false){el('status').textContent=text;el('status').classList.toggle('warn',warning)}
+function addValue(parent,label,value){const strong=document.createElement('strong');strong.textContent=label;const code=document.createElement('code');code.textContent=value;parent.append(strong,code)}
+function show(c){
+  el('ledger').firstChild.textContent=String(c.snapshot.ledger||'—');
+  el('count').firstChild.textContent=String(c.snapshot.contracts.length);
+  el('time').textContent='Collected '+c.collected_at+' · endpoint claim';
+  el('assurance').textContent='Capture '+c.completeness+' · ledger consistency '+c.ledger_consistency+' · source '+c.source_authentication+' · history '+c.history_completeness+' · verdict UNDETERMINED';
+  el('diagnostics').textContent=c.errors.length?c.errors.join('\n'):'Single-response endpoint claim. This does not authenticate chain state or prove complete history.';
+  el('raw').textContent=JSON.stringify(c,null,2);
+  const values=el('values');values.replaceChildren();
+  for(const item of c.snapshot.contracts){const row=document.createElement('div');row.className='entry';addValue(row,'Contract',item.id);addValue(row,'Executable kind',item.executable.kind);if(item.executable.wasm_hash)addValue(row,'Observed Wasm hash',item.executable.wasm_hash);if(item.executable.owner){addValue(row,'Executable owner',item.executable.owner);addValue(row,'Tag bytes (hex)',item.executable.tag_hex);const ref=c.snapshot.references.find(r=>r.owner===item.executable.owner&&r.tag_hex===item.executable.tag_hex);addValue(row,'Observed reference Wasm hash',ref?ref.wasm_hash:'NOT OBSERVED');}values.append(row);}
+  if(!c.snapshot.contracts.length)values.textContent='No requested contract instances were observed. Missing data does not prove deletion.';
+}
+async function capture(){
+  if(busy||typeof window.fleetwatchCapture!=='function')return;
+  busy=true;lastAttempt=Date.now();el('refresh').disabled=true;el('contracts').disabled=true;el('refresh').textContent='Reading Testnet…';status('Reading current executable entries…');
+  try{const c=JSON.parse(await window.fleetwatchCapture(el('contracts').value));latest=c;lastSuccess=Date.now();show(c);el('export').disabled=false;status(c.completeness==='COMPLETE'?'Current-state observation collected.':'Partial diagnostic observation collected.',c.completeness!=='COMPLETE');}
+  catch(error){status(String(error),true);el('time').textContent=lastSuccess?'Last successful read '+new Date(lastSuccess).toISOString()+'; displayed values are stale.':'No successful observation. Check connectivity and watchlist addresses.';}
+  finally{busy=false;el('refresh').disabled=false;el('contracts').disabled=false;el('refresh').textContent='Read Testnet now';}
+}
+el('refresh').addEventListener('click',capture);
+el('contracts').addEventListener('input',()=>{latest=null;lastSuccess=0;el('export').disabled=true;el('values').replaceChildren();el('raw').textContent='Watchlist changed. Read Testnet to collect new evidence.';el('ledger').firstChild.textContent='—';el('count').firstChild.textContent='—';el('assurance').textContent='Current state only · source UNVERIFIED · history UNKNOWN · verdict UNDETERMINED';el('diagnostics').textContent='No observation for this watchlist yet.';el('time').textContent='No observation for this watchlist yet.';status('Watchlist changed; waiting for a new read.');});
+el('export').addEventListener('click',()=>{if(!latest)return;const url=URL.createObjectURL(new Blob([JSON.stringify(latest,null,2)+'\n'],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='fleetwatch-testnet-ledger-'+latest.snapshot.ledger+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+setInterval(()=>{if(lastSuccess&&Date.now()-lastSuccess>120000&&!busy){status('Observation is stale; a fresh read is needed.',true);}if(el('auto').checked&&!document.hidden&&Date.now()-lastAttempt>=60000)capture();},5000);
+window.addEventListener('fleetwatch-ready',()=>{el('refresh').disabled=false;el('refresh').textContent='Read Testnet now';capture();},{once:true});
+(async()=>{try{const bytes=Uint8Array.from(atob(el('wasm-data').textContent.trim()),c=>c.charCodeAt(0));const decompressed=new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')));const go=new Go();const module=await WebAssembly.instantiate(await decompressed.arrayBuffer(),go.importObject);go.run(module.instance).catch(()=>status('Decoder stopped. Reload this file to restart.',true));}catch(error){status('Unable to load decoder: '+String(error)+'. Use a current browser with WebAssembly and gzip streams.',true);}})();
+</script></body></html>

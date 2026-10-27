@@ -6,7 +6,27 @@ verification cannot satisfy that gate. The user's deployment constraint is
 **zero cost**: do not purchase resources, accept billable trials or silently
 upgrade an account. See [ZERO_COST_DEPLOYMENT.md](ZERO_COST_DEPLOYMENT.md).
 
-The selected architecture is one persistent Linux host, one follower/native
+## No-host browser delivery
+
+The new [browser edition](BROWSER.md) removes the need for a Linux machine,
+provider account or receiver for foreground current-state observation. Its topology
+is a downloaded self-contained HTML file (or optional static host) → browser Go
+WebAssembly → read-only Testnet RPC → evidence download. There is no backend or
+database to provision. See the dated [browser evidence](research/2026-10-27-browser-validation.md).
+
+The package works as an additional client mode; it does not silently replace the
+native sequential monitor with snapshot polling. Foreground operation, missed
+transients, memory-only observations and all unverified assurance are explicit.
+
+This records a tested, distributable zero-host option. Public site activation
+and a successful request from that live site are **not verified**. The original
+unattended follower/receiver deployment also remains unverified. Do not mark the
+Dripwave production hosting gate passed merely because the HTML was built or a
+branch was pushed. No Linux connection is requested for the browser option.
+
+## Native unattended-service acceptance (separate)
+
+The original native-service architecture is one persistent Linux host, one follower/native
 database, a separate local delivery database, optional dispatcher, loopback-only
 status/metrics and an explicitly authorized HTTPS receiver. There is no required
 frontend or shared database server. The two DB files are not one transaction;
@@ -76,8 +96,10 @@ reported to the implementation agent for the build record.
 ## Completion decision
 
 Do not check a row merely because its command exists or a document describes it.
-Mark Phase 9 complete only after the permanent-host observations, authorized
-receiver receipt and reviewed retention/cost evidence are recorded. Continue
+For the native service, record permanent-host, receiver, retention and cost evidence.
+For a browser/static deployment, record actual static publication and live-origin
+RPC/evidence export instead; Linux/systemd and a receiver are not requirements
+for that topology. Neither path currently establishes a verified public deployment. Continue
 with Dripwave repository hygiene/documentation only after this real hosting gap
 is closed, or explicitly state that Phase 9 is blocked. All baseline/source
 UNVERIFIED, commitments NOT_VERIFIED, coverage UNKNOWN and final UNDETERMINED

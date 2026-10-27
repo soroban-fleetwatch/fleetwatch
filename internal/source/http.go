@@ -29,7 +29,7 @@ func NewHTTPRPC(endpoint string) (*HTTPRPC, error) {
 	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
 		return nil, errors.New("RPC endpoint must be HTTPS without credentials, query, or fragment")
 	}
-	return &HTTPRPC{endpoint: endpoint, client: &http.Client{Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("RPC redirects are disabled") }}}, nil
+	return &HTTPRPC{endpoint: endpoint, client: &http.Client{Transport: rpcTransport(), Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("RPC redirects are disabled") }}}, nil
 }
 
 type transientError struct{ delay time.Duration }
