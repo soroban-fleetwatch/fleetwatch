@@ -936,3 +936,14 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   polling or claim permanent monitoring. No Linux machine is requested for it.
   No paid resource, account, secret, real-asset write, external send, merge, tag
   or Wave submission was performed.
+
+- Publication receipt: clean browser source `80c2019`, runnable distribution
+  `06252fc` pushed to `feat/portable-linux-follow`; static distribution `91edd4d`
+  pushed to new `gh-pages`. Every package SHA verified. No main merge or tag.
+  Both branches are saved remotely; Pages activation remains UNVERIFIED. Saved
+  the minimal network draft additions api.github.com and
+  soroban-fleetwatch.github.io through the supported onboarding tool; confirmed
+  saved with requires_publish=true. It has not applied to this running instance.
+  Review/save/Publish in environment settings is the product-owned activation
+  step; do not extract Git proxy credentials or bypass CONNECT denial. See
+  docs/research/2026-10-27-browser-publication.json.
