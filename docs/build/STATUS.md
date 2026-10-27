@@ -31,7 +31,7 @@ See [repair evidence](../research/2026-10-27-environment-repair.md) and
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
-| S9 Docs/repo hygiene | IN PROGRESS: CI and runbooks | Pinned compiler/actions, read-only/time-bounded jobs, workflow lint and security evidence | Remote CI, docs site and full repository/release review remain |
+| S9 Docs/repo hygiene | IN PROGRESS: CI verified at a403daa | [Go CI run 34](https://github.com/soroban-fleetwatch/fleetwatch/actions/runs/40597509041): test, vulnerabilities and testnet-fixtures PASS | Docs site and full repository/release review remain |
 | S10 Release candidate | NOT STARTED | None | Clean-room test and owner review |
 | S11 Wave readiness optional | NOT STARTED | None | Eligibility and submission evidence |
 | S12 Maintenance | NOT STARTED | None | Runbooks and triage |
@@ -984,3 +984,24 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   verified final source SHA/path, in the environment draft. Product publication
   remains a distinct user/platform operation; it is not proven by a draft save.
   See docs/research/2026-10-27-environment-repair.md for evidence and limits.
+
+## Confirmed remote CI and applied network configuration
+
+- Normal GitHub API access now succeeds with the configured six-domain policy.
+  The repository is private; the owner reports Pages unavailable on the current
+  plan. This proves access/configuration propagation, not snapshot publication.
+- Independently verified remote Go CI run 34, ID40597509041, at exact source
+  a403daa077a5b071f071909cf2db809a59628c88: test, vulnerabilities and
+  testnet-fixtures all SUCCESS, with no failed steps. Only informational Ubuntu
+  runner-migration notices exist. No artifact upload is configured by this run.
+  See docs/research/2026-10-27-ci-publication-state.json and the real Actions URL.
+- Runtime connected, observed spec42; corrected draft43 is saved. Retained
+  environment diagnostics still have no records and failure is null. The
+  platform does not expose the failed snapshot/publication operation or cause.
+  Current build success does not establish the complete product/release or Phase9
+  production deployment, and no code change is claimed to fix that unknown error.
+- Repository environments list is empty. Deployment, secret and variable
+  inventories are denied403 by the integration, so those denials are not used to
+  claim that the owner has no provider accounts. No usable deployment connection
+  is available through this session's configured capabilities. No new settings
+  changes or blind Publish retry are proposed from the unconfirmed status.

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "validated_source_commit": "a403daa077a5b071f071909cf2db809a59628c88",
+  "ci": {
+    "run_id": 40597509041,
+    "run_number": 34,
+    "url": "https://github.com/soroban-fleetwatch/fleetwatch/actions/runs/40597509041",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "testnet-fixtures",
+        "conclusion": "success"
+      },
+      {
+        "name": "vulnerabilities",
+        "conclusion": "success"
+      },
+      {
+        "name": "test",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "environment": {
+    "connectivity": "connected",
+    "observed_spec_revision": "42",
+    "github_api_access": "VERIFIED_SUCCESS",
+    "saved_draft_revision": 43,
+    "snapshot_publication": "UNCONFIRMED",
+    "publication_failure_cause": "NOT_EXPOSED",
+    "retained_diagnostic_records": 0
+  },
+  "phase9_production_deployment": "BLOCKED",
+  "full_product_release": "NOT_CERTIFIED"
+}
