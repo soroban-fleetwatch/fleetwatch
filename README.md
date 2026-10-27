@@ -73,8 +73,9 @@ automatic retention rollover remains open.
 The [delivery bridge](docs/FOLLOW_DELIVERY.md) syncs validated follow findings
 into a separate durable outbox, manually or with opt-in automatic queue sync.
 The opt-in [dispatcher loop](docs/DELIVERY_LOOP.md) repeatedly sends queued
-alerts to an explicitly configured receiver. Hosted receiver/proxy routing and
-permanent-host validation remain unfinished.
+alerts to an explicitly configured receiver, with optional
+[pinned CONNECT proxy routing](docs/WEBHOOK_PROXY.md). Actual receiver/proxy
+compatibility and permanent-host validation remain unverified.
 
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 

@@ -31,9 +31,16 @@ type Webhook struct {
 }
 
 // NewWebhook constructs a direct HTTPS sender with DNS validation and IP-pinned
-// dialing. Proxy routing is intentionally unsupported: a proxy can resolve the
-// target differently and defeat this sender's private-address checks.
+// dialing. The default rejects proxy routes; explicit pinned-connect mode is
+// available through NewWebhookWithProxyMode without proxy-side target DNS.
 func NewWebhook(endpoint string, allowedHosts []string, key []byte) (*Webhook, error) {
+	return NewWebhookWithProxyMode(endpoint, allowedHosts, key, "reject")
+}
+
+func NewWebhookWithProxyMode(endpoint string, allowedHosts []string, key []byte, mode string) (*Webhook, error) {
+	if mode != "reject" && mode != "pinned-connect" {
+		return nil, errors.New("invalid webhook proxy mode")
+	}
 	resolve := func(ctx context.Context, host string) ([]netip.Addr, error) {
 		ips, err := net.DefaultResolver.LookupNetIP(ctx, "ip", host)
 		return ips, err
@@ -49,9 +56,13 @@ func NewWebhook(endpoint string, allowedHosts []string, key []byte) (*Webhook, e
 		return nil, err
 	}
 	proxy, err := http.ProxyFromEnvironment(req)
-	if err != nil || proxy != nil {
+	if err != nil || (proxy != nil && mode == "reject") {
 		sender.Close()
 		return nil, errors.New("proxy-backed webhook routing is unsupported by DNS pinning policy")
+	}
+	if proxy != nil {
+		sender.Close()
+		return newProxyWebhook(endpoint, allowedHosts, key, resolve, d.DialContext, proxy, nil)
 	}
 	return sender, nil
 }

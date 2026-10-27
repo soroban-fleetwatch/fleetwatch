@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -23,5 +24,14 @@ func TestDeliveryLoopCLIInvalidOptionsAndUnavailableKeyDoNotCreateState(t *testi
 	}
 	if code := run([]string{"deliver-loop"}, &out, &errs); code != 3 {
 		t.Fatal(code)
+	}
+	// Preflight permits an explicitly selected proxy mode without DNS, state or
+	// network IO. A fixed fake key is local to this test and is never sent.
+	t.Setenv("FLEETWATCH_TEST_MISSING_LOOP_KEY", strings.Repeat("fixture-only-key", 3))
+	if code := run(append(append([]string{}, base...), "--check", "--proxy-mode", "pinned-connect"), &out, &errs); code != 0 {
+		t.Fatal("pinned proxy preflight failed", code, errs.String())
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatal("preflight created state")
 	}
 }

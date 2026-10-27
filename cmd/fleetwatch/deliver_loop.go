@@ -25,6 +25,7 @@ func deliverLoop(args []string, stdout, stderr io.Writer) int {
 	endpoint := fs.String("webhook-url", "", "explicit authorized HTTPS receiver URL")
 	host := fs.String("allow-host", "", "exact allowed receiver hostname")
 	keyEnv := fs.String("hmac-key-env", "FLEETWATCH_WEBHOOK_KEY", "environment variable holding raw HMAC key")
+	proxyMode := fs.String("proxy-mode", "reject", "reject proxy routes or explicitly use pinned-connect")
 	check := fs.Bool("check", false, "validate local options/key/transport policy without opening state, DNS or delivery")
 	if fs.Parse(args) != nil || fs.NArg() != 0 || *endpoint == "" || *host == "" || !envNamePattern.MatchString(*keyEnv) {
 		fmt.Fprintln(stderr, "deliver-loop requires --state FILE --network TEXT --stream ID --webhook-url HTTPS_URL --allow-host HOST")
@@ -41,7 +42,7 @@ func deliverLoop(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "HMAC signing key unavailable or outside size bounds")
 		return 3
 	}
-	sender, err := alert.NewWebhook(*endpoint, []string{*host}, []byte(key))
+	sender, err := alert.NewWebhookWithProxyMode(*endpoint, []string{*host}, []byte(key), *proxyMode)
 	if err != nil {
 		fmt.Fprintln(stderr, "receiver or transport configuration rejected")
 		return 3

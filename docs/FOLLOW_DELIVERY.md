@@ -114,9 +114,10 @@ public-address DNS checks, pinned dialing, redirect rejection, bounded requests
 and responses, and exact-body HMAC signatures. Raw signing keys are 32–4096
 bytes, read from the named environment variable and never included in outbox
 payloads or receipts. No transport policy is relaxed by the follow source type.
-Proxy-backed webhook routing is still unsupported and explicitly rejected;
-do not disable a required proxy or its security controls to make delivery work.
-Production receiver/proxy integration remains a separate hosting gate.
+Proxy-backed routing is rejected by default. Explicit
+[pinned CONNECT mode](WEBHOOK_PROXY.md) preserves numeric-IP checks through
+compatible HTTP/HTTPS proxies; real proxy permission/receiver integration is
+still a hosting gate. Never disable a required proxy or its security controls.
 
 Delivery uses the existing fenced leases, retries, sink binding and dead-letter
 handling. It is at least once: a receiver must deduplicate by the outer delivery

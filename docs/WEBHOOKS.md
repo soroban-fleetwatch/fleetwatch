@@ -34,13 +34,14 @@ verification; every new connection resolves and validates again. Mixed public an
 private answers are rejected as a whole. Redirects are disabled. These are local
 transport defenses, not permission to connect to arbitrary public hosts.
 
-**Proxy routing is unsupported.** The public constructor fails before delivery
-when Go's environment proxy configuration would route the receiver through a
-proxy. It does not silently bypass that proxy or disable TLS verification. This
-cloud environment may require proxy routing, in which case this sender cannot
-perform live delivery here. A future proxy-aware implementation needs equivalent
-verified destination controls; do not unset a required proxy to evade policy.
-Private-network receivers are intentionally unsupported by this sender.
+**Proxy routes are rejected by default.** Explicit `--proxy-mode pinned-connect`
+uses the environment-selected HTTP/HTTPS proxy with a checked numeric CONNECT
+authority, retaining receiver-hostname TLS verification and public-address
+checks. See [WEBHOOK_PROXY.md](WEBHOOK_PROXY.md) for protocol/policy requirements
+and test limits. No direct/hostname fallback occurs after a proxy denial, and
+required proxy/TLS controls are never disabled. Real cloud-sidecar compatibility
+and production receiver routing remain unverified. Private-network receivers
+remain unsupported.
 
 Requests are POST JSON with an envelope `{schema_version:1,id,payload}`. The body
 contains immutable alert payload only; delivery status, lease tokens and keys are

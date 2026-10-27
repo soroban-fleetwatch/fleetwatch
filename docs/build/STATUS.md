@@ -13,7 +13,7 @@
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
 | S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
-| S5 Watcher/alerts | IN PROGRESS: continuous pilot, telemetry, opt-in queue sync and dispatcher loop | Follow/restart/gap checks; durable sync/startup repair; repeated local signed TLS delivery and audited recovery | Production receiver/proxy routing, gap-notification policy, retention rollover and hosted validation remain |
+| S5 Watcher/alerts | IN PROGRESS: continuous pilot, queue sync, dispatcher and opt-in pinned proxy route | Follow/restart/gap checks; durable sync/startup repair; local signed HTTP/HTTPS proxy delivery and audited recovery | Production proxy permission/receiver validation, gap-notification policy, retention rollover and hosting remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
@@ -805,3 +805,41 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   notification policy, archive chaining/retention rollover, representative sizing
   and permanent-host validation. No public release, protected merge, provisioning,
   actual service start, new chain write or Wave submission occurred.
+
+## Phase 9 opt-in pinned HTTP/HTTPS proxy transport — 2026-10-27
+
+- Continues `f80c58c` on feat/portable-linux-follow. Added explicit --proxy-mode
+  pinned-connect to deliver/deliver-loop and public constructor variant. Default
+  reject mode is preserved. Go environment proxy/NO_PROXY selection is respected;
+  no proxy setting, network grant, CA trust or credential binding is modified.
+- Target DNS/public-address checks run before proxy dialing. CONNECT authority
+  and Host both use a locally checked numeric public IP:443, avoiding proxy-side
+  receiver DNS. Original receiver hostname remains HTTP Host and TLS SNI/verified
+  certificate identity. HTTPS proxies have independently verified proxy-host TLS.
+  Both roles keep TLS 1.2 minimum and OS CA trust. No insecure CLI switch exists.
+- Selected proxy URL Basic credentials go only on CONNECT, not receiver headers
+  or logs. Headers are capped at sixteen KiB, handshake IO at ten seconds or
+  earlier context deadline, with cancellation closing the socket. Buffered bytes
+  survive CONNECT for target TLS. Denials/redirects/unsafe DNS do not cause direct
+  or hostname fallback. Numeric-target proxy policy rejection remains rejection.
+- Local fixture tests PASS for HTTP and HTTPS proxy tunnels, numeric authority,
+  correct receiver Host/SNI/HMAC/idempotency, credential separation, untrusted
+  certificates at either TLS role, private/mixed DNS rejection, denied CONNECT,
+  redirects, oversized headers, cancellation, URL/mode validation and no-IO public
+  constructor/CLI preflight. Fixtures route only to fixed loopback endpoints;
+  no actual public target or external proxy/receiver call occurred.
+- Optional delivery unit defaults FLEETWATCH_DELIVERY_PROXY_MODE to reject and
+  permits reviewed host environment selection of pinned-connect. Updated proxy/
+  delivery/runtime guides and README; new guide ships in the Linux candidate.
+  No environment file/secret/recipient is generated and no unit enabled/started.
+  Evidence and protocol scope: docs/research/2026-10-27-webhook-proxy-validation.md.
+- Local checks PASS: 251 top-level default tests, six fuzz seed targets, four
+  intentional skips; affected alert/CLI race suites; formatting/vet/module
+  verify/tidy-diff; pinned module/source-test/binary vulnerability gates;
+  actionlint/Bash/package/install checks. Remote CI unverified. No dependency
+  change or external audit. No source-authentication or retention upgrade.
+- Phase 9 remains IN PROGRESS: real proxy permission/receiver compatibility,
+  archive chaining/retention rollover, source-gap notification policy, sizing and
+  permanent-host validation remain open. Real cloud sidecar numeric CONNECT
+  compatibility is unverified and may be denied; no workaround or policy bypass
+  is introduced. No release, protected merge, hosting provision or Wave submission.

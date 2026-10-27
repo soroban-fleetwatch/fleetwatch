@@ -24,7 +24,7 @@ install -m 0755 bin/host-check.py "$staging/bin/host-check.py"
 install -m 0600 "$baseline" "$staging/etc/fleetwatch/baseline.json"
 install -m 0644 LICENSE "$staging/LICENSE"
 cp -R licenses "$staging/"
-install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/DELIVERY_LOOP.md docs/WEBHOOKS.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$staging/docs/"
+install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/DELIVERY_LOOP.md docs/WEBHOOKS.md docs/WEBHOOK_PROXY.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$staging/docs/"
 install -m 0644 schema/follow-alert-v3.schema.json schema/delivery-loop-status-v1.schema.json "$staging/schema/"
 python3 - "$staging" "$install_root" "$3" <<'PY'
 import json,pathlib,sys

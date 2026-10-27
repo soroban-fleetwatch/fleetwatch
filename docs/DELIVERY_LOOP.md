@@ -27,9 +27,10 @@ Adding `--check` validates local options, key availability and the sender's URL/
 allowlist/proxy policy without opening a database, resolving DNS or sending a
 request. It does not establish receiver availability or validate queued state.
 TLS/public DNS/IP pinning, HTTPS port 443, redirect rejection, HMAC, sink binding
-and existing request/response limits remain unchanged. Required proxy-backed
-webhook routing is still rejected; do not disable a required proxy to bypass
-policy. Production proxy-aware receiver routing remains open work.
+and existing request/response limits remain unchanged. Proxy routes are rejected
+by default; explicit [pinned CONNECT mode](WEBHOOK_PROXY.md) supports compatible
+HTTP/HTTPS proxies without proxy-side receiver DNS. Real proxy permission and
+production receiver routing must still be validated. Do not bypass policy.
 
 ## Runtime and coordination
 
