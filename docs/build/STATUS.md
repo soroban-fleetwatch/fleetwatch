@@ -622,3 +622,43 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   Phase 9 remains IN PROGRESS: archive chaining/retention rollover, production
   follow notifications, sizing and permanent-host validation remain unfinished.
   No release, protected merge, host provisioning or Wave submission occurred.
+
+## Phase 9 validated offline physical compaction — 2026-10-27
+
+- Continues `8829523` on feat/portable-linux-follow. Added `follow-compact
+  --config FILE --output NEW_DB` for stopped follow state. Opens source read-only,
+  replay-validates it, copies all reachable buckets/values/sequences into private
+  staged state, and reopens the copy for full follow validation. Whole-store
+  logical hashing compares extra buckets, empty values/buckets and sequences,
+  not merely the known head. Atomic non-overwriting publication follows file
+  fsync; directory-sync/output failures preserve an exposed file for inspection.
+- Compaction retains original evidence, baseline, pending finding IDs/payloads
+  and operational poll/gap/success/high-water metadata. No baseline rotation,
+  acknowledgment, logical capacity increase, source deletion, state-path edit or
+  process start. Unlike evidence-only archive recovery, operational history is
+  preserved. A fresh follower still requires its own source/readiness checks.
+- Cancellable copy transactions target 16 MiB without splitting values. Traversal
+  limits: 64 bucket levels, one million entries and 512 MiB reachable key/value
+  bytes; final file cap 512 MiB and CLI deadline ten minutes. These are not memory
+  or disk reservations. Unknown bucket semantics are not independently certified
+  by preserving their exact bytes. Existing logical follow budgets still apply.
+- Synthetic tests preserve two upgrade/rollback findings and operational/extra
+  data, then continue original and compacted histories identically through forty
+  ledgers. Copy chunk sizes 1/1,024/16,777,216 yield equal logical digests. Negative
+  tests cover cancellation, corrupt head, excessive nesting, missing source,
+  injected publication failure, existing/racing/symlink targets and cleanup.
+- Offline real-data check PASS: same original seventeen-ledger Testnet store,
+  16,777,216 source bytes to 5,799,936 compacted bytes, unchanged source SHA256,
+  entire follow-inspect JSON identical and a fresh evidence archive byte-identical
+  to the prior verified archive. No new RPC, transaction or receiver. Exact hashes
+  and commands in docs/research/2026-10-27-follow-compact-validation.md and JSON.
+- Local checks PASS: full default suite (233 top-level tests, six fuzz seed
+  targets, four intentional skips), affected follow/CLI race suites, vet,
+  module verify/tidy-diff, module/source-test/binary vulnerability scans,
+  actionlint, Bash syntax, package/install smoke and diff checks. Remote CI
+  unverified. No dependency or credential change. COMPACTION.md ships in the
+  candidate and installer and is linked from FOLLOW/OPERATIONS/BACKUP guides.
+- This reduces physical allocation in a separate copy, not logical retention.
+  Phase 9 remains IN PROGRESS for archive chaining/rollover, production follow
+  delivery, sizing and permanent-host validation. No release, merge, provisioning
+  or Wave submission. Keep original state and verified backups until reviewed.

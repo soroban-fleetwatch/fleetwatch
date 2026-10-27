@@ -11,6 +11,9 @@ and finding journal are captured together. Stop the follower first. Legacy
 replay/doctor APIs do not adopt this format; validate a restored follow file with
 `follow-inspect --config FILE`. Recognition for copying does not replace semantic
 validation, and the existing physical-copy size limit still applies.
+The separate [follow-compact command](COMPACTION.md) can produce a validated new
+follow file with unused physical allocation reclaimed. It preserves operational
+metadata; evidence-archive recovery instead explicitly resets those counters.
 
 ```sh
 go build -o fleetwatch ./cmd/fleetwatch

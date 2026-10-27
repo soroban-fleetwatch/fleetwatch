@@ -14,7 +14,7 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOFLAGS=-mod=readonly go build -trimpath -
 install -m 0755 deploy/install-user.sh "$bundle/bin/install-user.sh"
 install -m 0755 deploy/host-check.py "$bundle/bin/host-check.py"
 install -m 0644 deploy/systemd/fleetwatch.service.in "$bundle/systemd/"
-install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md "$bundle/docs/"
+install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md "$bundle/docs/"
 install -m 0644 LICENSE "$bundle/LICENSE"
 python3 - "$bundle" <<'PY'
 import hashlib,json,os,pathlib,shutil,subprocess,sys

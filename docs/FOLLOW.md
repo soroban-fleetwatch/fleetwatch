@@ -76,6 +76,9 @@ disk space separately. A batch that exceeds a bound is rolled back as a whole.
 No automatic pruning, baseline rotation, queue deletion or archive upload occurs.
 Increasing configured budgets requires operator review; it is not a source-trust
 upgrade. This version has no online compaction or production retention migration.
+Offline [follow-compact](COMPACTION.md) can reclaim physical allocation in a new
+file while preserving all evidence and operational counters. It does not change
+logical payload/ledger/finding limits or free logical retention capacity.
 
 Source availability errors retain any validated prefix and set not-ready.
 Retries count durable **gap episodes**, not one gap per polling attempt. Corrupt

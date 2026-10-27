@@ -84,6 +84,21 @@ func TestFollowArchiveCLIAndOfflineVerification(t *testing.T) {
 	if code := run([]string{"restore-follow-archive", "--input", output, "--output", restoredPath}, &out, &errs); code != 3 {
 		t.Fatal("restore without digest accepted", code)
 	}
+	compactPath := filepath.Join(dir, "compacted.db")
+	out.Reset()
+	if code := run([]string{"follow-compact", "--config", config, "--output", compactPath}, &out, &errs); code != 0 {
+		t.Fatal(code, errs.String())
+	}
+	var compacted follow.CompactReceipt
+	if json.Unmarshal(out.Bytes(), &compacted) != nil || compacted.RetainedLedgers != 1 || compacted.SourceModified || compacted.OperationalHistory != "PRESERVED" {
+		t.Fatal("invalid compaction receipt", out.String())
+	}
+	if code := run([]string{"follow-compact", "--config", config, "--output", compactPath}, &out, &errs); code != 5 {
+		t.Fatal("compacted output overwritten", code)
+	}
+	if code := run([]string{"follow-compact", "--config", config}, &out, &errs); code != 3 {
+		t.Fatal("invalid compaction arguments accepted", code)
+	}
 	after, _ := os.ReadFile(filepath.Join(dir, cfg.State))
 	if !bytes.Equal(before, after) {
 		t.Fatal("archive mutated state")

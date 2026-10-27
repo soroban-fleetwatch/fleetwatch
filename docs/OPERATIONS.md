@@ -150,6 +150,10 @@ to a separate stopped pilot before relying on it. Keep the prior database and
 validate retained evidence before restart. Retention budgets count logical
 payload, not total physical disk; the existing backup's 512-MiB physical cap can
 stop a backup. Watch actual filesystem usage and backup failures.
+For a stopped follow store, `follow-compact --config FILE --output NEW_DB`
+can reclaim unused physical pages in a separate validated file while preserving
+operational counters. See [COMPACTION.md](COMPACTION.md). Review/inspect a separate
+configuration before switching paths; compaction does not raise logical budgets.
 
 When capacity is reached, stop, preserve evidence and plan an archive/backend
 transition. This version does not prune old ledgers or remove journal findings.
