@@ -35,7 +35,21 @@ go run ./scripts/testnet-preflight > "$output_dir/preflight.json"
 go build -trimpath -o "$output_dir/fleetwatch" ./cmd/fleetwatch
 rpc='https://soroban-testnet.stellar.org'
 passphrase='Test SDF Network ; September 2015'
-common=(--config-dir "$config_dir" --rpc-url "$rpc" --network-passphrase "$passphrase" --source-account "$alias_name" --inclusion-fee 100)
+# The CLI's jsonrpsee client does not honor the managed HTTP proxy. A loopback
+# adapter forwards only allowed RPC methods to the fixed HTTPS Testnet endpoint,
+# preserving the managed outbound proxy and OS CA verification.
+go build -trimpath -o "$output_dir/testnet-rpc-bridge" ./scripts/testnet-rpc-bridge
+"$output_dir/testnet-rpc-bridge" > "$output_dir/bridge-url.txt" 2> "$output_dir/bridge.log" &
+bridge_pid=$!
+trap 'kill "$bridge_pid" 2>/dev/null || true; wait "$bridge_pid" 2>/dev/null || true' EXIT
+for ((ready_attempt=0; ready_attempt<50; ready_attempt++)); do
+  [[ -s "$output_dir/bridge-url.txt" ]] && break
+  kill -0 "$bridge_pid" 2>/dev/null || { echo 'Testnet bridge failed to start' >&2; exit 4; }
+  sleep 0.1
+done
+bridge_url="$(cat "$output_dir/bridge-url.txt")"
+[[ "$bridge_url" =~ ^http://127\.0\.0\.1:[0-9]+$ ]] || { echo 'Testnet bridge did not become ready' >&2; exit 4; }
+common=(--config-dir "$config_dir" --rpc-url "$bridge_url" --network-passphrase "$passphrase" --source-account "$alias_name" --inclusion-fee 100)
 admin="$(stellar keys address "$alias_name" --config-dir "$config_dir")"
 [[ "$admin" =~ ^G[A-Z2-7]{55}$ ]] || { echo 'invalid test-only account address' >&2; exit 3; }
 

@@ -58,15 +58,25 @@ The cloud funding request currently fails with proxy `Forbidden` for
 allowlist. Review/save the draft and publish the cloud environment before retrying.
 Saving the draft alone does not activate the change.
 
-The official prebuilt CLI also returned a transport `Connect` error for RPC
-while FleetWatch's Go client succeeded. Preserve the proxy and CA trust when
-resolving this; do not disable TLS verification. The CLI must pass its own health
-check before executing live steps:
+The official CLI's jsonrpsee RPC transport uses a direct connector instead of
+the managed HTTP proxy. The live runner starts a loopback-only adapter for the
+CLI, with allowed RPC methods and one fixed upstream Testnet HTTPS URL. Go's
+outbound client retains the inherited proxy and verifies upstream TLS with the
+OS trust store. It rejects redirects, browser-origin requests, unknown/ambiguous
+RPC methods and oversized bodies. It accepts no upstream URL override or local
+authorization headers. This is a developer adapter, not a public service.
+
+An actual CLI health check through the adapter succeeded. To reproduce manually,
+run this in one terminal:
 
 ```sh
-stellar network health --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase 'Test SDF Network ; September 2015' --output json
+go run ./scripts/testnet-rpc-bridge
 ```
+
+Pass its printed loopback address as `--rpc-url` to `stellar network health`,
+with `--network-passphrase 'Test SDF Network ; September 2015' --output json`.
+Stop the adapter with Ctrl-C; it also expires after 15 minutes. The live runner
+starts and stops its own instance. Do not expose it beyond loopback.
 
 Use a dedicated disposable Testnet identity stored outside the repository. Never
 use a production identity, pass a seed on the command line, or commit its config.
@@ -75,9 +85,9 @@ The following commands create/fund a test-only identity, then perform Testnet wr
 ```sh
 mkdir -m 700 -p /workspace/.private/fleetwatch-testnet
 stellar keys generate fleetwatch-demo --config-dir /workspace/.private/fleetwatch-testnet
-stellar keys fund fleetwatch-demo --config-dir /workspace/.private/fleetwatch-testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase 'Test SDF Network ; September 2015'
+public_key="$(stellar keys address fleetwatch-demo --config-dir /workspace/.private/fleetwatch-testnet)"
+curl --fail --silent --show-error --proto '=https' --get \
+  --data-urlencode "addr=$public_key" https://friendbot.stellar.org/
 mkdir -p testnet-runs
 ./scripts/demo-testnet.sh run fleetwatch-demo \
   /workspace/.private/fleetwatch-testnet testnet-runs/first-upgrade

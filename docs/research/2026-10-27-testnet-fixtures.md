@@ -49,9 +49,20 @@ consensus or metadata-commitment authentication.
 
 Python HTTPS requests to the RPC returned HTTP 403. The prebuilt CLI returned
 transport Connect errors. Go's inherited proxy and OS CA configuration succeeded;
-no proxy bypass or TLS-verification disablement was used. The CLI uses reqwest's
-webpki-root feature; native-root support is being evaluated separately rather
-than assuming the Connect error is definitively diagnosed.
+no proxy bypass or TLS-verification disablement was used. Source inspection
+traced CLI RPC to stellar-rpc-client 28.0.0 and jsonrpsee-http-client 0.26.0:
+its transport constructs a direct Hyper connector instead of using the managed
+HTTP proxy. Altering reqwest certificate features would not fix this RPC path,
+so an exploratory native-root CLI build was stopped and is not used.
+
+Added a developer-only loopback RPC adapter using Go's inherited proxy and
+verified upstream TLS, fixed Testnet destination, strict request parsing/method
+allowlist and size/time bounds. An actual official-CLI health call through it
+returned healthy at ledger 5407609. No signing or sendTransaction was exercised.
+The live smoke starts/stops this adapter; read-only FleetWatch capture still
+connects through its own existing HTTPS reader. This is one source endpoint,
+not independent chain authentication. Invalid/duplicate/unknown requests and
+browser-origin requests are rejected in an offline transport test.
 
 The RPC's getNetwork advertises `https://friendbot.stellar.org/`. A Go funding
 request for a newly created disposable test identity failed with proxy Forbidden.

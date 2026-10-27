@@ -368,3 +368,21 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   transaction checks, history reconstruction, deliberate gap, restart and alert
   acceptance. Baseline/metadata authentication, unbounded retention/operation,
   production delivery and release/Wave readiness also remain unfinished.
+- Follow-up transport diagnosis: CLI RPC uses jsonrpsee's direct Hyper connector,
+  which does not honor this environment's HTTP proxy. Stopped the exploratory
+  reqwest-native-roots build because it cannot fix that path. Added a loopback-only
+  fixed-Testnet RPC adapter that retains managed proxy routing, TLS verification,
+  strict request/method bounds and no cross-host redirects. Official CLI health
+  through the adapter PASS at ledger 5407609; no transaction sent. The live runner
+  starts/stops its own adapter. Funding instructions use the proxy/CA-aware curl
+  client with a public account address. No destination denial was bypassed.
+- Follow-up checks PASS: 207 top-level Go tests and five fuzz targets' seed runs,
+  one intentional crash-helper skip; bridge race test, scripts vet, actionlint,
+  Bash syntax and diff checks. Full application race suite passed earlier in this
+  checkpoint; only developer transport/scripts changed afterward. All three
+  vulnerability scan levels rerun and PASS. Demo guards reject unknown mode,
+  secret-shaped aliases and repository-local signing configs before network work.
+  Test bridge process stopped; no service left running. Complete updated startup
+  instructions saved in the same network draft; save confirmed, requires_publish
+  true. Public checkpoint `3eae690` is on the new branch; transport follow-up is
+  recorded in the subsequent commit. No live deployment or public release.
