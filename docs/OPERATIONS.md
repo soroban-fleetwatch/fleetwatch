@@ -12,7 +12,11 @@ flowchart LR
   Worker --> Disk[Local bbolt: evidence, projection, finding journal]
   Worker --> Health[Loopback status and metrics]
   Operator[Host operator] --> Health
-  Disk --> Backup[Stopped, consistent backup to separate storage]
+  Worker -. optional local sync .-> Outbox[Separate delivery bbolt]
+  Outbox -. optional dispatch .-> Dispatcher[Explicit webhook dispatcher]
+  Dispatcher -. configured receiver .-> Receiver[Authorized HTTPS receiver]
+  Disk --> Backup[Stopped backups: separate DB snapshots]
+  Outbox --> Backup
   Docs[Documentation site: future independent hosting]
 ```
 
@@ -107,6 +111,11 @@ To use the alternative, substitute `fleetwatch-sync.service` in the commands
 below, including static verification and later maintenance commands. No webhook
 dispatch or receiver is enabled by either unit. See [FOLLOW_DELIVERY.md](FOLLOW_DELIVERY.md)
 for sync deadlines, readiness, lock contention and recovery semantics.
+
+The separate optional `fleetwatch-delivery.service` can dispatch alongside the
+chosen follower after explicit receiver/key configuration. It requires its own
+private environment file and is not started or enabled by installation. See
+[DELIVERY_LOOP.md](DELIVERY_LOOP.md) before starting anything that sends messages.
 
 ```sh
 systemd-analyze --user verify "$HOME/fleetwatch-pilot/systemd/fleetwatch.service"

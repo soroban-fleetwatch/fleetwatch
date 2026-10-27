@@ -160,5 +160,7 @@ manifest, queue, leases, acknowledgements and recovery receipts together. Follow
 archives do not include this separate delivery history. Archive recovery with a
 retained compatible delivery DB can resync without resetting acknowledgements;
 an older source that predates the prior sync is rejected until reconciled.
-No webhook dispatcher scheduler or hosted receiver is configured by these
-commands. Automatic queue sync requires the explicit follower flags above.
+For optional repeated dispatch, [deliver-loop](DELIVERY_LOOP.md) opens the outbox
+for bounded batches and releases it between cycles. It requires an explicit
+receiver/key and is never started by sync or installation. No hosted receiver
+is configured. Automatic queue sync still requires the explicit follower flags.

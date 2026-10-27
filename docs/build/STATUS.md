@@ -13,7 +13,7 @@
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
 | S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
-| S5 Watcher/alerts | IN PROGRESS: continuous pilot, local telemetry and opt-in automatic outbox sync | Follow/restart/gap checks; replay-validated durable sync with startup repair; local signed TLS delivery and audited recovery | Dispatch scheduling, production receiver/proxy routing, retention rollover and hosted validation remain |
+| S5 Watcher/alerts | IN PROGRESS: continuous pilot, telemetry, opt-in queue sync and dispatcher loop | Follow/restart/gap checks; durable sync/startup repair; repeated local signed TLS delivery and audited recovery | Production receiver/proxy routing, gap-notification policy, retention rollover and hosted validation remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
@@ -757,3 +757,51 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   notification policy, production receiver/proxy routing, archive chaining/
   retention rollover, sizing and permanent-host validation. No public release,
   protected merge, host provisioning, actual unit start or Wave submission.
+
+## Phase 9 opt-in repeated webhook dispatcher — 2026-10-27
+
+- Continues `38ab929` on feat/portable-linux-follow. Added deliver-loop with an
+  explicit imported network/stream, receiver URL/allowlist and HMAC key environment
+  selector. It dispatches only imported follow payloads; no implicit destination,
+  source discovery, signing key generation or auto-start. --check verifies local
+  options/key/transport policy without opening state, resolving DNS or sending.
+- The loop opens existing-only writable delivery state for one bounded batch,
+  then releases the file before status/interval waits. Missing and empty files
+  wait with unknown queue counts, never created/initialized. Busy/unimported
+  state is reported explicitly; nonempty invalid state/manifests stop. Batch
+  size 1–5 (default one), interval 1–60 seconds (default five), dispatch deadline
+  ninety seconds plus bounded post-batch inspection. Existing sender/lease
+  limits, sink binding and retry/dead-letter policy remain unchanged.
+- SIGINT/SIGTERM preserve durable attempts and emit STOPPED. At-least-once retry
+  after uncertain acknowledgement requires receiver deduplication. Permanent/
+  exhausted failures stay DEAD across restart, requiring audited manual recovery.
+  Output failure after acknowledgement does not clear/reset delivered rows.
+  Fixed NDJSON codes/counts expose waiting, retry, uncertainty, dead letters and
+  fatal failure without URL/key/IDs/lease tokens/raw transport errors. Queue
+  counts are null when unknown. No chain assurance or retention change.
+- Local verified-TLS loop reused the previously captured Testnet transition
+  evidence, imported three native follow findings and delivered three requests.
+  Exact-body HMAC/idempotency, released file between batches, graceful stop and
+  zero acknowledged-repeat attempts after restart PASS. No external delivery or
+  new RPC/transaction. Synthetic tests add transient retries, permanent dead
+  letters, missing/busy/empty/unimported files, corrupt-state rejection, request
+  cancellation, output failure and invalid options/key handling. Evidence in
+  docs/research/2026-10-27-delivery-loop-validation.md and JSON.
+- Prepared fleetwatch-delivery.service as a separate optional user unit, with
+  required private receiver/key environment configuration and local preflight.
+  It can accompany one selected follower unit; does not start a follower itself.
+  Installer creates no environment file/secret and starts/enables neither role.
+  Static unit verification PASS only; real target-host service/boot/hardening and
+  receiver setup remain unverified. Direct-only sender still rejects required
+  proxy routing; DNS/IP pinning, verified TLS and redirect policy are unchanged.
+- Local checks PASS: 247 default top-level tests, six fuzz seed targets, four
+  intentional skips; affected alert/store/followdelivery/follow/CLI race suites;
+  separately invoked captured-data local TLS loop; formatting/vet/modules/
+  tidy-diff; module/source-test/binary vulnerability gates; actionlint/Bash/status
+  schema and package checks. Remote CI unverified; no dependency or default
+  credential requirement. Runtime guide, schema and rendered unit ship in the
+  candidate. Operations topology now includes the separate outbox/dispatcher.
+- Phase 9 remains IN PROGRESS for production receiver/proxy routing, source-gap
+  notification policy, archive chaining/retention rollover, representative sizing
+  and permanent-host validation. No public release, protected merge, provisioning,
+  actual service start, new chain write or Wave submission occurred.

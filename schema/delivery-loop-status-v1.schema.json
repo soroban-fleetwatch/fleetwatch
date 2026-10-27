@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Experimental follow delivery loop status v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "mode", "cycle", "at_unix", "code", "batch", "queue", "final_verdict"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "mode": {"const": "EXPERIMENTAL_FOLLOW_DISPATCH"},
+    "cycle": {"type": "integer", "minimum": 0},
+    "at_unix": {"type": "integer", "minimum": 1},
+    "code": {"enum": ["WAITING_FOR_OUTBOX", "OUTBOX_EMPTY", "OUTBOX_BUSY", "WAITING_FOR_IMPORT", "DISPATCHED", "DELIVERY_RETRY", "WAITING_FOR_RETRY", "DEAD_LETTERS_PRESENT", "ACK_UNCERTAIN", "BATCH_TIMEOUT", "IDLE", "STATE_FAILURE", "STOPPED"]},
+    "batch": {
+      "type": "object", "additionalProperties": false,
+      "required": ["attempted", "delivered", "failed"],
+      "properties": {
+        "attempted": {"type": "integer", "minimum": 0, "maximum": 5},
+        "delivered": {"type": "integer", "minimum": 0, "maximum": 5},
+        "failed": {"type": "integer", "minimum": 0, "maximum": 5}
+      }
+    },
+    "queue": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["pending", "inflight", "delivered", "dead"],
+      "properties": {
+        "pending": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "inflight": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "delivered": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "dead": {"type": "integer", "minimum": 0, "maximum": 10000}
+      }
+    },
+    "final_verdict": {"const": "UNDETERMINED"}
+  }
+}

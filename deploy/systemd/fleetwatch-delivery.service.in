@@ -1,0 +1,32 @@
+[Unit]
+Description=FleetWatch explicit follow webhook dispatcher
+After=network-online.target fleetwatch-sync.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=@ROOT@/var/lib/fleetwatch
+ExecStartPre=@ROOT@/bin/fleetwatch deliver-loop --state @ROOT@/var/lib/fleetwatch/delivery.db --network ${FLEETWATCH_DELIVERY_NETWORK} --stream ${FLEETWATCH_DELIVERY_STREAM} --webhook-url ${FLEETWATCH_WEBHOOK_URL} --allow-host ${FLEETWATCH_WEBHOOK_HOST} --hmac-key-env FLEETWATCH_WEBHOOK_KEY --batch-size 1 --poll-interval-seconds 5 --check
+ExecStart=@ROOT@/bin/fleetwatch deliver-loop --state @ROOT@/var/lib/fleetwatch/delivery.db --network ${FLEETWATCH_DELIVERY_NETWORK} --stream ${FLEETWATCH_DELIVERY_STREAM} --webhook-url ${FLEETWATCH_WEBHOOK_URL} --allow-host ${FLEETWATCH_WEBHOOK_HOST} --hmac-key-env FLEETWATCH_WEBHOOK_KEY --batch-size 1 --poll-interval-seconds 5
+EnvironmentFile=%h/.config/fleetwatch/delivery
+Restart=on-failure
+RestartSec=5s
+RestartPreventExitStatus=3 4 5 6
+TimeoutStartSec=180s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=@ROOT@/var/lib/fleetwatch
+RestrictSUIDSGID=true
+LockPersonality=true
+LimitNOFILE=4096
+MemoryMax=1G
+LogRateLimitIntervalSec=30s
+LogRateLimitBurst=120
+
+[Install]
+WantedBy=default.target

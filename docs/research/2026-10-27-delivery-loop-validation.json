@@ -1,0 +1,18 @@
+{
+  "delivered_findings": 3,
+  "external_deliveries": 0,
+  "final_verdict": "UNDETERMINED",
+  "graceful_stop_verified": true,
+  "hmac_and_idempotency_verified": true,
+  "mode": "LOCAL_TLS_DELIVERY_LOOP_OF_CAPTURED_FINDINGS",
+  "new_chain_requests": 0,
+  "outbox_released_between_batches": true,
+  "received_requests": 3,
+  "restart_repeat_attempts": 0,
+  "date": "2026-10-27",
+  "base_commit": "38ab929",
+  "production_receiver_configured": false,
+  "production_host_validated": false,
+  "service_enabled_or_started": false,
+  "optional_delivery_unit_static_verification": true
+}

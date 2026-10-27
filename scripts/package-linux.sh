@@ -13,9 +13,9 @@ mkdir -p "$bundle/bin" "$bundle/docs" "$bundle/systemd" "$bundle/schema"
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOFLAGS=-mod=readonly go build -trimpath -o "$bundle/bin/fleetwatch" ./cmd/fleetwatch
 install -m 0755 deploy/install-user.sh "$bundle/bin/install-user.sh"
 install -m 0755 deploy/host-check.py "$bundle/bin/host-check.py"
-install -m 0644 deploy/systemd/fleetwatch.service.in deploy/systemd/fleetwatch-sync.service.in "$bundle/systemd/"
-install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/WEBHOOKS.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$bundle/docs/"
-install -m 0644 schema/follow-alert-v3.schema.json "$bundle/schema/"
+install -m 0644 deploy/systemd/fleetwatch.service.in deploy/systemd/fleetwatch-sync.service.in deploy/systemd/fleetwatch-delivery.service.in "$bundle/systemd/"
+install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/DELIVERY_LOOP.md docs/WEBHOOKS.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$bundle/docs/"
+install -m 0644 schema/follow-alert-v3.schema.json schema/delivery-loop-status-v1.schema.json "$bundle/schema/"
 install -m 0644 LICENSE "$bundle/LICENSE"
 python3 - "$bundle" <<'PY'
 import hashlib,json,os,pathlib,shutil,subprocess,sys

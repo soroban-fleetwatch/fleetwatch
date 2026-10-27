@@ -24,8 +24,8 @@ install -m 0755 bin/host-check.py "$staging/bin/host-check.py"
 install -m 0600 "$baseline" "$staging/etc/fleetwatch/baseline.json"
 install -m 0644 LICENSE "$staging/LICENSE"
 cp -R licenses "$staging/"
-install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/WEBHOOKS.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$staging/docs/"
-install -m 0644 schema/follow-alert-v3.schema.json "$staging/schema/"
+install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md docs/COMPACTION.md docs/FOLLOW_DELIVERY.md docs/DELIVERY_LOOP.md docs/WEBHOOKS.md docs/ALERTS.md docs/ALERT_RECOVERY.md docs/BACKUP.md "$staging/docs/"
+install -m 0644 schema/follow-alert-v3.schema.json schema/delivery-loop-status-v1.schema.json "$staging/schema/"
 python3 - "$staging" "$install_root" "$3" <<'PY'
 import json,pathlib,sys
 stage=pathlib.Path(sys.argv[1]);root=sys.argv[2]
@@ -38,10 +38,13 @@ template=pathlib.Path('systemd/fleetwatch.service.in').read_text()
 (stage/'systemd/fleetwatch.service').write_text(template.replace('@ROOT@',root))
 template=pathlib.Path('systemd/fleetwatch-sync.service.in').read_text()
 (stage/'systemd/fleetwatch-sync.service').write_text(template.replace('@ROOT@',root))
+template=pathlib.Path('systemd/fleetwatch-delivery.service.in').read_text()
+(stage/'systemd/fleetwatch-delivery.service').write_text(template.replace('@ROOT@',root))
 PY
 "$staging/bin/fleetwatch" follow --check --config "$staging/etc/fleetwatch/follow.json"
 mv -T --no-clobber -- "$staging" "$install_root"
 [[ ! -d "$staging" ]] || { echo 'install root appeared during installation; existing directory preserved' >&2; exit 5; }
 echo "Installed into $install_root. No service was started or enabled."
 echo "Review $install_root/systemd/fleetwatch.service and the operations guide before linking it to systemd."
-echo 'The optional fleetwatch-sync.service enables local outbox sync only. Review and choose one unit; neither was started.'
+echo 'The optional fleetwatch-sync.service enables local outbox sync only. Choose one follower unit; neither was started.'
+echo 'The separate fleetwatch-delivery.service requires explicit receiver/secret configuration. It was not configured or started.'

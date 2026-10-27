@@ -31,6 +31,16 @@ type State struct {
 type Store struct{ db *bolt.DB }
 
 func Open(path string) (*Store, error) {
+	return openStore(path, false)
+}
+
+// OpenExisting permits delivery updates but never creates missing state, even
+// if the path disappears between the initial check and bbolt's file open.
+func OpenExisting(path string) (*Store, error) {
+	return openStore(path, true)
+}
+
+func openStore(path string, existingOnly bool) (*Store, error) {
 	existed := false
 	if info, err := os.Lstat(path); err == nil {
 		existed = true
@@ -43,7 +53,16 @@ func Open(path string) (*Store, error) {
 	} else if !os.IsNotExist(err) {
 		return nil, err
 	}
-	db, err := bolt.Open(path, 0600, &bolt.Options{Timeout: time.Second})
+	if existingOnly && !existed {
+		return nil, os.ErrNotExist
+	}
+	options := &bolt.Options{Timeout: time.Second}
+	if existingOnly {
+		options.OpenFile = func(name string, flag int, mode os.FileMode) (*os.File, error) {
+			return os.OpenFile(name, flag&^os.O_CREATE, mode)
+		}
+	}
+	db, err := bolt.Open(path, 0600, options)
 	if err != nil {
 		return nil, fmt.Errorf("open replay state: %w", err)
 	}

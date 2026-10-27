@@ -20,6 +20,7 @@ export XDG_RUNTIME_DIR="$scratch/runtime"
 mkdir -m 700 "$XDG_RUNTIME_DIR"
 "$scratch/installed/bin/host-check.py" "$scratch/installed" > "$scratch/host.json"
 systemd-analyze --user verify "$scratch/installed/systemd/fleetwatch-sync.service"
+systemd-analyze --user verify "$scratch/installed/systemd/fleetwatch-delivery.service"
 python3 - "$scratch" <<'PY'
 import json,pathlib,sys
 if not __debug__:raise SystemExit('package checks require Python assertions enabled')
