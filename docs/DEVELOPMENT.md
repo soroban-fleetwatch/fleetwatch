@@ -26,3 +26,9 @@ Run `./scripts/check-vulnerabilities.sh` for the pinned module, source/test and
 fresh-binary security gates. It installs its own temporary scanner and requires
 Go package/checksum access plus vuln.go.dev. See [DEPENDENCY_CHECKS.md](DEPENDENCY_CHECKS.md)
 for findings, compiler/action pins, CI checks and point-in-time limits.
+
+For the optional CAP-85 fixture workspace, activate
+`/workspace/.tools/stellar-cli-28.1.0` and `/workspace/.tools/rust/bin` in PATH,
+set `CARGO_HOME=/workspace/.cache/cargo`, and run `scripts/demo-testnet.sh check`.
+See [TESTNET_DEMO.md](TESTNET_DEMO.md) for pinned tools, funding/network blockers
+and the distinction between local Wasm tests and live acceptance.

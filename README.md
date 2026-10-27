@@ -57,6 +57,8 @@ The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-a
 
 [Dependency checks](docs/DEPENDENCY_CHECKS.md) cover required-module advisories, source/tests and the compiled CLI with a pinned scanner. CI also pins its compiler and action revisions; remote CI results remain unverified.
 
+The [Testnet validation guide](docs/TESTNET_DEMO.md) includes compiled CAP-85 fixture tests, a read-only preflight and a prepared live snapshot smoke. Local fixture tests pass; live deployment and full history/alert acceptance remain unfinished.
+
 [RPC response guards](docs/RPC_JSON.md) reject ambiguous or oversized JSON before typed capture and reconstruction. Provider extensions remain supported; chain authentication remains unverified.
 
 The [bounded polling worker](docs/WATCH.md) retries a fixed target with strict JSON configuration, cancellation and NDJSON progress. It retains the original 16-ledger interval bound and does not send alerts.

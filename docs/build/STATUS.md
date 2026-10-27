@@ -1,7 +1,7 @@
 # FleetWatch — verified build status
 
 **Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch
-**Working branch:** `work` (existing cloud task branch)
+**Working branch:** `feat/testnet-cap85-demo` (from merged main `0014aaa`)
 **Date checked:** 2026-10-27
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
@@ -11,7 +11,7 @@
 | S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
-| S3 Real Testnet proof | IN PROGRESS: read-only metadata evidence | Native Go collected/decoded two protocol-29 Testnet ledgers; historical endpoint denial resolved for this client | Controlled CAP-85 deployment/update and actual fleet fixtures remain |
+| S3 Real Testnet proof | IN PROGRESS: compiled fixtures and read-only preflight | Three actual-Wasm host tests pass; fresh protocol-29 metadata preflight passes | Testnet faucet access blocked; live upgrade/history/restart/alert acceptance remains |
 | S4 Sequential historical ingest | IN PROGRESS: bounded resumable RPC ingestion | Exact-range RPC fetch, cursor-fenced commit, asserted-baseline projection, atomic evidence/alerts and crash/restart tests | Authenticated baseline/metadata commitments, lifecycle reconciliation, production retention and Postgres remain |
 | S5 Watcher/alerts | IN PROGRESS: bounded polling worker and outboxes | Finite configured polling, cancellation/progress, atomic outboxes, manual recovery/audit and local TLS tests | Unbounded worker, production retention/live telemetry and proxy-aware delivery transport remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
@@ -319,3 +319,52 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
 - Confirmed PR https://github.com/soroban-fleetwatch/fleetwatch/pull/1 has work as its source: refs/pull/1/head and refs/heads/work both matched published checkpoint 542d57d before this fix. Pushing the correction to work updates the existing PR.
 - Local checks PASS with GOFLAGS=-mod=readonly, GOTOOLCHAIN=local and Go 1.27.3: exact compiler assertion, actionlint, module tidy-diff, full unit/fuzz seed suite, vet, full race suite, trimmed-path build and diff checks. scripts/check-vulnerabilities.sh PASS: module, source/test and fresh binary scans each report no vulnerabilities found, scanner v1.9.0 / DB updated 2026-10-21 00:27:29 UTC.
 - Updated dependency/development guidance to state the explicit version-file selection. Remote checks must rerun on the new PR head; no remote success is claimed from these local results.
+
+## Phase 8 CAP-85 fixture and Testnet preflight checkpoint — 2026-10-27
+
+- User confirmed PR #1 was merged and authorized starting Testnet validation.
+  Fetched origin/main at `0014aaa3943f967912cc08bc8839548804f32557`
+  (Merge pull request #1); created `feat/testnet-cap85-demo` from that exact main.
+  No existing changes were present or overwritten.
+- Added a separate test-only Rust workspace with pinned SDK 29.0.1, Rust 1.99.1
+  and Cargo.lock. Inspected published stable SDK/CAP-85 APIs before implementation.
+  Owner publication/factory deployment and member direct repoint require the
+  stored administrator's authorization. No asset functions or production watcher
+  signing capability were introduced.
+- Built actual member A/B and owner Wasm through Stellar CLI 28.1.0, including its
+  required spec processing. Three host tests PASS: shared A→B→A behavior for two
+  members and direct detachment; unauthorized publish/deploy rejection; unauthorized
+  member repoint rejection. Repeated build/checks reproduce identical local Wasm
+  digests recorded in docs/research/2026-10-27-testnet-fixtures.md. These are local
+  host executions, not live Testnet contract deployments.
+- Added read-only scripts/testnet-preflight using existing strict RPC and metadata
+  readers. Real Testnet passphrase/protocol 29, fresh head and one historical
+  metadata record PASS. Saved sanitized sequence/header/metadata digests in
+  docs/research/2026-10-27-testnet-preflight.json; metadata version 2, zero
+  transactions sent, source UNVERIFIED, commitments NOT_VERIFIED and final verdict
+  UNDETERMINED. No independently authenticated baseline or chain claim.
+- Added scripts/demo-testnet.sh: default/check builds and tests fixtures then
+  performs the read-only preflight. Explicit run mode requires a test-only alias,
+  signing config outside the repo and a new output directory, and fixes destination
+  and passphrase to Testnet. Prepared live snapshot smoke checks exact uploaded
+  Wasm hashes, both external-reference members and the expected affected set.
+  It preserves partial/unverified capture envelopes and public transaction logs.
+  The live transaction path has NOT RUN successfully and is not an acceptance PASS.
+- Added an offline fixture CI job with pinned/checksummed CLI, pinned Rust,
+  locked dependencies, formatting and actual-Wasm tests. CI never funds, signs,
+  deploys or contacts Testnet. Go formatting also covers scripts. Workflow lint
+  passes locally; remote checks on this branch remain unverified.
+- Full Go unit/fuzz-seed suite, vet, race suite, trimmed-path CLI build, module
+  tidy-diff, Bash syntax, Rust formatting, actionlint and diff checks PASS. Pinned
+  vulnerability script PASS: module/source-test/binary scans each report no
+  vulnerabilities found. This does not cover Rust advisories or constitute an audit.
+- Go funding request to the RPC-advertised friendbot.stellar.org failed with proxy
+  Forbidden. A disposable identity generated for diagnosis was never funded or
+  used to sign a transaction, its secret was never printed/tracked, and its file
+  was removed. Saved a network draft adding only friendbot.stellar.org while
+  retaining soroban-testnet.stellar.org, storage.googleapis.com, vuln.go.dev and
+  existing presets. Save confirmed; publication/runtime effect not established.
+- Full S3 remains BLOCKED on live deployment/update evidence, independent
+  transaction checks, history reconstruction, deliberate gap, restart and alert
+  acceptance. Baseline/metadata authentication, unbounded retention/operation,
+  production delivery and release/Wave readiness also remain unfinished.
