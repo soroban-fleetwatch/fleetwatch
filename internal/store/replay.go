@@ -14,11 +14,12 @@ import (
 	"time"
 
 	"github.com/soroban-fleetwatch/fleetwatch/internal/fleetwatch"
+	"github.com/soroban-fleetwatch/fleetwatch/internal/stateformat"
 	bolt "go.etcd.io/bbolt"
 )
 
 var ErrConflict = errors.New("stored observation conflicts with supplied journal")
-var stateBucket = []byte("fleetwatch.offline-replay.v1")
+var stateBucket = []byte(stateformat.Replay)
 
 const maxStateBytes = 25 << 20
 

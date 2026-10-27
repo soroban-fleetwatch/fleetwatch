@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Experimental follow configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "rpc_url", "baseline", "state", "listen", "poll_interval_seconds", "batch_size", "head_delay_ledgers", "max_endpoint_lag", "max_retained_ledgers", "max_retained_payload_bytes"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "rpc_url": {"type": "string", "pattern": "^https://"},
+    "baseline": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "state": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "listen": {"type": "string", "pattern": "^127\\.0\\.0\\.1:(0|[1-9][0-9]{0,4})$"},
+    "poll_interval_seconds": {"type": "integer", "minimum": 1, "maximum": 60},
+    "batch_size": {"type": "integer", "minimum": 1, "maximum": 16},
+    "head_delay_ledgers": {"type": "integer", "minimum": 0, "maximum": 8},
+    "max_endpoint_lag": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "max_retained_ledgers": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "max_retained_payload_bytes": {"type": "integer", "minimum": 1048576, "maximum": 268435456}
+  },
+  "$comment": "Runtime validation additionally rejects URL credentials/query/fragment, paths with controls, colliding state/config/baseline paths, ports above 65535, and max_endpoint_lag below head_delay_ledgers+1. Configuration is at most 16 KiB."
+}

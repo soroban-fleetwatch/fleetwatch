@@ -1,7 +1,7 @@
 # FleetWatch — verified build status
 
 **Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch
-**Working branch:** `feat/testnet-cap85-demo` (from merged main `0014aaa`)
+**Working branch:** `feat/portable-linux-follow` (from Phase 8 checkpoint `85dd0ec`)
 **Date checked:** 2026-10-27
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
@@ -12,8 +12,8 @@
 | S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
-| S4 Sequential historical ingest | IN PROGRESS: bounded resumable RPC ingestion | Exact-range RPC fetch, cursor-fenced commit, asserted-baseline projection, atomic evidence/alerts and crash/restart tests | Authenticated baseline/metadata commitments, lifecycle reconciliation, production retention and Postgres remain |
-| S5 Watcher/alerts | IN PROGRESS: bounded polling worker and outboxes | Finite configured polling, cancellation/progress, atomic outboxes, manual recovery/audit and local TLS tests | Unbounded worker, production retention/live telemetry and proxy-aware delivery transport remain |
+| S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
+| S5 Watcher/alerts | IN PROGRESS: continuous pilot and local health/metrics | Follow/restart/gap checks, bounded polling/outboxes, manual recovery and local TLS delivery | Follow journal dispatch, production receiver transport, archive and hosted validation remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
@@ -47,7 +47,7 @@ Update after each milestone. A status becomes PASS only when tests and reference
 1. Extend bounded diagnostic reconstruction checkpoints into authenticated continuous ingestion: trusted baseline, metadata commitments, full lifecycle reconciliation, durable gap/delivery handling, production retention and restart recovery. Never relabel current-state polling or supplied snapshots as comprehensive chain history.
 2. Decide independently trusted header anchoring, metadata/transaction commitment verification and provenance requirements before allowing chain-safe verdicts or approval-based severity changes. Source authentication and fleet completeness remain unverified.
 3. Controlled CAP-85 Testnet fixtures and scoped update/restart/alert evidence now pass (see the 2026-10-27 Testnet validation checkpoint). Preserve those regressions while addressing source authentication and production operation; do not relabel the diagnostic as authenticated chain approval.
-4. Extend the finite polling worker into a continuous production service with retention/storage, durable telemetry, trust distribution and release validation. Existing local replay, outbox, approval, report and backup features remain experimental.
+4. Validate the portable follow pilot on the selected permanent Linux host. Continuous advancement and loopback operational telemetry now work locally; production archive/retention, follow-journal delivery, trust distribution and release validation remain unfinished.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
 
@@ -448,3 +448,62 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   inclusion NOT_VERIFIED, membership/history UNKNOWN, final UNDETERMINED remain.
   Authentication, continuous retention, production/proxy-aware delivery, load and
   external review, release validation, docs site and Wave readiness remain open.
+
+## Phase 9 portable Linux follow pilot — 2026-10-27
+
+- User chose portable Linux preparation, without supplying a production host or
+  hosting account. Continues `85dd0ec` on new branch feat/portable-linux-follow.
+  No paid service, user/account permission, remote host, public release/tag or
+  repository merge was created. Phase 9 production-hosting gate stays IN PROGRESS.
+- Added experimental follow mode with no fixed target/process lifetime. Source
+  batches remain at most sixteen ledgers. The original assertion/header provenance
+  and complete active/inactive/absent reducer state persist across batches; there
+  is no automatic baseline refresh, cursor skip or retention-bound bypass. The
+  legacy bounded watch/reconstruct commands keep their existing lifetime limits.
+- Separate v1 follow bbolt store atomically retains raw records, groups/findings
+  and projection/cursor. Startup replays every retained record from the original
+  assertion and checks head/counters/journal; unknown, truncated or corrupt state
+  is rejected without resetting it. Configured ledger/payload and 10,000-finding
+  budgets stop before deleting evidence. There is no online prune/archive,
+  shared-writer SQL backend or follow-journal dispatch/acknowledgement path.
+- Added strict 16-KiB config, local-only health/status/Prometheus routes, lag/age/
+  capacity-qualified readiness, durable poll/gap-episode metadata, cancellable
+  source cycles and graceful shutdown. Fresh processes start not-ready. Stale or
+  unavailable claims yield unknown lag; all assurance remains unverified. Progress
+  omits endpoint URLs, raw provider errors, watched identities and signing data.
+- Added offline follow-inspect with bounded ID-cursor pages and explicit offline
+  assurance. Backup now has an explicit read-only, copy-only opener recognizing
+  follow/replay roots; legacy replay/health readers still refuse follow state.
+  Tests cover snapshot/restore consistency and do not enable cross-engine writes.
+- Deterministic typed-XDR tests retained forty ledgers, A→B at 100 and B→A at 117,
+  matching IDs for batch sizes 1/8/16 and cold replay. Tests also cover carried
+  inactive/absent preimages, skipped ledgers/repair, regressing/stale/wrong-network
+  source, cross-batch header mismatch, retention/byte rollback, orphan findings,
+  second writers, cancellation/output failure and subprocess exit before commit.
+- Read-only real Testnet pilot: fresh explicitly asserted baseline 5413741,
+  seventeen new ledgers retained through 5413758, qualified readyz/status HTTP 200
+  and metrics ready=1. Retained payload 5,741,419 bytes, zero findings/gap episodes
+  in this small run. SIGTERM exit 0; a fresh process fully revalidated and became
+  ready at the same cursor. Consistent backup/restore inspection matched exactly.
+  No signing identity, transaction or external receiver call. This is not a load
+  benchmark, authenticated network-health claim or production deployment.
+- Portable candidate: static Linux amd64 build with pinned compiler, per-file and
+  archive checksums, commit/dirty metadata, staged non-overwriting installer,
+  hardening-oriented systemd USER unit, operations/runtime guides, ADR and schemas.
+  Installer validates offline and never starts/enables a unit. Valid install,
+  checksum-tamper rejection, no-overwrite and invalid-baseline checks PASS. Static
+  user-unit verification PASS with an isolated XDG_RUNTIME_DIR. Cloud PID 1 is
+  not systemd; actual unit start, boot persistence and target-host controls are
+  unverified. Precommit test packages explicitly carry source_dirty=true.
+- Local checks PASS: 222 default top-level Go tests, five fuzz targets' seed runs,
+  full race/vet/module verify/tidy-diff, pinned module/source-test/binary advisory
+  gates, actionlint, shell syntax, JSON Schemas and actual live status schema checks.
+  Four intentional default skips: two subprocess helpers exercised by parents and
+  two opt-in Phase 8 evidence tests. Affected follow/CLI race tests rerun after the
+  final timing correction; no new dependency or credential requirement. Remote CI
+  on this new branch remains unverified; no audit or cross-platform verdict.
+- Evidence and topology: docs/research/2026-10-27-follow-pilot.md and JSON,
+  docs/FOLLOW.md, docs/OPERATIONS.md and ADR 0004. Raw runtime/DB/binary data stay
+  ignored in follow-runs and dist. No pilot process remains running. Portable
+  preparation is ready; permanent-host deployment, production archive/retention,
+  receiver integration, sizing and fully hosted end-to-end checks remain open.

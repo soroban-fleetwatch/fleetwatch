@@ -14,7 +14,7 @@ import (
 func backup(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("backup", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	path := fs.String("state", "", "existing replay database (read only)")
+	path := fs.String("state", "", "existing replay or follow database (read only)")
 	destination := fs.String("output", "", "new backup path in an existing directory")
 	if err := fs.Parse(args); err != nil {
 		return 3
@@ -23,7 +23,7 @@ func backup(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "backup requires --state FILE --output NEW_FILE")
 		return 3
 	}
-	s, err := store.OpenReadOnly(*path)
+	s, err := store.OpenBackupReadOnly(*path)
 	if err != nil {
 		fmt.Fprintln(stderr, "backup: existing database unavailable or locked")
 		return 5

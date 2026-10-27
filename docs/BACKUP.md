@@ -5,6 +5,13 @@ findings, outbox records, delivery leases, approval receipts and nonce reservati
 are captured together. Unknown future buckets are retained rather than filtered.
 The command does not modify the source or send alerts.
 
+The separate experimental [follow store](FOLLOW.md) is also recognized for
+copying: its original assertion, raw ledger records, projection, cycle metadata
+and finding journal are captured together. Stop the follower first. Legacy
+replay/doctor APIs do not adopt this format; validate a restored follow file with
+`follow-inspect --config FILE`. Recognition for copying does not replace semantic
+validation, and the existing physical-copy size limit still applies.
+
 ```sh
 go build -o fleetwatch ./cmd/fleetwatch
 # Stop processes using the database; use a NEW destination in an existing directory.

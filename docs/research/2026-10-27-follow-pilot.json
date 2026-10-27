@@ -1,0 +1,72 @@
+{
+  "mode": "READ_ONLY_TESTNET_FOLLOW_PILOT",
+  "baseline_ledger": 5413741,
+  "first_status": {
+    "schema_version": 1,
+    "mode": "EXPERIMENTAL_READ_ONLY_FOLLOW",
+    "code": "FOLLOWING",
+    "ready": true,
+    "processed_through": 5413758,
+    "endpoint_head": 5413759,
+    "endpoint_ledger_lag": 1,
+    "retained_ledgers": 17,
+    "retained_payload_bytes": 5741419,
+    "pending_findings": 0,
+    "polls": 67,
+    "gap_episodes": 0,
+    "last_successful_cycle_unix": 1793092382,
+    "source_authentication": "UNVERIFIED",
+    "baseline_authentication": "UNVERIFIED",
+    "metadata_commitment": "NOT_VERIFIED",
+    "membership_coverage": "UNKNOWN",
+    "history_completeness": "UNKNOWN",
+    "final_verdict": "UNDETERMINED"
+  },
+  "reopened_status": {
+    "schema_version": 1,
+    "mode": "EXPERIMENTAL_READ_ONLY_FOLLOW",
+    "code": "IDLE",
+    "ready": true,
+    "processed_through": 5413758,
+    "endpoint_head": 5413759,
+    "endpoint_ledger_lag": 1,
+    "retained_ledgers": 17,
+    "retained_payload_bytes": 5741419,
+    "pending_findings": 0,
+    "polls": 68,
+    "gap_episodes": 0,
+    "last_successful_cycle_unix": 1793092383,
+    "source_authentication": "UNVERIFIED",
+    "baseline_authentication": "UNVERIFIED",
+    "metadata_commitment": "NOT_VERIFIED",
+    "membership_coverage": "UNKNOWN",
+    "history_completeness": "UNKNOWN",
+    "final_verdict": "UNDETERMINED"
+  },
+  "first_exit": 0,
+  "reopen_exit": 0,
+  "health_http": 200,
+  "readiness_http": 200,
+  "metrics_ready": true,
+  "transactions_sent": 0,
+  "external_deliveries": 0,
+  "backup_restore": {
+    "verified": true,
+    "snapshot_receipt": {
+      "schema_version": 1,
+      "bytes": 8826880,
+      "sha256": "8dad3773a0a40a35242e2348c180d361972b5a108c0031fcf356fe6d1dd35710",
+      "storage_format": "BBOLT_TRANSACTION_SNAPSHOT",
+      "semantic_validation": "NOT_PERFORMED"
+    }
+  },
+  "deployment_checks": {
+    "static_systemd_user_unit_verified": true,
+    "running_systemd_manager_available": false,
+    "installer_starts_service": false,
+    "no_overwrite_verified": true,
+    "tamper_rejection_verified": true,
+    "invalid_baseline_rejection_verified": true
+  },
+  "source_proof": "Single public RPC endpoint claims; baseline/source UNVERIFIED, metadata commitments NOT_VERIFIED, final UNDETERMINED."
+}
