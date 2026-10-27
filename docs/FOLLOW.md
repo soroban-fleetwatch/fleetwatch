@@ -109,6 +109,8 @@ Stop the process before offline maintenance:
 fleetwatch follow-inspect --config follow.json --limit 20 > page.json
 # If next_after_id is nonempty, use --after-id VALUE for the next page.
 fleetwatch backup --state follow.db --output NEW_BACKUP.db
+fleetwatch follow-archive --config follow.json --output NEW_EVIDENCE.ndjson.gz
+fleetwatch verify-follow-archive --input NEW_EVIDENCE.ndjson.gz
 ```
 
 Inspection revalidates the entire store, then returns the head, durable cycle and
@@ -118,6 +120,12 @@ or query RPC. The existing backup command consistently copies all buckets; its
 old file, and validate the restored file with follow-inspect before restart.
 An older restore loses subsequent findings/cursors; catch-up requires those
 ledgers still be available from the source.
+
+The [evidence archive](ARCHIVES.md) is independently replayable compressed
+NDJSON, exported without changing the source database. Its verifier needs no
+configuration, database or RPC call. It checks from the original assertion;
+checksums do not authenticate chain evidence. Archives do not prune, rotate,
+restore or raise capacity. Keep database backups for operational recovery.
 
 The follow finding journal is distinct from the legacy delivery outbox. It has
 no dispatch/acknowledgement integration yet; `deliver` does not send these

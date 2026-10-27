@@ -86,6 +86,16 @@ func finding(p history.Projection, l history.AppliedLedger, e history.DerivedEve
 // Open replays every retained record from the ORIGINAL asserted baseline.
 // A cached head never substitutes for retained evidence during restart.
 func Open(ctx context.Context, path string, baseline history.Baseline, limits Limits) (*Store, error) {
+	return open(ctx, path, baseline, limits, false)
+}
+
+// OpenExisting validates a stopped store with an OS read-only file descriptor.
+// It cannot create missing state, including if the file disappears during open.
+func OpenExisting(ctx context.Context, path string, baseline history.Baseline, limits Limits) (*Store, error) {
+	return open(ctx, path, baseline, limits, true)
+}
+
+func open(ctx context.Context, path string, baseline history.Baseline, limits Limits, readOnly bool) (*Store, error) {
 	initial, err := history.NewProjection(baseline)
 	if err != nil {
 		return nil, err
@@ -108,7 +118,10 @@ func Open(ctx context.Context, path string, baseline history.Baseline, limits Li
 	} else if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
-	db, err := bolt.Open(path, 0600, &bolt.Options{Timeout: time.Second})
+	if readOnly && !existed {
+		return nil, os.ErrNotExist
+	}
+	db, err := bolt.Open(path, 0600, &bolt.Options{Timeout: time.Second, ReadOnly: readOnly})
 	if err != nil {
 		return nil, err
 	}

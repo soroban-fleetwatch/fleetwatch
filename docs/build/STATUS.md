@@ -537,3 +537,46 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   No permanent host was provided, provisioned or started. Phase 9 remains
   IN PROGRESS for hosted validation, production retention and follow delivery;
   this does not move the project into a completed Phase 10 or Wave submission.
+
+## Phase 9 independently replayable evidence archives — 2026-10-27
+
+- Continues `84917cc` on feat/portable-linux-follow. Added `follow-archive
+  --config FILE --output NEW_FILE` and `verify-follow-archive --input FILE`.
+  Export validates existing stopped state through an OS read-only bbolt handle,
+  streams original assertion/raw records/applied groups into private gzip NDJSON,
+  fsyncs and replay-verifies it before non-overwriting atomic publication. File
+  and content SHA256 receipts bind bytes to a separately trusted handoff; they
+  do not authenticate producer, consensus, metadata or baseline assertions.
+- Offline verification starts from the original assertion, checks every ledger
+  and applied event, reconstructs the full projection/finding accounting and
+  compares the final head. Cached state cannot substitute for replay. Independent
+  compressed/expanded limits are 512 MiB, with the existing record, JSON-line,
+  ledger, finding and logical-payload budgets. Cancellation/deadlines apply;
+  raw provider/config errors are not exposed in output. No state is created by
+  verification or by export when the configured database is missing.
+- Tests cover forty synthetic ledgers with upgrade/rollback and two original-ID
+  findings, deterministic repeated bytes, read-only access/refused mutation,
+  missing/reordered/duplicate evidence, modified events/header/head (also after
+  recomputing the digest), malformed/duplicate JSON, truncated gzip/trailer,
+  bounds, cancellation, prepublication failure, racing/existing/symlink targets,
+  cleanup and CLI negative cases. Archives do not delete or mutate source state.
+- Reused previously captured real Testnet pilot entirely offline: original
+  baseline 5413741, seventeen ledgers through 5413758, zero derived findings.
+  Export and independent verification receipts match; source DB SHA256 unchanged.
+  Final read-only export matches the initial archive byte-for-byte. Expanded
+  size 5,741,908 bytes; compressed 890,752 bytes. Evidence, exact checksums and
+  limits: docs/research/2026-10-27-follow-archive-validation.md and JSON.
+  No new RPC call, key, transaction, external receiver or host deployment.
+- Local checks PASS: `go test -json -timeout=60s -count=1 ./...` (227 top-level
+  tests, six fuzz seed targets, four intentional skips), affected follow/CLI
+  race suites, `go vet ./...`, module verify/tidy-diff, actionlint, Bash syntax,
+  package/install smoke and diff checks. `FuzzVerifyFollowArchive` ran ten seconds
+  with two workers, 833 executions, PASS. Pinned module/source-test/compiled-binary
+  vulnerability gates PASS on final runtime changes. Remote CI unverified.
+- ARCHIVES.md documents format, commands, assurance, publication/recovery and
+  exact bounds; included in package and installer, linked from README/FOLLOW/
+  OPERATIONS. This is a usable evidence-preservation prerequisite, not production
+  retention completion: no pruning, archive chain/restore/rollover, delivery ack
+  or new baseline. Keep source DB and operational backups. Phase 9 remains
+  IN PROGRESS for those storage capabilities, follow notification delivery and
+  permanent-host end-to-end validation. No release, merge or Wave submission.

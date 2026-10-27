@@ -153,6 +153,10 @@ stop a backup. Watch actual filesystem usage and backup failures.
 
 When capacity is reached, stop, preserve evidence and plan an archive/backend
 transition. This version does not prune old ledgers or remove journal findings.
+`follow-archive --config FILE --output NEW_FILE` can preserve a compressed,
+independently replayable evidence copy; `verify-follow-archive --input FILE`
+checks it offline. See [ARCHIVES.md](ARCHIVES.md). This does not free capacity
+or replace the database backup needed for restart.
 Do not delete pending evidence or relabel a new current-state snapshot as a
 continuous historical baseline to get past the limit. Increasing a reviewed
 budget can extend a pilot; it does not solve production retention.

@@ -65,6 +65,10 @@ The [bounded polling worker](docs/WATCH.md) retries a fixed target with strict J
 
 The experimental [continuous follower](docs/FOLLOW.md) advances across finite batches while retaining the original assertion, complete reducer state and raw evidence. [Portable Linux deployment](docs/OPERATIONS.md) provides a local-storage pilot, loopback health/metrics, an installer and systemd unit. Explicit retention budgets stop it safely; production hosting and notification integration remain unfinished.
 
+[Compressed evidence archives](docs/ARCHIVES.md) can be exported from a stopped
+follower and replay-verified offline from the original assertion. They preserve
+evidence without deleting live state; automatic retention rollover remains open.
+
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 
 Optional [reconstruction checkpoints](docs/RECONSTRUCTION_CHECKPOINTS.md) retain the original baseline, accepted raw metadata and findings atomically. Use `checkpoint` to inspect and revalidate a retained prefix after restart; this does not establish current source health or authenticate the chain.

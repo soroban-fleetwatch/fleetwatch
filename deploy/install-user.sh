@@ -24,7 +24,7 @@ install -m 0755 bin/host-check.py "$staging/bin/host-check.py"
 install -m 0600 "$baseline" "$staging/etc/fleetwatch/baseline.json"
 install -m 0644 LICENSE "$staging/LICENSE"
 cp -R licenses "$staging/"
-install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md "$staging/docs/"
+install -m 0644 docs/FOLLOW.md docs/OPERATIONS.md docs/ARCHIVES.md "$staging/docs/"
 python3 - "$staging" "$install_root" "$3" <<'PY'
 import json,pathlib,sys
 stage=pathlib.Path(sys.argv[1]);root=sys.argv[2]
