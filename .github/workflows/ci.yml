@@ -43,6 +43,8 @@ jobs:
         run: go test -race -timeout=90s -count=1 ./...
       - name: Build CLI
         run: go build -trimpath -o /tmp/fleetwatch ./cmd/fleetwatch
+      - name: Validate portable Linux package and offline installation
+        run: ./scripts/check-linux-package.sh
   vulnerabilities:
     runs-on: ubuntu-latest
     timeout-minutes: 20

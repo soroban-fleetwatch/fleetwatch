@@ -27,6 +27,14 @@ installation and remaining hosted-production gates. It requires no new Go
 dependency, database server or credential. `follow --check` is offline; ordinary
 tests use synthetic typed metadata. Live follow validation is read-only.
 
+Run `./scripts/check-linux-package.sh` on Linux amd64 to exercise the portable
+candidate's archive checksums, extracted installation, offline host report and
+failure cases (overwrite, invalid baseline, insufficient space, unsafe state
+permissions and tampering). CI runs the same check in its Go test job. It uses
+temporary directories and reserved `.invalid` RPC URLs, starts no observer and
+requires no Testnet or receiver access. Dependencies must already be cached for
+the Go build to be offline. The report does not certify production hosting.
+
 
 Run `./scripts/check-vulnerabilities.sh` for the pinned module, source/test and
 fresh-binary security gates. It installs its own temporary scanner and requires

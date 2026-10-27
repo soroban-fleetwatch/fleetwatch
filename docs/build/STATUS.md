@@ -507,3 +507,33 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   ignored in follow-runs and dist. No pilot process remains running. Portable
   preparation is ready; permanent-host deployment, production archive/retention,
   receiver integration, sizing and fully hosted end-to-end checks remain open.
+
+## Phase 9 host preflight and repeatable package checks — 2026-10-27
+
+- Continues portable preparation from `1a5e2a3` on feat/portable-linux-follow.
+  Added packaged/installed `bin/host-check.py`: offline JSON report for Linux
+  amd64, required tools, CA path availability, binary/config/baseline validation,
+  private user-owned state directory, free filesystem bytes, static user-unit
+  verification and user-manager reachability. Raw subprocess output is suppressed.
+  No RPC, database open/create, listener, service start or privileged host change.
+- Requirements fail with exit 1; warnings permit foreground review with exit 0.
+  Every report says production_validated=false. The 1-GiB free-space threshold
+  is configurable and is neither a reservation nor a retention estimate. Actual
+  service TLS, filesystem suitability, memory/cgroup hardening, reboot/logout,
+  source retention, backups and notification delivery remain separate checks.
+- Added scripts/check-linux-package.sh and the matching Go CI test-job step.
+  The local check PASSes archive checksum/extraction, installation from the
+  extracted bundle, offline report and static unit syntax; rejects existing
+  destination, invalid baseline, missing install, impossible disk threshold,
+  unsafe state-directory modes and tampered payload. No state file or staging
+  residue remains. Python assertion-disabled execution is rejected. Only cached
+  Go build dependencies are needed; the fixture RPC URL is reserved .invalid.
+- Local checks PASS: `go test -timeout=60s -count=1 ./...`,
+  `./scripts/check-linux-package.sh`, actionlint, Bash syntax checks for the
+  package/installer/check scripts, Python AST parse and `git diff --check`.
+  No Go runtime/dependency change; previous race/advisory results remain dated
+  evidence rather than newly rerun claims. Remote CI remains unverified.
+- Updated OPERATIONS.md and DEVELOPMENT.md with exact commands and report limits.
+  No permanent host was provided, provisioned or started. Phase 9 remains
+  IN PROGRESS for hosted validation, production retention and follow delivery;
+  this does not move the project into a completed Phase 10 or Wave submission.

@@ -20,6 +20,7 @@ staging="$(mktemp -d "$(dirname -- "$install_root")/.fleetwatch-install.XXXXXXXX
 trap 'if [[ -d "$staging" ]]; then rm -rf -- "$staging"; fi' EXIT
 mkdir -p "$staging/bin" "$staging/etc/fleetwatch" "$staging/var/lib/fleetwatch" "$staging/systemd" "$staging/docs"
 install -m 0755 bin/fleetwatch "$staging/bin/fleetwatch"
+install -m 0755 bin/host-check.py "$staging/bin/host-check.py"
 install -m 0600 "$baseline" "$staging/etc/fleetwatch/baseline.json"
 install -m 0644 LICENSE "$staging/LICENSE"
 cp -R licenses "$staging/"

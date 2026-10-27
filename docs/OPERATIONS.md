@@ -54,7 +54,29 @@ containing whitespace or systemd metacharacters are rejected. Review/edit
 `etc/fleetwatch/follow.json` before running. State and baseline are separate;
 paths remain valid after moving the staged installation into its destination.
 
-First run the binary in the foreground, then check the local status:
+Run the installed offline host preflight before starting the binary:
+
+```sh
+"$HOME/fleetwatch-pilot/bin/host-check.py" "$HOME/fleetwatch-pilot"
+```
+
+It prints a JSON report and exits 1 for failed requirements, 0 when only warnings
+remain. It checks Linux amd64, required tools, CA path availability, offline
+configuration/baseline validation, private state-directory ownership/permissions,
+free filesystem space (at least 1 GiB by default), static unit syntax and user
+manager availability. `--min-free-bytes N` sets the reviewed free-space threshold;
+this is a point-in-time filesystem check, not a storage reservation or retention
+estimate. It makes no RPC call, opens no state database and starts no listener or
+service. It suppresses raw child-process output and does not print proxy values.
+
+A successful report still carries `production_validated: false`. CA path checks
+do not establish certificate validity or the Go service's TLS connectivity.
+Filesystem suitability, source history availability, memory/cgroup enforcement,
+the unit's actual hardening, backup destination, readiness and logout/reboot
+behavior require checks on the chosen host. Missing systemd support is a warning
+for foreground use; resolve it before relying on the user unit.
+
+Then run the binary in the foreground and check the local status:
 
 ```sh
 "$HOME/fleetwatch-pilot/bin/fleetwatch" follow \
