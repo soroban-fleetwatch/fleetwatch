@@ -41,6 +41,72 @@ it is not a signature, proof of chain inclusion or proof of producer identity.
 Preserve the receipt through a trusted channel when moving a file to another
 machine. No upload or external delivery is performed.
 
+## Recover a separate database
+
+Use the compressed archive SHA256 from your trusted export receipt, and a new
+database path in an existing local directory. No original configuration, source
+database or RPC endpoint is required for this offline command:
+
+```sh
+(
+  umask 077
+  set -C
+  fleetwatch restore-follow-archive --input EVIDENCE.ndjson.gz \
+    --output NEW_RECOVERED.db --sha256 EXPECTED_ARCHIVE_SHA256 \
+    > NEW_RESTORE_RECEIPT.json
+)
+```
+
+Recovery streams verified records into a private staging database with the
+original assertion and original finding identity. It verifies the complete
+archive, gzip integrity and expected compressed-file digest, closes the staged
+database, reopens it for full retained-evidence/journal validation, and fsyncs
+the file before atomically publishing it without replacing any existing file or
+symlink. A digest mismatch, incomplete archive, cancellation or validation error
+prevents publication and cleans staging on ordinary error returns. A killed
+process or host crash may leave a private `.fleetwatch-restore-*` directory;
+inspect it while stopped before removing it. A failure after publication leaves
+the destination available for inspection. Do not assume an error means no file
+exists, especially if only receipt output or directory fsync failed.
+
+The JSON restore receipt includes the archive validation receipt, the exact
+original `baseline`, the restored file's SHA256, and
+`operational_metadata: RESET_NOT_ARCHIVED`. Keep it private. To save the original
+assertion for a separately reviewed configuration without overwriting a file:
+
+```sh
+python3 - <<'PY'
+import json, os
+os.umask(0o077)
+with open('NEW_RESTORE_RECEIPT.json') as source:
+    receipt = json.load(source)
+with open('NEW_RECOVERED_BASELINE.json', 'x') as destination:
+    json.dump(receipt['baseline'], destination, indent=2)
+    destination.write('\n')
+PY
+```
+
+Create a separate follow configuration pointing at that original baseline and
+new database; review its network/RPC and retained-data budgets before running
+`follow-inspect`, `follow --check`, or starting a follower. No service is started
+by restore. The recovered store has the **same** retained evidence and finding
+count; it does not free capacity. There is no automatic replacement of live
+state or automatic resume. Catch-up still needs the subsequent source ledgers.
+
+Poll counts, gap-episode history, last-success time and endpoint high-water
+claims were not archived and are reset, with a fresh `STARTING` cycle. A zero gap
+counter after recovery does not mean there were no earlier gaps. Retain original
+operational evidence separately. New-process readiness remains false until its
+own successful source check. Findings are reconstructed, never acknowledged or
+marked delivered. The original assertion stays unverified.
+
+Restore has a ten-minute overall deadline, existing logical retention bounds
+and a 512-MiB final physical-database cap. Temporary disk usage and replay cost
+still need host sizing. Exit 0 means a new database and receipt were produced,
+3 means invalid arguments or input-file requirements, and 5 means rejected
+archive/digest, recovery, storage or output failure. The expected checksum binds
+bytes to the supplied receipt; it does not authenticate that receipt's author.
+
 ## Version 1 format and bounds
 
 The format is gzip-compressed canonical NDJSON. Each line is one compact Go
@@ -79,8 +145,8 @@ history coverage `UNKNOWN`, and final verdict `UNDETERMINED`.
 
 The archive is evidence for independent local replay, not a database snapshot.
 It excludes operational poll/gap counters and does not contain delivery receipts
-or acknowledgements. There is no archive-to-live-store restore or automatic
+or acknowledgements. Recovery rebuilds a separate database; there is no automatic
 rollover command. Do not delete the source database after exporting it, relabel
 an archived tip as an authenticated baseline, or claim continuous retention has
-been solved. Production archive chaining, recovery, deletion policy, lifecycle
+been solved. Production archive chaining, deletion policy, lifecycle
 reconciliation and hosted validation remain separate work.

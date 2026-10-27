@@ -205,6 +205,12 @@ func VerifyArchive(ctx context.Context, input io.Reader) (ArchiveReceipt, error)
 }
 
 func verifyArchive(ctx context.Context, input io.Reader, compressedLimit, expandedLimit int64) (ArchiveReceipt, error) {
+	return replayArchive(ctx, input, compressedLimit, expandedLimit, nil, nil)
+}
+
+// Restore hooks receive only individually validated content. Their output must
+// remain unpublished until the complete stream, trailer and digest are checked.
+func replayArchive(ctx context.Context, input io.Reader, compressedLimit, expandedLimit int64, baselineHook func(history.Baseline) error, recordHook func(Record) error) (ArchiveReceipt, error) {
 	var empty ArchiveReceipt
 	fileHash, contentHash := sha256.New(), sha256.New()
 	compressed := &io.LimitedReader{R: io.TeeReader(archiveReader{ctx, input}, fileHash), N: compressedLimit + 1}
@@ -249,6 +255,11 @@ func verifyArchive(ctx context.Context, input io.Reader, compressedLimit, expand
 			}
 			baselineLedger = p.Snapshot.Ledger
 			head = Head{Projection: p, RetainedPayloadBytes: int64(len(encode(header.Baseline)) + len(encode(p)))}
+			if baselineHook != nil {
+				if err := baselineHook(header.Baseline); err != nil {
+					return empty, err
+				}
+			}
 		} else if line.Record != nil && line.Header == nil && line.Trailer == nil {
 			r := line.Record
 			if len(encode(r)) > 12<<20 || head.RetainedLedgers >= 100000 {
@@ -276,6 +287,11 @@ func verifyArchive(ctx context.Context, input io.Reader, compressedLimit, expand
 		}
 		if head.RetainedPayloadBytes > 256<<20 || head.PendingFindings > 10000 {
 			return empty, ErrCapacity
+		}
+		if line.Record != nil && recordHook != nil {
+			if err := recordHook(*line.Record); err != nil {
+				return empty, err
+			}
 		}
 		_, _ = contentHash.Write(raw)
 		_, _ = contentHash.Write([]byte{'\n'})

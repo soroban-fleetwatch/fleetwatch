@@ -157,6 +157,10 @@ transition. This version does not prune old ledgers or remove journal findings.
 independently replayable evidence copy; `verify-follow-archive --input FILE`
 checks it offline. See [ARCHIVES.md](ARCHIVES.md). This does not free capacity
 or replace the database backup needed for restart.
+Archive recovery can rebuild a separate new database using a trusted receipt
+checksum; review the archive guide's baseline extraction, reset-counter warning
+and separate configuration checks. It does not overwrite live state or start
+the service.
 Do not delete pending evidence or relabel a new current-state snapshot as a
 continuous historical baseline to get past the limit. Increasing a reviewed
 budget can extend a pilot; it does not solve production retention.

@@ -69,6 +69,21 @@ func TestFollowArchiveCLIAndOfflineVerification(t *testing.T) {
 	if json.Unmarshal(out.Bytes(), &verified) != nil || !reflect.DeepEqual(exported, verified) {
 		t.Fatal("receipts differ", out.String())
 	}
+	restoredPath := filepath.Join(dir, "restored.db")
+	out.Reset()
+	if code := run([]string{"restore-follow-archive", "--input", output, "--output", restoredPath, "--sha256", verified.ArchiveSHA256}, &out, &errs); code != 0 {
+		t.Fatal(code, errs.String())
+	}
+	var restored follow.RestoreReceipt
+	if json.Unmarshal(out.Bytes(), &restored) != nil || !reflect.DeepEqual(restored.Archive, verified) || !reflect.DeepEqual(restored.Baseline, baseline) {
+		t.Fatal("restore receipt mismatch", out.String())
+	}
+	if code := run([]string{"restore-follow-archive", "--input", output, "--output", restoredPath, "--sha256", verified.ArchiveSHA256}, &out, &errs); code != 5 {
+		t.Fatal("existing restore overwritten", code)
+	}
+	if code := run([]string{"restore-follow-archive", "--input", output, "--output", restoredPath}, &out, &errs); code != 3 {
+		t.Fatal("restore without digest accepted", code)
+	}
 	after, _ := os.ReadFile(filepath.Join(dir, cfg.State))
 	if !bytes.Equal(before, after) {
 		t.Fatal("archive mutated state")

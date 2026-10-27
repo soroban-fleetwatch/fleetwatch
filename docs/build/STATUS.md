@@ -580,3 +580,45 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   or new baseline. Keep source DB and operational backups. Phase 9 remains
   IN PROGRESS for those storage capabilities, follow notification delivery and
   permanent-host end-to-end validation. No release, merge or Wave submission.
+
+## Phase 9 archive recovery into separate state — 2026-10-27
+
+- Continues `65fdb47` on feat/portable-linux-follow. Added
+  `restore-follow-archive --input FILE --output NEW_DB --sha256 EXPECTED_DIGEST`.
+  The expected compressed-file SHA256 is mandatory. Recovery shares the bounded
+  archive verifier, stages accepted records in a private new store, validates
+  the complete stream/trailer/digest, closes and fully replays the resulting
+  database, fsyncs it, then publishes without overwriting an existing target.
+  Cancellation, invalid input/digest and prepublication failure clean ordinary
+  staging returns; a killed process may leave private staging for inspection.
+  Publication/directory-sync uncertainty never deletes an exposed destination.
+- Original assertion/header, complete projection, raw records and exact finding
+  IDs/payloads remain. Restore does not rotate the baseline, free capacity, start
+  a process, replace live state or acknowledge findings. The receipt includes
+  the exact baseline for a separately reviewed config and the restored file's
+  SHA256. Evidence replay does not establish chain or producer authentication.
+- Operational metadata is explicitly RESET_NOT_ARCHIVED. Recovered cycle starts
+  STARTING, with prior poll/gap/success/endpoint-high-water history unavailable;
+  a zero recovered counter is not proof of no historical gaps. Fresh readiness
+  stays false. Retain operational backups/logs and source evidence separately.
+- Synthetic assertion-only and 24-ledger recovery tests preserve heads/findings,
+  then continue both original/recovered stores through forty ledgers with exact
+  matching results and two upgrade/rollback findings. Negative tests cover wrong
+  expected digest, truncated/damaged archive, cancelled/injected publication,
+  existing/racing/symlink destinations, temporary cleanup and CLI argument errors.
+- Offline real-data recovery PASS: trusted prior archive SHA256, original
+  baseline 5413741, seventeen retained ledgers through 5413758, exact head/finding
+  comparison and unchanged original DB hash. Recovered DB 16,777,216 bytes;
+  exact checksums and reset cycle in docs/research/2026-10-27-follow-restore-
+  validation.md and JSON. No new RPC, signing identity, transaction or delivery.
+- Local checks PASS: full default suite (229 top-level tests, six fuzz seed
+  targets, four intentional skips), affected follow/CLI race suites, vet,
+  module verify/tidy-diff, module/source-test/binary vulnerability scans,
+  actionlint, package/install smoke and diff checks. Remote CI unverified.
+  No dependency, credential or hosting requirement added. Archive format stays
+  version 1; prior archive verification and corruption tests pass unchanged.
+- Updated README/FOLLOW/OPERATIONS/ARCHIVES with exact commands, protected receipt
+  and original-baseline extraction, reset-counter warnings and failure handling.
+  Phase 9 remains IN PROGRESS: archive chaining/retention rollover, production
+  follow notifications, sizing and permanent-host validation remain unfinished.
+  No release, protected merge, host provisioning or Wave submission occurred.

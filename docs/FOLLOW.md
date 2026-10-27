@@ -124,8 +124,11 @@ ledgers still be available from the source.
 The [evidence archive](ARCHIVES.md) is independently replayable compressed
 NDJSON, exported without changing the source database. Its verifier needs no
 configuration, database or RPC call. It checks from the original assertion;
-checksums do not authenticate chain evidence. Archives do not prune, rotate,
-restore or raise capacity. Keep database backups for operational recovery.
+checksums do not authenticate chain evidence. `restore-follow-archive --input
+FILE --output NEW_DB --sha256 EXPECTED_DIGEST` replays an archive into a separate
+new store, with original evidence/findings and explicitly reset operational
+counters. Archives do not prune, rotate or raise capacity. Keep database backups
+and prior operational evidence for recovery; see the archive guide before use.
 
 The follow finding journal is distinct from the legacy delivery outbox. It has
 no dispatch/acknowledgement integration yet; `deliver` does not send these
