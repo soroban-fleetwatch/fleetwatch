@@ -7,7 +7,7 @@
   "properties": {
     "schema_version": {"const": 1},
     "mode": {"const": "EXPERIMENTAL_READ_ONLY_FOLLOW"},
-    "code": {"enum": ["STARTING", "IDLE", "FOLLOWING", "SOURCE_UNAVAILABLE", "EVIDENCE_REJECTED", "CAPACITY_REACHED", "STATE_FAILURE", "STOPPED"]},
+    "code": {"enum": ["STARTING", "IDLE", "FOLLOWING", "SOURCE_UNAVAILABLE", "EVIDENCE_REJECTED", "CAPACITY_REACHED", "STATE_FAILURE", "STOPPED", "OUTBOX_SYNC_FAILED"]},
     "ready": {"type": "boolean"},
     "processed_through": {"type": "integer", "minimum": 1, "maximum": 4294967295},
     "endpoint_head": {"type": ["integer", "null"], "minimum": 0, "maximum": 4294967295},

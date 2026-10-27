@@ -19,6 +19,7 @@ baseline="$repo_root/testdata/reconstruction-baseline.json"
 export XDG_RUNTIME_DIR="$scratch/runtime"
 mkdir -m 700 "$XDG_RUNTIME_DIR"
 "$scratch/installed/bin/host-check.py" "$scratch/installed" > "$scratch/host.json"
+systemd-analyze --user verify "$scratch/installed/systemd/fleetwatch-sync.service"
 python3 - "$scratch" <<'PY'
 import json,pathlib,sys
 if not __debug__:raise SystemExit('package checks require Python assertions enabled')

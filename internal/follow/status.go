@@ -24,7 +24,7 @@ type Cycle struct {
 	HighWaterHead uint32  `json:"high_water_endpoint_head"`
 }
 
-var cycleCodes = map[string]bool{"STARTING": true, "IDLE": true, "FOLLOWING": true, "SOURCE_UNAVAILABLE": true, "EVIDENCE_REJECTED": true, "CAPACITY_REACHED": true, "STATE_FAILURE": true, "STOPPED": true}
+var cycleCodes = map[string]bool{"STARTING": true, "IDLE": true, "FOLLOWING": true, "SOURCE_UNAVAILABLE": true, "EVIDENCE_REJECTED": true, "CAPACITY_REACHED": true, "STATE_FAILURE": true, "STOPPED": true, "OUTBOX_SYNC_FAILED": true}
 
 func (s *Store) Cycle() (Cycle, error) {
 	s.mu.Lock()
@@ -108,7 +108,10 @@ func (h *Health) Snapshot(now time.Time) Status {
 	// A lag is an endpoint claim. Readiness means only that this ingestion
 	// process recently checked its source and meets the configured lag bound.
 	age := now.Unix() - out.LastSuccessfulCycle
-	if age<0 || age>int64(30+3*h.config.PollIntervalSeconds){out.EndpointHead=nil;out.EndpointLedgerLag=nil}
+	if age < 0 || age > int64(30+3*h.config.PollIntervalSeconds) {
+		out.EndpointHead = nil
+		out.EndpointLedgerLag = nil
+	}
 	out.Ready = (out.Code == "IDLE" || out.Code == "FOLLOWING") && out.EndpointLedgerLag != nil && *out.EndpointLedgerLag <= h.config.MaxEndpointLag && age >= 0 && age <= int64(30+3*h.config.PollIntervalSeconds) && out.RetainedLedgers < h.config.MaxRetainedLedgers && out.RetainedPayloadBytes < h.config.MaxRetainedPayloadBytes && out.PendingFindings < 10000
 	return out
 }

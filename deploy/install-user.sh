@@ -36,9 +36,12 @@ config={'schema_version':1,'rpc_url':sys.argv[3],'baseline':'baseline.json',
 (stage/'etc/fleetwatch/follow.json').write_text(json.dumps(config,indent=2)+'\n')
 template=pathlib.Path('systemd/fleetwatch.service.in').read_text()
 (stage/'systemd/fleetwatch.service').write_text(template.replace('@ROOT@',root))
+template=pathlib.Path('systemd/fleetwatch-sync.service.in').read_text()
+(stage/'systemd/fleetwatch-sync.service').write_text(template.replace('@ROOT@',root))
 PY
 "$staging/bin/fleetwatch" follow --check --config "$staging/etc/fleetwatch/follow.json"
 mv -T --no-clobber -- "$staging" "$install_root"
 [[ ! -d "$staging" ]] || { echo 'install root appeared during installation; existing directory preserved' >&2; exit 5; }
 echo "Installed into $install_root. No service was started or enabled."
 echo "Review $install_root/systemd/fleetwatch.service and the operations guide before linking it to systemd."
+echo 'The optional fleetwatch-sync.service enables local outbox sync only. Review and choose one unit; neither was started.'

@@ -99,6 +99,15 @@ See [FOLLOW.md](FOLLOW.md) for exact limits and failure behavior.
 
 No unit is enabled or started by the installer. After the foreground checks:
 
+The default `fleetwatch.service` follows without automatic outbox sync. The
+optional `fleetwatch-sync.service` adds paired delivery-state/stream flags for
+local queue sync only, with its outbox in the writable state directory. Review
+its absolute paths and stable stream, and choose one unit; do not run both.
+To use the alternative, substitute `fleetwatch-sync.service` in the commands
+below, including static verification and later maintenance commands. No webhook
+dispatch or receiver is enabled by either unit. See [FOLLOW_DELIVERY.md](FOLLOW_DELIVERY.md)
+for sync deadlines, readiness, lock contention and recovery semantics.
+
 ```sh
 systemd-analyze --user verify "$HOME/fleetwatch-pilot/systemd/fleetwatch.service"
 systemctl --user link "$HOME/fleetwatch-pilot/systemd/fleetwatch.service"
@@ -176,9 +185,10 @@ Upgrades require stopping, retaining a backup, staging a separately verified
 binary and smoke-checking the unchanged config/state. There is no automatic
 schema migration or downgrade guarantee.
 
-The offline [follow-sync bridge](FOLLOW_DELIVERY.md) can import validated findings
-into a separate durable outbox for the existing signed webhook sender. It does
-not schedule unattended sync, configure a receiver or clear the native journal.
+The [follow delivery bridge](FOLLOW_DELIVERY.md) can import validated findings
+into a separate durable outbox, either manually while stopped or automatically
+with paired opt-in follower flags. It does not configure webhook dispatch,
+a receiver or native journal deletion.
 Production receiver/proxy routing, shared SQL storage, authentication and fully
 hosted end-to-end operations remain open Phase 9 work. The Dripwave skill's
 production hosting gate is not claimed complete merely because these files exist.

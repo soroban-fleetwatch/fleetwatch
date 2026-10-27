@@ -39,6 +39,59 @@ of serialized events; the retained manifest has a 25-MiB limit and each outbox
 alert has a 1-MiB limit. These pilot limits can stop sync. A successful import
 does not extend follow retention or permit deleting source evidence.
 
+## Automatic queue sync (opt-in)
+
+Instead of repeatedly stopping for manual sync, opt into local outbox updates
+inside the follower:
+
+```sh
+fleetwatch follow --config follow.json \
+  --delivery-state delivery.db --delivery-stream pilot
+```
+
+Both flags are required together. Relative delivery paths resolve from the
+process working directory; configuration paths keep their existing rules.
+`follow --check` with these flags validates syntax/path collisions only and
+creates neither database. It does not test outbox access, locks or contents.
+Default follow mode does not sync or create an outbox.
+
+The opt-in worker syncs at startup, then after each nonfatal polling cycle,
+serialized with native commits. It publishes a healthy cycle only after that
+cycle's queue sync succeeds. Source evidence and outbox are separate database
+transactions: interruption after source commit can leave native findings not
+yet queued. Startup replays source evidence and catches up those findings before
+the next healthy cycle. Findings are never cleared to hide an incomplete sync.
+Unchanged head/findings are validated without rewriting the outbox file.
+
+A sync failure sets `OUTBOX_SYNC_FAILED`, makes readiness false and exits 5.
+The previous successful-cycle timestamp is retained. Native evidence and prior
+delivery state remain available for inspection/recovery. Correct the cause and
+restart with the same flags, outbox and stream. Do not create a new stream or
+erase state to hide a conflict. Parent cancellation during sync uses normal
+graceful STOPPED handling; any unsynced native prefix is repaired next startup.
+Fatal source/capacity failures stop without another sync; retained findings are
+still available to manual sync or startup recovery after the cause is resolved.
+
+The worker opens the outbox only during sync and releases it between cycles.
+An operator-run dispatcher may own it meanwhile. Lock contention retries within
+the two-minute sync deadline; bbolt's individual lock attempt can take one second.
+Keep dispatcher batches short. Contention beyond the deadline stops the follower
+with the same visible sync error, rather than claiming a fresh successful cycle.
+During a long wait, previous readiness ages out under its normal freshness limit.
+
+This **queues** findings only. It does not invoke a webhook sender, configure a
+recipient or load an HMAC key. In opt-in mode readiness says the most recent
+successful ingestion cycle also reached the local outbox; it does not mean any
+receiver acknowledged it. Monitor actual delivery/dead-letter status separately.
+Keep both flags in the reviewed service configuration across restarts.
+
+The portable installer also prepares `fleetwatch-sync.service` as an optional
+alternative to the default unit, using a separate delivery.db in its writable
+state directory and stream `pilot`. Neither unit is enabled or started. Review
+paths/stream on the target host, choose **one** unit, and statically verify the
+chosen unit there. See [OPERATIONS.md](OPERATIONS.md). The default host-check
+verifies the default unit; it does not certify the alternate unit's live behavior.
+
 ## Dispatch after configuring an authorized receiver
 
 The existing sender can dispatch the imported queue independently after sync.
@@ -107,4 +160,5 @@ manifest, queue, leases, acknowledgements and recovery receipts together. Follow
 archives do not include this separate delivery history. Archive recovery with a
 retained compatible delivery DB can resync without resetting acknowledgements;
 an older source that predates the prior sync is rejected until reconciled.
-No unattended sync scheduler or hosted receiver is configured by these commands.
+No webhook dispatcher scheduler or hosted receiver is configured by these
+commands. Automatic queue sync requires the explicit follower flags above.

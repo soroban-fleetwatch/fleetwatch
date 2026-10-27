@@ -70,9 +70,9 @@ follower, replay-verified offline and recovered into a separate database from th
 original assertion. They preserve evidence without deleting live state;
 automatic retention rollover remains open.
 
-The [offline delivery bridge](docs/FOLLOW_DELIVERY.md) syncs validated follow
-findings into a separate durable outbox for signed webhooks. Hosted receiver
-routing and automatic sync remain unfinished.
+The [delivery bridge](docs/FOLLOW_DELIVERY.md) syncs validated follow findings
+into a separate durable outbox, manually or with opt-in automatic queue sync.
+Hosted receiver routing and automatic webhook dispatch remain unfinished.
 
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 

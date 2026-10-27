@@ -10,6 +10,8 @@ approval. The older `watch` command keeps its original sixteen-ledger lifetime.
 ```sh
 fleetwatch follow --check --config follow.json
 fleetwatch follow --config follow.json
+# Optional local queue sync; no external dispatch:
+fleetwatch follow --config follow.json --delivery-state delivery.db --delivery-stream pilot
 ```
 
 `--check` validates only configuration and the operator-asserted baseline. It
@@ -137,9 +139,12 @@ The follow finding journal is distinct from the delivery outbox. The offline
 [follow-sync bridge](FOLLOW_DELIVERY.md) imports replay-validated findings into
 a separate durable outbox, preserving delivery state across resync. Existing
 `deliver --source follow_ledger_meta --stream ID` can send those imported alerts.
-Sync requires a stopped follower; it sends nothing itself. No receiver URL or
-signing secret is accepted in the follow configuration. Automated sync and
-production proxy-aware notification delivery remain separate work.
+Manual follow-sync requires a stopped follower; it sends nothing itself. The
+paired optional follower flags enable automatic queue sync between polls and
+startup catch-up. Sync failure reports OUTBOX_SYNC_FAILED, not-ready, exit 5;
+native evidence is retained. No receiver URL or signing secret is accepted in
+the follow configuration. External dispatch scheduling and production
+proxy-aware receiver routing remain separate work.
 
 | Exit | Meaning |
 | --- | --- |

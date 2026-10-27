@@ -25,6 +25,24 @@ func TestFollowCheckAndInspectDoNotCreateState(t *testing.T) {
 	if code := run([]string{"follow", "--config", path, "--check"}, &out, &errs); code != 0 {
 		t.Fatal(code, errs.String())
 	}
+	delivery := filepath.Join(dir, "delivery.db")
+	if code := run([]string{"follow", "--config", path, "--check", "--delivery-state", delivery, "--delivery-stream", "pilot"}, &out, &errs); code != 0 {
+		t.Fatal(code, errs.String())
+	}
+	if _, err := os.Stat(delivery); !os.IsNotExist(err) {
+		t.Fatal("offline check created delivery database")
+	}
+	for _, options := range [][]string{
+		{"--delivery-state", delivery}, {"--delivery-stream", "pilot"},
+		{"--delivery-state", delivery, "--delivery-stream", "invalid stream"},
+		{"--delivery-state", filepath.Join(dir, "state.db"), "--delivery-stream", "pilot"},
+		{"--delivery-state", filepath.Join(dir, "baseline.json"), "--delivery-stream", "pilot"},
+		{"--delivery-state", path, "--delivery-stream", "pilot"},
+	} {
+		if code := run(append([]string{"follow", "--config", path, "--check"}, options...), &out, &errs); code != 3 {
+			t.Fatal("invalid automatic sync options accepted", options, code)
+		}
+	}
 	if _, err := os.Stat(filepath.Join(dir, "state.db")); !os.IsNotExist(err) {
 		t.Fatal("check created a state DB")
 	}

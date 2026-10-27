@@ -13,7 +13,7 @@
 | S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
 | S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
 | S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
-| S5 Watcher/alerts | IN PROGRESS: continuous pilot, local telemetry and offline follow delivery bridge | Follow/restart/gap checks; replay-validated sync to durable signed-delivery outbox; local TLS and audited recovery | Automated follow sync, production receiver/proxy routing, retention rollover and hosted validation remain |
+| S5 Watcher/alerts | IN PROGRESS: continuous pilot, local telemetry and opt-in automatic outbox sync | Follow/restart/gap checks; replay-validated durable sync with startup repair; local signed TLS delivery and audited recovery | Dispatch scheduling, production receiver/proxy routing, retention rollover and hosted validation remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
 | S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
@@ -712,3 +712,48 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   production receiver/proxy routing, archive chaining/retention rollover, sizing
   and permanent-host validation remain open. No logical retention or source-
   assurance upgrade, release, protected merge, provisioning or Wave submission.
+
+## Phase 9 opt-in automatic local outbox sync — 2026-10-27
+
+- Continues `a670ce3` on feat/portable-linux-follow. Paired follower flags
+  --delivery-state FILE --delivery-stream ID enable automatic local queue sync
+  at startup and after every nonfatal poll, serialized with native commits.
+  Default follower/unit behavior stays off. --check validates paired syntax,
+  stream and path separation without opening/creating either database. No
+  signing secret, receiver or external dispatch is configured or invoked.
+- Extracted shared followdelivery bridge used by manual and automatic sync.
+  It validates the original baseline, scans complete bounded findings, checks
+  prior sync header ancestry and preserves import/lease/retry/ack/dead-letter
+  state. Unchanged bindings/payloads are revalidated without rewriting the outbox.
+  The outbox is opened only during sync; temporary dispatcher lock contention
+  retries under the two-minute hook deadline, with cancellation between attempts.
+- RunWithSync startup repairs native commits not yet imported after interruption.
+  Native and outbox commits remain separate transactions. A sync failure persists
+  OUTBOX_SYNC_FAILED, clears readiness/endpoint claim, retains the prior success
+  timestamp and stops with exit 5. Source evidence/findings remain intact for
+  restart repair. Parent cancellation follows graceful STOPPED handling. Fatal
+  source/capacity errors retain their own stop behavior; manual sync/restart can
+  recover retained findings after their cause is resolved.
+- New tests simulate post-source-commit sync failure, fresh-process catch-up
+  before healthy emission, startup failure, dispatcher lock retry, cancellation,
+  unchanged DB bytes, opt-in offline checks and invalid/path-colliding flags.
+  Real captured twelve-ledger range 5407792–5407803 recovers three findings in a
+  separate offline test with a synthetic head/RPC adapter. This is not a new live
+  freshness/hosting result. No new RPC, transaction or external delivery. Exact
+  report and scope in docs/research/2026-10-27-follow-autosync-validation.md/JSON.
+- Added optional fleetwatch-sync.service template/installed unit with delivery.db
+  under the existing writable state directory and reviewed stable stream pilot.
+  Default and alternate unit syntax verified statically; installer enables/starts
+  neither and instructs choosing one. Actual host systemd/boot/hardening remains
+  unverified. Updated runtime guide, operations, delivery guide, status schema
+  and README; no Go dependency or default credential requirement added.
+- Local checks PASS: full default suite (242 top-level tests, six fuzz seed
+  targets, four intentional skips), affected followdelivery/follow/store/alert/
+  CLI race suites, separate captured-data automatic repair test, formatting,
+  vet/module verify/tidy-diff, pinned module/source-test/binary vulnerability
+  gates, actionlint/Bash/status-schema and package/install checks. Remote CI
+  unverified. No source-authentication or logical-retention upgrade is claimed.
+- Phase 9 remains IN PROGRESS for external dispatch scheduling, source-gap
+  notification policy, production receiver/proxy routing, archive chaining/
+  retention rollover, sizing and permanent-host validation. No public release,
+  protected merge, host provisioning, actual unit start or Wave submission.

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/soroban-fleetwatch/fleetwatch/internal/follow"
+	"github.com/soroban-fleetwatch/fleetwatch/internal/followdelivery"
 	"github.com/soroban-fleetwatch/fleetwatch/internal/history"
 	"github.com/soroban-fleetwatch/fleetwatch/internal/jsoninput"
 	"github.com/soroban-fleetwatch/fleetwatch/internal/store"
@@ -52,53 +53,13 @@ func followSync(args []string, stdout, stderr io.Writer) int {
 		return 5
 	}
 	defer source.Close()
-	head := source.Head()
-	// Finding IDs are hashes, so new findings can sort before old ones. Every
-	// sync scans the complete stable journal; never persist a last-ID watermark.
-	events := []store.ReconstructionEventAlert{}
-	cursor, bytesSeen := "", 0
-	for {
-		rows, more, err := source.Findings(ctx, cursor, 100)
-		if err != nil {
-			return 5
-		}
-		for _, f := range rows {
-			e := store.ReconstructionEventAlert{BaselineDigest: f.BaselineDigest, BaselineHeaderHash: f.BaselineHeaderHash, Ledger: f.Ledger, HeaderHash: f.HeaderHash, MetadataSHA256: f.MetadataSHA256, Event: f.Event}
-			raw, err := json.Marshal(e)
-			bytesSeen += len(raw) + 1
-			if err != nil || bytesSeen > 24<<20 || len(events) >= 10000 {
-				fmt.Fprintln(stderr, "follow finding import exceeds bounded delivery manifest")
-				return 5
-			}
-			events = append(events, e)
-			cursor = f.Event.ID
-		}
-		if !more {
-			break
-		}
-	}
-	if len(events) != head.PendingFindings {
-		return 5
-	}
 	outbox, err := store.Open(abs)
 	if err != nil {
 		fmt.Fprintln(stderr, "separate delivery state unavailable")
 		return 5
 	}
 	defer outbox.Close()
-	binding := store.FollowBinding{Network: baseline.Snapshot.Network, Stream: *stream, BaselineDigest: head.Projection.OriginDigest, BaselineHeaderHash: head.Projection.OriginHeaderHash, BaselineLedger: baseline.Snapshot.Ledger, ProcessedThrough: head.Projection.Snapshot.Ledger, HeaderHash: head.Projection.HeaderHash}
-	previous, err := outbox.FollowImportBinding(ctx, binding.Network, binding.Stream)
-	if err != nil {
-		return 5
-	}
-	if previous != nil {
-		anchor, err := source.HeaderAt(ctx, previous.ProcessedThrough)
-		if err != nil || anchor != previous.HeaderHash {
-			fmt.Fprintln(stderr, "source rewound or diverged from prior delivery sync; preserve both states for inspection")
-			return 5
-		}
-	}
-	receipt, err := outbox.ImportFollow(ctx, binding, events, previous)
+	receipt, err := followdelivery.Sync(ctx, source, outbox, baseline, *stream)
 	if err != nil {
 		fmt.Fprintln(stderr, "follow import failed; prior delivery state preserved")
 		return 5

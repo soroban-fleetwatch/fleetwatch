@@ -96,11 +96,50 @@ func Poll(ctx context.Context, rpc RPC, s *Store, cfg Config, previous Cycle, no
 // Run is cancellable without a fixed ledger lifetime. Configured retained-byte,
 // ledger and finding budgets still stop it safely; no history is auto-pruned.
 func Run(ctx context.Context, rpc RPC, s *Store, cfg Config, health *Health, emit func(Status) error) error {
+	return RunWithSync(ctx, rpc, s, cfg, health, emit, nil)
+}
+
+var ErrSync = errors.New("follow outbox synchronization failed")
+
+// RunWithSync calls an optional bounded hook at startup and after each nonfatal
+// poll, before publishing a successful cycle. It serializes the hook with source
+// commits. The two stores are not one transaction: startup sync repairs a crash
+// after a source commit but before outbox import. No native finding is cleared.
+func RunWithSync(ctx context.Context, rpc RPC, s *Store, cfg Config, health *Health, emit func(Status) error, syncOutbox func(context.Context) error) error {
 	if cfg.Validate() != nil || rpc == nil || s == nil || health == nil || emit == nil {
 		return ErrState
 	}
 	previous, err := s.Cycle()
 	if err != nil {
+		return err
+	}
+	syncCycle := func(cycle *Cycle) error {
+		if syncOutbox == nil || ctx.Err() != nil {
+			return ctx.Err()
+		}
+		callCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		err := syncOutbox(callCtx)
+		cancel()
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		if err == nil {
+			return nil
+		}
+		cycle.Code = "OUTBOX_SYNC_FAILED"
+		cycle.At = time.Now().Unix()
+		cycle.SuccessfulAt = previous.SuccessfulAt
+		cycle.EndpointHead = nil
+		health.Update(s.Head(), *cycle)
+		if saveErr := s.SaveCycle(ctx, *cycle); saveErr != nil {
+			return saveErr
+		}
+		if emitErr := emit(health.Snapshot(time.Now())); emitErr != nil {
+			return emitErr
+		}
+		return ErrSync
+	}
+	if err := syncCycle(&previous); err != nil && ctx.Err() == nil {
 		return err
 	}
 	for {
@@ -119,6 +158,14 @@ func Run(ctx context.Context, rpc RPC, s *Store, cfg Config, health *Health, emi
 				cycle.GapEpisodes++
 			}
 			pollErr = nil
+		}
+		if pollErr == nil {
+			if err := syncCycle(&cycle); err != nil {
+				if ctx.Err() != nil {
+					break
+				}
+				return err
+			}
 		}
 		if err := s.SaveCycle(ctx, cycle); err != nil {
 			return err

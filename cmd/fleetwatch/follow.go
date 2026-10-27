@@ -12,14 +12,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/soroban-fleetwatch/fleetwatch/internal/follow"
+	"github.com/soroban-fleetwatch/fleetwatch/internal/followdelivery"
 	"github.com/soroban-fleetwatch/fleetwatch/internal/history"
 	"github.com/soroban-fleetwatch/fleetwatch/internal/jsoninput"
 	"github.com/soroban-fleetwatch/fleetwatch/internal/source"
+	"github.com/soroban-fleetwatch/fleetwatch/internal/store"
 )
 
 func followService(args []string, stdout, stderr io.Writer) int {
@@ -27,6 +30,8 @@ func followService(args []string, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 	path := fs.String("config", "", "follow configuration JSON")
 	check := fs.Bool("check", false, "validate configuration and baseline without opening state or querying RPC")
+	deliveryState := fs.String("delivery-state", "", "optional separate outbox database for automatic sync (no dispatch)")
+	deliveryStream := fs.String("delivery-stream", "", "stable stream required with --delivery-state")
 	if fs.Parse(args) != nil || *path == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "follow requires --config FILE [--check]")
 		return 3
@@ -40,6 +45,19 @@ func followService(args []string, stdout, stderr io.Writer) int {
 	if jsoninput.File(cfg.Baseline, &baseline) != nil || history.ValidateBaseline(baseline) != nil {
 		fmt.Fprintln(stderr, "invalid follow baseline")
 		return 3
+	}
+	if (*deliveryState == "") != (*deliveryStream == "") {
+		fmt.Fprintln(stderr, "automatic sync requires both --delivery-state and --delivery-stream")
+		return 3
+	}
+	if *deliveryState != "" {
+		abs, err := filepath.Abs(*deliveryState)
+		configAbs, configErr := filepath.Abs(*path)
+		if err != nil || configErr != nil || abs == cfg.State || abs == cfg.Baseline || abs == configAbs || store.ValidateReconstructionScope(baseline.Snapshot.Network, *deliveryStream) != nil {
+			fmt.Fprintln(stderr, "automatic sync requires a separate outbox path and valid stream")
+			return 3
+		}
+		*deliveryState = abs
 	}
 	if *check {
 		fmt.Fprintln(stdout, "valid experimental follow configuration and asserted baseline; no state/source check performed")
@@ -81,7 +99,14 @@ func followService(args []string, stdout, stderr io.Writer) int {
 		return 3
 	}
 	enc := json.NewEncoder(stdout)
-	err = follow.Run(ctx, rpc, state, cfg, health, func(s follow.Status) error { return enc.Encode(s) })
+	var syncOutbox func(context.Context) error
+	if *deliveryState != "" {
+		syncOutbox = func(ctx context.Context) error {
+			_, err := followdelivery.SyncFile(ctx, state, *deliveryState, baseline, *deliveryStream)
+			return err
+		}
+	}
+	err = follow.RunWithSync(ctx, rpc, state, cfg, health, func(s follow.Status) error { return enc.Encode(s) }, syncOutbox)
 	select {
 	case <-serverErrors:
 		fmt.Fprintln(stderr, "follow health listener failed")
@@ -95,6 +120,10 @@ func followService(args []string, stdout, stderr io.Writer) int {
 	if errors.Is(err, follow.ErrEvidence) {
 		fmt.Fprintln(stderr, "follow source or projection evidence rejected; inspect before restarting")
 		return 4
+	}
+	if errors.Is(err, follow.ErrSync) {
+		fmt.Fprintln(stderr, "follow outbox sync failed; retained native findings require recovery before restart")
+		return 5
 	}
 	if err != nil {
 		fmt.Fprintln(stderr, "follow storage, validation or output failed")
