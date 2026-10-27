@@ -6,14 +6,19 @@
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
 
-**Dripwave Phase 9: zero-host browser delivery implemented; public hosting gate unverified.**
-The user explicitly rejected a Linux-machine/account prerequisite. A self-contained
-Go WebAssembly browser client now performs qualified foreground Testnet observation
-and evidence export without those inputs. See [browser instructions](../BROWSER.md),
-[zero-cost decision](../ZERO_COST_DEPLOYMENT.md) and [acceptance](../PHASE9_ACCEPTANCE.md).
-It is current-state observation while open, not the native historical follower.
-Public static-site activation and unattended-service deployment remain unverified;
-Phase 9 is not declared complete from a local package or pushed branch.
+**Dripwave Phase 9: BLOCKED — intended native service is not deployed.**
+The environment is reachable again. Investigation found that its saved repository
+declaration selected `main` rather than the actual Phase 9 source. This checkpoint
+provides a tested bootstrap and the verified identity for correcting that declaration. This is a reproducibility defect,
+not a proven cause of the platform's generic publication/status error.
+
+The intended topology remains a stateful native collector, persistent local
+evidence DB and loopback operational endpoints, with optional delivery. GitHub
+Pages is unavailable on the owner's current plan (owner report). The foreground
+browser viewer remains optional and does not satisfy this deployment gate.
+No permanent provider/resource is connected; production retention is also open.
+See [repair evidence](../research/2026-10-27-environment-repair.md) and
+[Phase 9 acceptance](../PHASE9_ACCEPTANCE.md).
 
 | Stage | State | Commit/PR/test or evidence | Blocker / next action |
 |---|---|---|---|
@@ -56,7 +61,7 @@ Update after each milestone. A status becomes PASS only when tests and reference
 1. Extend bounded diagnostic reconstruction checkpoints into authenticated continuous ingestion: trusted baseline, metadata commitments, full lifecycle reconciliation, durable gap/delivery handling, production retention and restart recovery. Never relabel current-state polling or supplied snapshots as comprehensive chain history.
 2. Decide independently trusted header anchoring, metadata/transaction commitment verification and provenance requirements before allowing chain-safe verdicts or approval-based severity changes. Source authentication and fleet completeness remain unverified.
 3. Controlled CAP-85 Testnet fixtures and scoped update/restart/alert evidence now pass (see the 2026-10-27 Testnet validation checkpoint). Preserve those regressions while addressing source authentication and production operation; do not relabel the diagnostic as authenticated chain approval.
-4. Publish/verify the zero-host browser client; native unattended deployment is a separate option. Validate the portable follow pilot only if that mode is selected. Continuous advancement and loopback operational telemetry now work locally; production archive/retention, follow-journal delivery, trust distribution and release validation remain unfinished.
+4. Deploy the native collector only to an authorized zero-cost target with persistent local storage; verify actual cost, restart, recovery and capacity operation. Browser/static publication is optional and does not replace the unattended monitor. No eligible permanent target is currently connected.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
 
@@ -947,3 +952,35 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   Review/save/Publish in environment settings is the product-owned activation
   step; do not extract Git proxy credentials or bypass CONNECT denial. See
   docs/research/2026-10-27-browser-publication.json.
+
+## Intended topology and environment reproducibility repair
+
+- Owner reports Pages unavailable on the current plan. Restored the original
+  native collector/persistent DB topology as the Phase 9 target, with optional
+  delivery and no mandatory frontend. Browser files remain preserved as optional
+  current-state diagnostics. Neither a development snapshot nor browser polling
+  is claimed as unattended production hosting.
+- Confirmed the saved repository selection chose main0014aaa while the verified
+  actual checkout/remote feature branch was ed3c3ff at /workspace/fleetwatch. The
+  corrected declaration must use this final source HEAD and mount fleetwatch.
+  Legacy empty mount and the generic failed Publish status have no proven causal
+  connection. Runtime recovered connectivity without an application change;
+  publication diagnostics remain unavailable. No cache/data was deleted on guess.
+- Added scripts/setup-cloud.sh with fresh checksum/version-verified Go staging,
+  path guards, install locking and rollback on replacement errors. Frozen modules,
+  exact compiler/root checks, default tests/build and synthetic CLI smoke pass.
+  Real isolated old-to-new install removes obsolete files; repeat install avoids
+  networking. Corrupt-download, unsafe-path, rename-failure and interruption
+  tests preserve/restore the old tree. Native compiler/evidence were untouched.
+- Both portable Linux package/ELF/hash checks, native install/preflight/failure
+  cases, foreign-architecture rejection, actionlint and shell syntax PASS. ARM64
+  execution, remote CI and production deployment remain UNVERIFIED.
+- Environment/provider observations are current and show no deployment identity,
+  capability, runtime binding or provider connection. No free permanent target
+  can be allocated through current authority. Native retention still stops at
+  capacity; its reviewed production strategy remains open. Phase 9 is BLOCKED,
+  and no account/paid service/secret/visibility change/merge/tag was performed.
+- Save the complete tested bootstrap and current startup guidance, plus the
+  verified final source SHA/path, in the environment draft. Product publication
+  remains a distinct user/platform operation; it is not proven by a draft save.
+  See docs/research/2026-10-27-environment-repair.md for evidence and limits.

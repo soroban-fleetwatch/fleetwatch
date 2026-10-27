@@ -8,11 +8,6 @@ Soroban FleetWatch is a Go-based, open-source tool for observing **Soroban contr
 
 ## Quick start
 
-**No Linux machine or hosting account:** download the self-contained
-[browser edition](web/published/FleetWatch.html) and open the saved HTML file.
-It reads Testnet with the existing Go/XDR decoder and exports evidence.
-Observation runs while the page is open. See [instructions and limits](docs/BROWSER.md).
-
 Requires Go 1.25+ for pinned Stellar SDK v0.8.0. The cloud environment uses verified Go 1.27.3.
 
 ```sh
@@ -82,10 +77,11 @@ alerts to an explicitly configured receiver, with optional
 [pinned CONNECT proxy routing](docs/WEBHOOK_PROXY.md). Actual receiver/proxy
 compatibility and permanent-host validation remain unverified.
 
-[Zero-cost deployment](docs/ZERO_COST_DEPLOYMENT.md) includes a self-contained
-browser option with no account or host setup. Linux packages remain available
-for the native follower. Public hosting and unattended operations have distinct
-[acceptance evidence](docs/PHASE9_ACCEPTANCE.md).
+The [intended deployment](docs/ZERO_COST_DEPLOYMENT.md) runs the native follower
+with persistent local evidence. A frontend and GitHub Pages are optional; Pages
+is unavailable on the owner's current plan. The separate [browser viewer](docs/BROWSER.md)
+observes current state while open and does not replace the unattended service.
+See the [deployment acceptance evidence](docs/PHASE9_ACCEPTANCE.md).
 
 Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
 

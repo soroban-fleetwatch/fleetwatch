@@ -6,29 +6,19 @@ verification cannot satisfy that gate. The user's deployment constraint is
 **zero cost**: do not purchase resources, accept billable trials or silently
 upgrade an account. See [ZERO_COST_DEPLOYMENT.md](ZERO_COST_DEPLOYMENT.md).
 
-## No-host browser delivery
+## Intended service topology
 
-The new [browser edition](BROWSER.md) removes the need for a Linux machine,
-provider account or receiver for foreground current-state observation. Its topology
-is a downloaded self-contained HTML file (or optional static host) → browser Go
-WebAssembly → read-only Testnet RPC → evidence download. There is no backend or
-database to provision. See the dated [browser evidence](research/2026-10-27-browser-validation.md).
+The native collector is the deployment target. A frontend is not required by the
+build plan. GitHub Pages is unavailable on the owner's current plan; it is not a
+production dependency. The browser viewer is a separate foreground
+current-state diagnostic, not a substitute for durable unattended monitoring.
+[Environment repair](research/2026-10-27-environment-repair.md) and production
+service acceptance are distinct: saving/publishing a development environment does
+not deploy its processes as a permanent hosted service.
 
-The package works as an additional client mode; it does not silently replace the
-native sequential monitor with snapshot polling. Foreground operation, missed
-transients, memory-only observations and all unverified assurance are explicit.
-
-This records a tested, distributable zero-host option. Public site activation
-and a successful request from that live site are **not verified**. The original
-unattended follower/receiver deployment also remains unverified. Do not mark the
-Dripwave production hosting gate passed merely because the HTML was built or a
-branch was pushed. No Linux connection is requested for the browser option.
-
-## Native unattended-service acceptance (separate)
-
-The original native-service architecture is one persistent Linux host, one follower/native
-database, a separate local delivery database, optional dispatcher, loopback-only
-status/metrics and an explicitly authorized HTTPS receiver. There is no required
+The native architecture is one persistent Linux execution target, one follower/native
+database and loopback status/metrics. Optional notification delivery adds a
+separate local delivery DB, dispatcher and authorized HTTPS receiver. There is no required
 frontend or shared database server. The two DB files are not one transaction;
 startup queue sync repairs retained findings, while receiver deduplication
 handles uncertain delivery acknowledgement.
@@ -38,12 +28,12 @@ private credentials, webhook URLs and raw sensitive logs excluded from the repo.
 
 | Gate | Required evidence | Current result |
 | --- | --- | --- |
-| Zero-cost host | Owner identifies an existing Linux host or confirms a currently eligible always-free allocation with spending disabled; no paid purchase/trial | BLOCKED: no connected permanent host/account |
+| Zero-cost execution target | Authorized permanent deployment target, persistent local storage and verified no-overage cost conditions; no paid purchase/trial | BLOCKED: no provider identity/resource is connected |
 | Artifact and configuration | Exact source SHA, archive/per-file checksum verification, correct architecture, strict config/original asserted baseline checks | Portable artifacts/checks available; target host UNVERIFIED |
 | Disk and retention | Local persistent filesystem, measured space/RAM, reviewed evidence-preserving retention/capacity policy and alarms | Local pilot data only; production policy UNVERIFIED |
 | Service operation | One chosen follower unit starts; loopback status, readiness and metrics advance with their assurance fields | Local pilot only; permanent host UNVERIFIED |
-| Queue and receiver | Queue sync after controlled finding; explicitly authorized receiver verifies exact HMAC/idempotency; ACK persists on restart | Local TLS fixtures PASS; actual receiver UNVERIFIED |
-| Routing and TLS | Required proxy/CA selectors present; allowed receiver path works without disabling policy; if pinned CONNECT is used, actual proxy permits it | Local HTTP/HTTPS proxy fixtures PASS; real path UNVERIFIED |
+| Queue and receiver, if delivery enabled | Controlled finding sync; authorized receiver verifies HMAC/idempotency; ACK persists on restart | Local TLS fixtures PASS; production delivery not enabled/validated |
+| Routing and TLS | RPC route and CA trust work; when delivery is enabled, the receiver/proxy route also works without bypass | RPC pilot and local proxy fixtures PASS; production target UNVERIFIED |
 | Lifecycle | Graceful stop/resume, forced interruption, user logout and real VM reboot retain cursor/findings and restart the reviewed unit | Local interruption tests PASS; host lifecycle UNVERIFIED |
 | Backup/recovery | Paired stopped backups, trusted checksums, separate restored copy, exact evidence/ACK comparison and subsequent resume | Local copies PASS; separate host backup location UNVERIFIED |
 | Observability and capacity | Alerts for not-ready, increasing lag/gaps, dead letters, retention use and disk pressure; representative workload measurement | Commands and bounded statuses available; target acceptance UNVERIFIED |
@@ -95,12 +85,13 @@ reported to the implementation agent for the build record.
 
 ## Completion decision
 
-Do not check a row merely because its command exists or a document describes it.
-For the native service, record permanent-host, receiver, retention and cost evidence.
-For a browser/static deployment, record actual static publication and live-origin
-RPC/evidence export instead; Linux/systemd and a receiver are not requirements
-for that topology. Neither path currently establishes a verified public deployment. Continue
-with Dripwave repository hygiene/documentation only after this real hosting gap
-is closed, or explicitly state that Phase 9 is blocked. All baseline/source
-UNVERIFIED, commitments NOT_VERIFIED, coverage UNKNOWN and final UNDETERMINED
-assurance remains; hosting acceptance cannot upgrade chain evidence.
+Do not check a row merely because its command exists. For the intended native
+service, record actual permanent-target, restart, retention and cost evidence,
+plus receiver acceptance if notification delivery is enabled. Public website
+hosting is not a gate for the native tool. Browser polling cannot replace native
+history/cursor/evidence behavior. The generic environment Publish error still has
+no causal diagnostic; no code change can be claimed to prevent a platform outage.
+
+Phase 9 remains BLOCKED until the native topology has actually been deployed and
+verified. Baseline/source UNVERIFIED, commitments NOT_VERIFIED, coverage UNKNOWN
+and verdict UNDETERMINED remain unchanged by any hosting or setup acceptance.

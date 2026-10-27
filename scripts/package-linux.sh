@@ -28,6 +28,7 @@ install -m 0644 schema/follow-alert-v3.schema.json schema/delivery-loop-status-v
 install -m 0644 LICENSE "$bundle/LICENSE"
 install -m 0644 docs/PHASE9_ACCEPTANCE.md docs/ZERO_COST_DEPLOYMENT.md "$bundle/docs/"
 install -m 0644 docs/research/2026-10-27-phase9-sizing.json "$bundle/docs/research/"
+install -m 0644 docs/research/2026-10-27-environment-repair.md "$bundle/docs/research/"
 python3 - "$bundle" "$target_arch" <<'PY'
 import hashlib,json,os,pathlib,shutil,subprocess,sys
 root=pathlib.Path(sys.argv[1]);arch=sys.argv[2]

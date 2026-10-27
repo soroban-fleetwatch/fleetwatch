@@ -53,3 +53,12 @@ For the optional CAP-85 fixture workspace, activate
 set `CARGO_HOME=/workspace/.cache/cargo`, and run `scripts/demo-testnet.sh check`.
 See [TESTNET_DEMO.md](TESTNET_DEMO.md) for pinned tools, live validation commands
 and the distinction between local Wasm tests, scoped live evidence and production readiness.
+
+The cloud bootstrap is now versioned as `scripts/setup-cloud.sh`; the environment
+configuration stores its complete contents. It verifies a staged Go archive/tree
+before replacing an existing compiler, preserves the old tree on checksum/staging
+failure and is idempotent for the exact pinned version. It then runs frozen-module
+checks, native tests/build and a synthetic CLI smoke. It does not publish an
+application or provision a host. The saved repository declaration must select the
+verified source HEAD at mount path `fleetwatch`, not an older main checkpoint.
+See [environment repair evidence](research/2026-10-27-environment-repair.md).
