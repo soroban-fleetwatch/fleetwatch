@@ -76,6 +76,8 @@ nav:
       - Repository settings: REPOSITORY_SETTINGS.md
       - Build status: build/STATUS.md
       - Build plan: build/END_TO_END_BUILD_PLAN.md
+      - Wave submission draft: wave/SUBMISSION_DRAFT.md
+      - Demo recording script: wave/DEMO_SCRIPT.md
       - Decisions:
           - ADR 0001 Repository: adr/0001-repository.md
           - ADR 0002 Offline replay store: adr/0002-offline-replay-store.md
