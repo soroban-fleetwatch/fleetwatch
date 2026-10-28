@@ -44,7 +44,7 @@ to that ledger: a modified non-header field can retain a valid embedded header.
 The tests explicitly preserve this trust boundary. Metadata digests detect local
 byte changes relative to a retained digest, not an adversarial provider.
 
-The [capture schema](../schema/history-capture-v1.schema.json) therefore always
+The [capture schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/history-capture-v1.schema.json) therefore always
 retains `source_authentication=UNVERIFIED`, `history_completeness=UNKNOWN`,
 `metadata_commitment=NOT_VERIFIED`, `state_changes=NOT_APPLIED`, and
 `final_verdict=UNDETERMINED`. `COMPLETE_ENDPOINT_SEQUENCE` means this requested

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "description": "Deterministic browser mock: key/data XDR copied from endpoint-asserted Testnet capture at ledger 5413741. Browser test supplies a synthetic current closeTime; this is not fresh chain evidence.",
+  "network": "Test SDF Network ; September 2015",
+  "ledger": 5413741,
+  "watchlist": [
+    "CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY",
+    "CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM"
+  ],
+  "entries": [
+    {
+      "key": "AAAABgAAAAHX4/Warhbo934Y6G/KF1JauQByQprWH6S249j3sMp0qwAAABQAAAAB",
+      "xdr": "AAAABgAAAAAAAAAB1+P1mq4W6Pd+GOhvyhdSWrkAckKa1h+ktuPY97DKdKsAAAAUAAAAAQAAABMAAAAAjWj37ejdhlbIBoc2BU+JkeLymo/20SFaURaHX36omH0AAAABAAAAAQAAAA8AAAAFYWRtaW4AAAAAAAASAAAAAAAAAAAn0kqMLQYmt0D3HxE4GcmUULImbsWNxRgeSjBUSMEWRw==",
+      "lastModifiedLedgerSeq": 5407796
+    },
+    {
+      "key": "AAAABgAAAAH8bKniCXTi0r+oDBKyzOH1LQQvR7woe/yLCwBVcq5cCwAAABQAAAAB",
+      "xdr": "AAAABgAAAAAAAAAB/Gyp4gl04tK/qAwSsszh9S0EL0e8KHv8iwsAVXKuXAsAAAAUAAAAAQAAABMAAAACAAAAAaQt0dcQmh3Wv2M0/20PbVR4Q3OjAiRbzrc0X/ShMxHMAAAAD2ZsZWV0d2F0Y2gtZGVtbwAAAAABAAAAAQAAAA8AAAAFYWRtaW4AAAAAAAASAAAAAAAAAAAn0kqMLQYmt0D3HxE4GcmUULImbsWNxRgeSjBUSMEWRw==",
+      "lastModifiedLedgerSeq": 5407729
+    },
+    {
+      "key": "AAAABgAAAAGkLdHXEJod1r9jNP9tD21UeENzowIkW863NF/0oTMRzAAAABYAAAAPZmxlZXR3YXRjaC1kZW1vAAAAAAE=",
+      "xdr": "AAAABgAAAAAAAAABpC3R1xCaHda/YzT/bQ9tVHhDc6MCJFvOtzRf9KEzEcwAAAAWAAAAD2ZsZWV0d2F0Y2gtZGVtbwAAAAABAAAADQAAACAQwJMlG/jnD7oHO9/qiGjWxSKTlwSai+KqiAy4LCbrKA==",
+      "lastModifiedLedgerSeq": 5407797
+    }
+  ]
+}

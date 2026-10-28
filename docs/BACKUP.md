@@ -5,6 +5,16 @@ findings, outbox records, delivery leases, approval receipts and nonce reservati
 are captured together. Unknown future buckets are retained rather than filtered.
 The command does not modify the source or send alerts.
 
+The separate experimental [follow store](FOLLOW.md) is also recognized for
+copying: its original assertion, raw ledger records, projection, cycle metadata
+and finding journal are captured together. Stop the follower first. Legacy
+replay/doctor APIs do not adopt this format; validate a restored follow file with
+`follow-inspect --config FILE`. Recognition for copying does not replace semantic
+validation, and the existing physical-copy size limit still applies.
+The separate [follow-compact command](COMPACTION.md) can produce a validated new
+follow file with unused physical allocation reclaimed. It preserves operational
+metadata; evidence-archive recovery instead explicitly resets those counters.
+
 ```sh
 go build -o fleetwatch ./cmd/fleetwatch
 # Stop processes using the database; use a NEW destination in an existing directory.
@@ -12,7 +22,7 @@ go build -o fleetwatch ./cmd/fleetwatch
   --output /workspace/fleetwatch-backup-001.db > /workspace/backup-001-receipt.json
 ```
 
-The [JSON receipt](../schema/backup-receipt-v1.schema.json) records `schema_version`, `bytes`, `sha256`,
+The [JSON receipt](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/backup-receipt-v1.schema.json) records `schema_version`, `bytes`, `sha256`,
 `storage_format=BBOLT_TRANSACTION_SNAPSHOT` and
 `semantic_validation=NOT_PERFORMED`. Exit 0 means the snapshot was saved and its
 receipt written. Exit 3 means invalid arguments; exit 5 means unavailable/locked

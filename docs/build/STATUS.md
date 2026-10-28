@@ -1,25 +1,44 @@
 # FleetWatch — verified build status
 
-**Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch
-**Working branch:** `work` (existing cloud task branch)
-**Date checked:** 2026-10-27
+**Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch (private, per GitHub API 2026-10-28)
+**Working branch:** `claude/beautiful-darwin-g731lo`, continuing `feat/portable-linux-follow` at `73f92e2`
+**Date checked:** 2026-10-28
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
 
+## Dripwave phase map (2026-10-28)
+
+| Dripwave phase | State | Evidence / blocker |
+|---|---|---|
+| 1–3 Recon, ideas, review | DONE (pre-existing) | docs/research, build plan section A |
+| 4–5 Scoping, architecture | DONE | ADR 0001–0004; [ARCHITECTURE.md](../ARCHITECTURE.md) added 2026-10-28 |
+| 6–7 Agent prompts | DONE (pre-existing) | AGENTS.md and the user-held CODEX_MASTER_PROMPT.md |
+| 8 Local env and Testnet deployment | PASS (scoped) | Controlled CAP-85 fleet on Testnet, 2026-10-27; [validation record](../research/2026-10-27-testnet-validation.md) |
+| 9 Hosting topology | **BLOCKED** | No zero-cost permanent host; [PHASE9_ACCEPTANCE.md](../PHASE9_ACCEPTANCE.md) |
+| 10 Repo hygiene | DONE in repo; owner settings pending | README/CONTRIBUTING/SECURITY/templates/CHANGELOG/issue script committed; branch protection, topics, visibility, issue creation and tag need the owner ([REPOSITORY_SETTINGS.md](../REPOSITORY_SETTINGS.md)) |
+| 11 Documentation site | DONE as source; not hosted | `mkdocs build --strict` passes; CI `docs` job added |
+| 12 Submission | DRAFT ONLY, NOT READY | [SUBMISSION_DRAFT.md](../wave/SUBMISSION_DRAFT.md) lists nine owner blockers |
+| 13 Post-approval | NOT STARTED | Requires approval |
+
+Phase 9 remains blocked: the intended native follower has not been deployed on a
+permanent host. Phases 10–12 were advanced in parallel on the user's explicit
+request ("continue the build till phase 12"); that does not clear the Phase 9
+gate, and the submission draft says so.
+
 | Stage | State | Commit/PR/test or evidence | Blocker / next action |
 |---|---|---|---|
-| S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
-| S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
-| S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
-| S3 Real Testnet proof | IN PROGRESS: read-only metadata evidence | Native Go collected/decoded two protocol-29 Testnet ledgers; historical endpoint denial resolved for this client | Controlled CAP-85 deployment/update and actual fleet fixtures remain |
-| S4 Sequential historical ingest | IN PROGRESS: bounded resumable RPC ingestion | Exact-range RPC fetch, cursor-fenced commit, asserted-baseline projection, atomic evidence/alerts and crash/restart tests | Authenticated baseline/metadata commitments, lifecycle reconciliation, production retention and Postgres remain |
-| S5 Watcher/alerts | IN PROGRESS: bounded polling worker and outboxes | Finite configured polling, cancellation/progress, atomic outboxes, manual recovery/audit and local TLS tests | Unbounded worker, production retention/live telemetry and proxy-aware delivery transport remain |
+| S0 Repo audit and M1 repair | PASS | Module path/Apache-2.0 verified; full suite, race, vet and remote CI green (run 35 at `73f92e2`) | None |
+| S1 Research/architecture | PASS (scoped) | CAP-85 Final/protocol 28, SDK v0.8.0, RPC getLedgers wire format, ADRs 0001–0004, ARCHITECTURE.md | Protocol 30 decoding remains open (issue catalogue) |
+| S2 Typed RPC capture | PASS (scoped) | Typed XDR, bounded HTTPS adapter, freshness/retry, live Testnet use in Phase 8 | Multi-call atomicity stays PARTIAL by design |
+| S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
+| S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
+| S5 Watcher/alerts | IN PROGRESS: continuous pilot, queue sync, dispatcher and opt-in pinned proxy route | Follow/restart/gap checks; durable sync/startup repair; local signed HTTP/HTTPS proxy delivery and audited recovery | Production proxy permission/receiver validation, gap-notification policy, retention rollover and hosting remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
-| S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
+| S7 CLI/API integration | IN PROGRESS: 27 commands, help exits 0, generated CLI reference | `e879452` help fix; docs/CLI.md checked by TestCLIReferenceUpToDate | Stable config compatibility policy and API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
-| S9 Docs/repo hygiene | IN PROGRESS: CI and runbooks | Pinned compiler/actions, read-only/time-bounded jobs, workflow lint and security evidence | Remote CI, docs site and full repository/release review remain |
+| S9 Docs/repo hygiene | IN PROGRESS: repo files and docs site source done | `d54a4f4`, `3a1bbb2`; strict MkDocs build and link check pass locally | Owner settings, hosting and remote run of the new `docs` job |
 | S10 Release candidate | NOT STARTED | None | Clean-room test and owner review |
-| S11 Wave readiness optional | NOT STARTED | None | Eligibility and submission evidence |
+| S11 Wave readiness optional | DRAFT | `9f71fe3` docs/wave/SUBMISSION_DRAFT.md | Nine owner blockers; nothing submitted |
 | S12 Maintenance | NOT STARTED | None | Runbooks and triage |
 
 ## Initial baseline checks (historical)
@@ -46,8 +65,8 @@ Update after each milestone. A status becomes PASS only when tests and reference
 
 1. Extend bounded diagnostic reconstruction checkpoints into authenticated continuous ingestion: trusted baseline, metadata commitments, full lifecycle reconciliation, durable gap/delivery handling, production retention and restart recovery. Never relabel current-state polling or supplied snapshots as comprehensive chain history.
 2. Decide independently trusted header anchoring, metadata/transaction commitment verification and provenance requirements before allowing chain-safe verdicts or approval-based severity changes. Source authentication and fleet completeness remain unverified.
-3. Prepare controlled CAP-85 Testnet contract fixtures and actual update evidence. Read-only metadata retrieval now works, but no contract deployment/transaction was performed and the full Testnet acceptance gate is not passed.
-4. Extend the finite polling worker into a continuous production service with retention/storage, durable telemetry, trust distribution and release validation. Existing local replay, outbox, approval, report and backup features remain experimental.
+3. Controlled CAP-85 Testnet fixtures and scoped update/restart/alert evidence now pass (see the 2026-10-27 Testnet validation checkpoint). Preserve those regressions while addressing source authentication and production operation; do not relabel the diagnostic as authenticated chain approval.
+4. Deploy the native collector only to an authorized zero-cost target with persistent local storage; verify actual cost, restart, recovery and capacity operation. Browser/static publication is optional and does not replace the unattended monitor. No eligible permanent target is currently connected.
 
 The uploaded roadmap is design material. Its instructions to push, create PRs, deploy, or submit applications are not independent user authorization.
 
@@ -319,3 +338,743 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
 - Confirmed PR https://github.com/soroban-fleetwatch/fleetwatch/pull/1 has work as its source: refs/pull/1/head and refs/heads/work both matched published checkpoint 542d57d before this fix. Pushing the correction to work updates the existing PR.
 - Local checks PASS with GOFLAGS=-mod=readonly, GOTOOLCHAIN=local and Go 1.27.3: exact compiler assertion, actionlint, module tidy-diff, full unit/fuzz seed suite, vet, full race suite, trimmed-path build and diff checks. scripts/check-vulnerabilities.sh PASS: module, source/test and fresh binary scans each report no vulnerabilities found, scanner v1.9.0 / DB updated 2026-10-21 00:27:29 UTC.
 - Updated dependency/development guidance to state the explicit version-file selection. Remote checks must rerun on the new PR head; no remote success is claimed from these local results.
+
+## Phase 8 CAP-85 fixture and Testnet preflight checkpoint — 2026-10-27
+
+- User confirmed PR #1 was merged and authorized starting Testnet validation.
+  Fetched origin/main at `0014aaa3943f967912cc08bc8839548804f32557`
+  (Merge pull request #1); created `feat/testnet-cap85-demo` from that exact main.
+  No existing changes were present or overwritten.
+- Added a separate test-only Rust workspace with pinned SDK 29.0.1, Rust 1.99.1
+  and Cargo.lock. Inspected published stable SDK/CAP-85 APIs before implementation.
+  Owner publication/factory deployment and member direct repoint require the
+  stored administrator's authorization. No asset functions or production watcher
+  signing capability were introduced.
+- Built actual member A/B and owner Wasm through Stellar CLI 28.1.0, including its
+  required spec processing. Three host tests PASS: shared A→B→A behavior for two
+  members and direct detachment; unauthorized publish/deploy rejection; unauthorized
+  member repoint rejection. Repeated build/checks reproduce identical local Wasm
+  digests recorded in docs/research/2026-10-27-testnet-fixtures.md. These are local
+  host executions, not live Testnet contract deployments.
+- Added read-only scripts/testnet-preflight using existing strict RPC and metadata
+  readers. Real Testnet passphrase/protocol 29, fresh head and one historical
+  metadata record PASS. Saved sanitized sequence/header/metadata digests in
+  docs/research/2026-10-27-testnet-preflight.json; metadata version 2, zero
+  transactions sent, source UNVERIFIED, commitments NOT_VERIFIED and final verdict
+  UNDETERMINED. No independently authenticated baseline or chain claim.
+- Added scripts/demo-testnet.sh: default/check builds and tests fixtures then
+  performs the read-only preflight. Explicit run mode requires a test-only alias,
+  signing config outside the repo and a new output directory, and fixes destination
+  and passphrase to Testnet. Prepared live snapshot smoke checks exact uploaded
+  Wasm hashes, both external-reference members and the expected affected set.
+  It preserves partial/unverified capture envelopes and public transaction logs.
+  The live transaction path has NOT RUN successfully and is not an acceptance PASS.
+- Added an offline fixture CI job with pinned/checksummed CLI, pinned Rust,
+  locked dependencies, formatting and actual-Wasm tests. CI never funds, signs,
+  deploys or contacts Testnet. Go formatting also covers scripts. Workflow lint
+  passes locally; remote checks on this branch remain unverified.
+- Full Go unit/fuzz-seed suite, vet, race suite, trimmed-path CLI build, module
+  tidy-diff, Bash syntax, Rust formatting, actionlint and diff checks PASS. Pinned
+  vulnerability script PASS: module/source-test/binary scans each report no
+  vulnerabilities found. This does not cover Rust advisories or constitute an audit.
+- Go funding request to the RPC-advertised friendbot.stellar.org failed with proxy
+  Forbidden. A disposable identity generated for diagnosis was never funded or
+  used to sign a transaction, its secret was never printed/tracked, and its file
+  was removed. Saved a network draft adding only friendbot.stellar.org while
+  retaining soroban-testnet.stellar.org, storage.googleapis.com, vuln.go.dev and
+  existing presets. Save confirmed; publication/runtime effect not established.
+- Full S3 remains BLOCKED on live deployment/update evidence, independent
+  transaction checks, history reconstruction, deliberate gap, restart and alert
+  acceptance. Baseline/metadata authentication, unbounded retention/operation,
+  production delivery and release/Wave readiness also remain unfinished.
+- Follow-up transport diagnosis: CLI RPC uses jsonrpsee's direct Hyper connector,
+  which does not honor this environment's HTTP proxy. Stopped the exploratory
+  reqwest-native-roots build because it cannot fix that path. Added a loopback-only
+  fixed-Testnet RPC adapter that retains managed proxy routing, TLS verification,
+  strict request/method bounds and no cross-host redirects. Official CLI health
+  through the adapter PASS at ledger 5407609; no transaction sent. The live runner
+  starts/stops its own adapter. Funding instructions use the proxy/CA-aware curl
+  client with a public account address. No destination denial was bypassed.
+- Follow-up checks PASS: 207 top-level Go tests and five fuzz targets' seed runs,
+  one intentional crash-helper skip; bridge race test, scripts vet, actionlint,
+  Bash syntax and diff checks. Full application race suite passed earlier in this
+  checkpoint; only developer transport/scripts changed afterward. All three
+  vulnerability scan levels rerun and PASS. Demo guards reject unknown mode,
+  secret-shaped aliases and repository-local signing configs before network work.
+  Test bridge process stopped; no service left running. Complete updated startup
+  instructions saved in the same network draft; save confirmed, requires_publish
+  true. Public checkpoint `3eae690` is on the new branch; transport follow-up is
+  recorded in the subsequent commit. No live deployment or public release.
+
+## Dripwave Phase 8 scoped Testnet validation PASS — 2026-10-27
+
+- Continues published `dd0784a` on feat/testnet-cap85-demo. Current environment
+  policy is enforced and includes friendbot.stellar.org. Faucet funding succeeded;
+  the source-access blocker is resolved. The official CLI's default cache write
+  failed on the read-only filesystem; supported --no-cache fixes it without
+  disabling TLS, signatures, RPC validation or managed proxy routing.
+- Actual owner/two-member fixtures deployed. Shared A→B at ledger 5407730 affected
+  both; B→A rollback at 5407793 affected both; direct repoint of the first at
+  5407796 detached it; shared A→B at 5407797 affected only the second. Submitted
+  version calls' successful result metadata showed 1/1 then 1/2. These were actual
+  Testnet transactions, not simulation results. Fifteen fixture receipts checked
+  through a separate Go read path: network-bound envelope hashes, successful XDR
+  results and decoded metadata. Same upstream endpoint, not independent consensus.
+- Added typed read-only HTTPRPC.Transaction using existing bounded/strict RPC
+  decoding, canonical hash validation and zero-valued failure behavior. Regression
+  test covers invalid hash rejection before network access and ambiguous receipts.
+  Developer testnet-receipt tool rejects unsuccessful/mismatched envelope results;
+  it explicitly retains inclusion NOT_VERIFIED and final UNDETERMINED.
+- Actual initial upgrade reconstructed from 5407729 asserted baseline and 5407730
+  metadata. Cold-process ingest returned ALREADY_RETAINED without DB byte changes.
+  Another real twelve-ledger range, 5407792–5407803, reconstructed three controlled
+  changes. A cancelled future-target worker preserved an incomplete attempt and
+  restarted to COMPLETE; repeated completed watch preserved the exact outbox.
+- Additional read-only SIGTERM test proves accepted-prefix persistence: baseline
+  5407826, one ledger accepted, cancellation exit 4 retained 5407827, fresh worker
+  resumed through 5407830 with exit 0. This is separate from the first cancellation,
+  which occurred before any accepted ledger and retained only its diagnostic.
+- Opt-in local fault replay omitted actual closed ledger 5407793 from captured
+  metadata, stopping at 5407792 with MISSING_OR_UNEXPECTED_LEDGER. Cold reopen and
+  complete replay repaired through 5407803; repeat was ALREADY_RETAINED with stable
+  outbox IDs. This was injected locally, not a real missing Testnet ledger.
+- Opt-in local verified-TLS receiver delivered a backup of the real outbox: three
+  findings plus 23 historical diagnostics, exact-body HMAC/IDs/assurance verified,
+  zero repeated attempts after reopening. External deliveries zero. Production
+  webhook URL/DNS/proxy controls were not weakened. Both opt-in tests PASS when
+  explicitly run against captured real data; normal CI skips them.
+- Added a repeatable continuation driver scripts/validate-testnet.py for receipt,
+  reconstruction, rollback/repoint/version, bounded watcher, gap-replay and local
+  receiver checks. It requires an explicit dedicated alias/config outside the repo
+  and fresh output directory. Assertion-disabled Python is rejected. The initial
+  full run and separate committed-prefix/gap checks passed; later guard/refactoring
+  changes were checked locally without repeating unnecessary Testnet writes.
+- Evidence: docs/research/2026-10-27-testnet-validation.md and matching JSON, with
+  actual contract IDs, transaction hashes, ledger bounds and assurance limitations.
+  Raw captures/DBs/binaries remain ignored under testnet-runs. Disposable signing
+  identity removed after the controlled writes, never printed/tracked. No Mainnet
+  write, public release/tag, hosted production service or Wave
+  submission. Testnet faucet credits were used for fixture transaction fees only.
+- Checks PASS: 208 top-level default Go tests, five fuzz targets' seed runs, full
+  race suite, vet, module verify/tidy-diff, module/source-test/binary vulnerability
+  gates, actionlint, Bash/Python syntax and diff checks. Three default skips are
+  the intentional crash helper (parent runs it) and the two opt-in evidence tests;
+  their separate real-data invocations passed. Affected tests rerun after final
+  cleanup/assertion guards. Remote CI on this new checkpoint remains unverified.
+- S3 / Dripwave Phase 8 scoped demo is PASS; this does not complete internal S8
+  security/performance or the overall roadmap. Next Dripwave phase is operations
+  and hosting topology. Baseline/source UNVERIFIED, metadata commitments and
+  inclusion NOT_VERIFIED, membership/history UNKNOWN, final UNDETERMINED remain.
+  Authentication, continuous retention, production/proxy-aware delivery, load and
+  external review, release validation, docs site and Wave readiness remain open.
+
+## Phase 9 portable Linux follow pilot — 2026-10-27
+
+- User chose portable Linux preparation, without supplying a production host or
+  hosting account. Continues `85dd0ec` on new branch feat/portable-linux-follow.
+  No paid service, user/account permission, remote host, public release/tag or
+  repository merge was created. Phase 9 production-hosting gate stays IN PROGRESS.
+- Added experimental follow mode with no fixed target/process lifetime. Source
+  batches remain at most sixteen ledgers. The original assertion/header provenance
+  and complete active/inactive/absent reducer state persist across batches; there
+  is no automatic baseline refresh, cursor skip or retention-bound bypass. The
+  legacy bounded watch/reconstruct commands keep their existing lifetime limits.
+- Separate v1 follow bbolt store atomically retains raw records, groups/findings
+  and projection/cursor. Startup replays every retained record from the original
+  assertion and checks head/counters/journal; unknown, truncated or corrupt state
+  is rejected without resetting it. Configured ledger/payload and 10,000-finding
+  budgets stop before deleting evidence. There is no online prune/archive,
+  shared-writer SQL backend or follow-journal dispatch/acknowledgement path.
+- Added strict 16-KiB config, local-only health/status/Prometheus routes, lag/age/
+  capacity-qualified readiness, durable poll/gap-episode metadata, cancellable
+  source cycles and graceful shutdown. Fresh processes start not-ready. Stale or
+  unavailable claims yield unknown lag; all assurance remains unverified. Progress
+  omits endpoint URLs, raw provider errors, watched identities and signing data.
+- Added offline follow-inspect with bounded ID-cursor pages and explicit offline
+  assurance. Backup now has an explicit read-only, copy-only opener recognizing
+  follow/replay roots; legacy replay/health readers still refuse follow state.
+  Tests cover snapshot/restore consistency and do not enable cross-engine writes.
+- Deterministic typed-XDR tests retained forty ledgers, A→B at 100 and B→A at 117,
+  matching IDs for batch sizes 1/8/16 and cold replay. Tests also cover carried
+  inactive/absent preimages, skipped ledgers/repair, regressing/stale/wrong-network
+  source, cross-batch header mismatch, retention/byte rollback, orphan findings,
+  second writers, cancellation/output failure and subprocess exit before commit.
+- Read-only real Testnet pilot: fresh explicitly asserted baseline 5413741,
+  seventeen new ledgers retained through 5413758, qualified readyz/status HTTP 200
+  and metrics ready=1. Retained payload 5,741,419 bytes, zero findings/gap episodes
+  in this small run. SIGTERM exit 0; a fresh process fully revalidated and became
+  ready at the same cursor. Consistent backup/restore inspection matched exactly.
+  No signing identity, transaction or external receiver call. This is not a load
+  benchmark, authenticated network-health claim or production deployment.
+- Portable candidate: static Linux amd64 build with pinned compiler, per-file and
+  archive checksums, commit/dirty metadata, staged non-overwriting installer,
+  hardening-oriented systemd USER unit, operations/runtime guides, ADR and schemas.
+  Installer validates offline and never starts/enables a unit. Valid install,
+  checksum-tamper rejection, no-overwrite and invalid-baseline checks PASS. Static
+  user-unit verification PASS with an isolated XDG_RUNTIME_DIR. Cloud PID 1 is
+  not systemd; actual unit start, boot persistence and target-host controls are
+  unverified. Precommit test packages explicitly carry source_dirty=true.
+- Local checks PASS: 222 default top-level Go tests, five fuzz targets' seed runs,
+  full race/vet/module verify/tidy-diff, pinned module/source-test/binary advisory
+  gates, actionlint, shell syntax, JSON Schemas and actual live status schema checks.
+  Four intentional default skips: two subprocess helpers exercised by parents and
+  two opt-in Phase 8 evidence tests. Affected follow/CLI race tests rerun after the
+  final timing correction; no new dependency or credential requirement. Remote CI
+  on this new branch remains unverified; no audit or cross-platform verdict.
+- Evidence and topology: docs/research/2026-10-27-follow-pilot.md and JSON,
+  docs/FOLLOW.md, docs/OPERATIONS.md and ADR 0004. Raw runtime/DB/binary data stay
+  ignored in follow-runs and dist. No pilot process remains running. Portable
+  preparation is ready; permanent-host deployment, production archive/retention,
+  receiver integration, sizing and fully hosted end-to-end checks remain open.
+
+## Phase 9 host preflight and repeatable package checks — 2026-10-27
+
+- Continues portable preparation from `1a5e2a3` on feat/portable-linux-follow.
+  Added packaged/installed `bin/host-check.py`: offline JSON report for Linux
+  amd64, required tools, CA path availability, binary/config/baseline validation,
+  private user-owned state directory, free filesystem bytes, static user-unit
+  verification and user-manager reachability. Raw subprocess output is suppressed.
+  No RPC, database open/create, listener, service start or privileged host change.
+- Requirements fail with exit 1; warnings permit foreground review with exit 0.
+  Every report says production_validated=false. The 1-GiB free-space threshold
+  is configurable and is neither a reservation nor a retention estimate. Actual
+  service TLS, filesystem suitability, memory/cgroup hardening, reboot/logout,
+  source retention, backups and notification delivery remain separate checks.
+- Added scripts/check-linux-package.sh and the matching Go CI test-job step.
+  The local check PASSes archive checksum/extraction, installation from the
+  extracted bundle, offline report and static unit syntax; rejects existing
+  destination, invalid baseline, missing install, impossible disk threshold,
+  unsafe state-directory modes and tampered payload. No state file or staging
+  residue remains. Python assertion-disabled execution is rejected. Only cached
+  Go build dependencies are needed; the fixture RPC URL is reserved .invalid.
+- Local checks PASS: `go test -timeout=60s -count=1 ./...`,
+  `./scripts/check-linux-package.sh`, actionlint, Bash syntax checks for the
+  package/installer/check scripts, Python AST parse and `git diff --check`.
+  No Go runtime/dependency change; previous race/advisory results remain dated
+  evidence rather than newly rerun claims. Remote CI remains unverified.
+- Updated OPERATIONS.md and DEVELOPMENT.md with exact commands and report limits.
+  No permanent host was provided, provisioned or started. Phase 9 remains
+  IN PROGRESS for hosted validation, production retention and follow delivery;
+  this does not move the project into a completed Phase 10 or Wave submission.
+
+## Phase 9 independently replayable evidence archives — 2026-10-27
+
+- Continues `84917cc` on feat/portable-linux-follow. Added `follow-archive
+  --config FILE --output NEW_FILE` and `verify-follow-archive --input FILE`.
+  Export validates existing stopped state through an OS read-only bbolt handle,
+  streams original assertion/raw records/applied groups into private gzip NDJSON,
+  fsyncs and replay-verifies it before non-overwriting atomic publication. File
+  and content SHA256 receipts bind bytes to a separately trusted handoff; they
+  do not authenticate producer, consensus, metadata or baseline assertions.
+- Offline verification starts from the original assertion, checks every ledger
+  and applied event, reconstructs the full projection/finding accounting and
+  compares the final head. Cached state cannot substitute for replay. Independent
+  compressed/expanded limits are 512 MiB, with the existing record, JSON-line,
+  ledger, finding and logical-payload budgets. Cancellation/deadlines apply;
+  raw provider/config errors are not exposed in output. No state is created by
+  verification or by export when the configured database is missing.
+- Tests cover forty synthetic ledgers with upgrade/rollback and two original-ID
+  findings, deterministic repeated bytes, read-only access/refused mutation,
+  missing/reordered/duplicate evidence, modified events/header/head (also after
+  recomputing the digest), malformed/duplicate JSON, truncated gzip/trailer,
+  bounds, cancellation, prepublication failure, racing/existing/symlink targets,
+  cleanup and CLI negative cases. Archives do not delete or mutate source state.
+- Reused previously captured real Testnet pilot entirely offline: original
+  baseline 5413741, seventeen ledgers through 5413758, zero derived findings.
+  Export and independent verification receipts match; source DB SHA256 unchanged.
+  Final read-only export matches the initial archive byte-for-byte. Expanded
+  size 5,741,908 bytes; compressed 890,752 bytes. Evidence, exact checksums and
+  limits: docs/research/2026-10-27-follow-archive-validation.md and JSON.
+  No new RPC call, key, transaction, external receiver or host deployment.
+- Local checks PASS: `go test -json -timeout=60s -count=1 ./...` (227 top-level
+  tests, six fuzz seed targets, four intentional skips), affected follow/CLI
+  race suites, `go vet ./...`, module verify/tidy-diff, actionlint, Bash syntax,
+  package/install smoke and diff checks. `FuzzVerifyFollowArchive` ran ten seconds
+  with two workers, 833 executions, PASS. Pinned module/source-test/compiled-binary
+  vulnerability gates PASS on final runtime changes. Remote CI unverified.
+- ARCHIVES.md documents format, commands, assurance, publication/recovery and
+  exact bounds; included in package and installer, linked from README/FOLLOW/
+  OPERATIONS. This is a usable evidence-preservation prerequisite, not production
+  retention completion: no pruning, archive chain/restore/rollover, delivery ack
+  or new baseline. Keep source DB and operational backups. Phase 9 remains
+  IN PROGRESS for those storage capabilities, follow notification delivery and
+  permanent-host end-to-end validation. No release, merge or Wave submission.
+
+## Phase 9 archive recovery into separate state — 2026-10-27
+
+- Continues `65fdb47` on feat/portable-linux-follow. Added
+  `restore-follow-archive --input FILE --output NEW_DB --sha256 EXPECTED_DIGEST`.
+  The expected compressed-file SHA256 is mandatory. Recovery shares the bounded
+  archive verifier, stages accepted records in a private new store, validates
+  the complete stream/trailer/digest, closes and fully replays the resulting
+  database, fsyncs it, then publishes without overwriting an existing target.
+  Cancellation, invalid input/digest and prepublication failure clean ordinary
+  staging returns; a killed process may leave private staging for inspection.
+  Publication/directory-sync uncertainty never deletes an exposed destination.
+- Original assertion/header, complete projection, raw records and exact finding
+  IDs/payloads remain. Restore does not rotate the baseline, free capacity, start
+  a process, replace live state or acknowledge findings. The receipt includes
+  the exact baseline for a separately reviewed config and the restored file's
+  SHA256. Evidence replay does not establish chain or producer authentication.
+- Operational metadata is explicitly RESET_NOT_ARCHIVED. Recovered cycle starts
+  STARTING, with prior poll/gap/success/endpoint-high-water history unavailable;
+  a zero recovered counter is not proof of no historical gaps. Fresh readiness
+  stays false. Retain operational backups/logs and source evidence separately.
+- Synthetic assertion-only and 24-ledger recovery tests preserve heads/findings,
+  then continue both original/recovered stores through forty ledgers with exact
+  matching results and two upgrade/rollback findings. Negative tests cover wrong
+  expected digest, truncated/damaged archive, cancelled/injected publication,
+  existing/racing/symlink destinations, temporary cleanup and CLI argument errors.
+- Offline real-data recovery PASS: trusted prior archive SHA256, original
+  baseline 5413741, seventeen retained ledgers through 5413758, exact head/finding
+  comparison and unchanged original DB hash. Recovered DB 16,777,216 bytes;
+  exact checksums and reset cycle in docs/research/2026-10-27-follow-restore-
+  validation.md and JSON. No new RPC, signing identity, transaction or delivery.
+- Local checks PASS: full default suite (229 top-level tests, six fuzz seed
+  targets, four intentional skips), affected follow/CLI race suites, vet,
+  module verify/tidy-diff, module/source-test/binary vulnerability scans,
+  actionlint, package/install smoke and diff checks. Remote CI unverified.
+  No dependency, credential or hosting requirement added. Archive format stays
+  version 1; prior archive verification and corruption tests pass unchanged.
+- Updated README/FOLLOW/OPERATIONS/ARCHIVES with exact commands, protected receipt
+  and original-baseline extraction, reset-counter warnings and failure handling.
+  Phase 9 remains IN PROGRESS: archive chaining/retention rollover, production
+  follow notifications, sizing and permanent-host validation remain unfinished.
+  No release, protected merge, host provisioning or Wave submission occurred.
+
+## Phase 9 validated offline physical compaction — 2026-10-27
+
+- Continues `8829523` on feat/portable-linux-follow. Added `follow-compact
+  --config FILE --output NEW_DB` for stopped follow state. Opens source read-only,
+  replay-validates it, copies all reachable buckets/values/sequences into private
+  staged state, and reopens the copy for full follow validation. Whole-store
+  logical hashing compares extra buckets, empty values/buckets and sequences,
+  not merely the known head. Atomic non-overwriting publication follows file
+  fsync; directory-sync/output failures preserve an exposed file for inspection.
+- Compaction retains original evidence, baseline, pending finding IDs/payloads
+  and operational poll/gap/success/high-water metadata. No baseline rotation,
+  acknowledgment, logical capacity increase, source deletion, state-path edit or
+  process start. Unlike evidence-only archive recovery, operational history is
+  preserved. A fresh follower still requires its own source/readiness checks.
+- Cancellable copy transactions target 16 MiB without splitting values. Traversal
+  limits: 64 bucket levels, one million entries and 512 MiB reachable key/value
+  bytes; final file cap 512 MiB and CLI deadline ten minutes. These are not memory
+  or disk reservations. Unknown bucket semantics are not independently certified
+  by preserving their exact bytes. Existing logical follow budgets still apply.
+- Synthetic tests preserve two upgrade/rollback findings and operational/extra
+  data, then continue original and compacted histories identically through forty
+  ledgers. Copy chunk sizes 1/1,024/16,777,216 yield equal logical digests. Negative
+  tests cover cancellation, corrupt head, excessive nesting, missing source,
+  injected publication failure, existing/racing/symlink targets and cleanup.
+- Offline real-data check PASS: same original seventeen-ledger Testnet store,
+  16,777,216 source bytes to 5,799,936 compacted bytes, unchanged source SHA256,
+  entire follow-inspect JSON identical and a fresh evidence archive byte-identical
+  to the prior verified archive. No new RPC, transaction or receiver. Exact hashes
+  and commands in docs/research/2026-10-27-follow-compact-validation.md and JSON.
+- Local checks PASS: full default suite (233 top-level tests, six fuzz seed
+  targets, four intentional skips), affected follow/CLI race suites, vet,
+  module verify/tidy-diff, module/source-test/binary vulnerability scans,
+  actionlint, Bash syntax, package/install smoke and diff checks. Remote CI
+  unverified. No dependency or credential change. COMPACTION.md ships in the
+  candidate and installer and is linked from FOLLOW/OPERATIONS/BACKUP guides.
+- This reduces physical allocation in a separate copy, not logical retention.
+  Phase 9 remains IN PROGRESS for archive chaining/rollover, production follow
+  delivery, sizing and permanent-host validation. No release, merge, provisioning
+  or Wave submission. Keep original state and verified backups until reviewed.
+
+## Phase 9 offline follow delivery bridge — 2026-10-27
+
+- Continues `615eaa6` on feat/portable-linux-follow. Added `follow-sync --config
+  FILE --delivery-state FILE --stream ID`. This is an offline operator step:
+  source must be stopped; it opens/replays native state read-only, scans all
+  hash-ordered findings and atomically imports them into a separate durable
+  outbox with a retained event manifest and network/baseline/head/stream binding.
+  No sender, source request, configuration change or service start runs at sync.
+- Prior sync header must still be present in native history. Rewinds, header/
+  baseline conflicts, omitted imported findings and stale expected binding are
+  rejected. Every sync scans the full journal; new hash IDs can sort before old
+  IDs. Import preserves leases, attempts, acknowledgements, dead letters and
+  audited recovery state. Native findings/counters remain unchanged; their
+  pending_findings count is not an undelivered-outbox count.
+- Added payload schema 3/source follow_ledger_meta with original inner event ID
+  and a distinct network/stream/event-bound outer delivery ID. Fixed projected
+  uncertainty is validated by storage and sender. Existing deliver/alerts/
+  requeue/recoveries source routing supports the imported scope. Claims and
+  inspection compare all queued payloads with the retained manifest; manifests
+  contain event claims, not raw metadata, and do not independently authenticate
+  chain evidence. Legacy payload/queue validation remains separate and passes.
+- Reuses existing signed HTTPS sender without weakening public DNS/IP pinning,
+  TLS, redirect, response-size, sink-binding or proxy restrictions. Direct-only
+  transport still rejects required proxy-backed routing. HMAC authenticates the
+  delivered envelope, never baseline/chain/upgrade approval. No external receiver
+  is configured or contacted. Schema-3 support is required at future receivers.
+- New tests cover forty-ledger upgrade/rollback sync with stable original IDs,
+  cold reopen/resync without repeat delivery, backup/ack preservation, dead-letter
+  persistence, fenced expired leases and audited recovery, atomic rollback,
+  conflicts, omitted findings, manifest/queue corruption, missing source, path
+  collisions, prior-source rewind and forged assurance. Native source unchanged.
+- Reused captured real Testnet transitions entirely offline: native follow
+  baseline 5407791, twelve ledgers through 5407803, three findings delivered to
+  the isolated local verified-TLS test receiver. Exact HMAC/idempotency and
+  UNDETERMINED assurance verified; cold reopen/resync produced zero new attempts;
+  forged APPROVED assurance refused. Separate real seventeen-ledger pilot sync/
+  resync correctly imported zero findings and preserved source DB SHA256. Evidence
+  in docs/research/2026-10-27-follow-delivery-validation.md and JSON. No new RPC,
+  transaction, external delivery or persistent running service.
+- Local checks PASS: 239 default top-level tests, six fuzz seed targets, four
+  intentional skips; affected store/alert/follow/CLI race suites; separately
+  invoked real-data local TLS race test; vet/module verify/tidy-diff; pinned
+  module/source-test/binary vulnerability gates; actionlint/Bash/schema syntax;
+  package/install smoke and diff checks. Remote CI unverified. No dependency or
+  default secret requirement added. Guide and schema ship in the Linux candidate.
+- Phase 9 remains IN PROGRESS: unattended sync, source-gap notification policy,
+  production receiver/proxy routing, archive chaining/retention rollover, sizing
+  and permanent-host validation remain open. No logical retention or source-
+  assurance upgrade, release, protected merge, provisioning or Wave submission.
+
+## Phase 9 opt-in automatic local outbox sync — 2026-10-27
+
+- Continues `a670ce3` on feat/portable-linux-follow. Paired follower flags
+  --delivery-state FILE --delivery-stream ID enable automatic local queue sync
+  at startup and after every nonfatal poll, serialized with native commits.
+  Default follower/unit behavior stays off. --check validates paired syntax,
+  stream and path separation without opening/creating either database. No
+  signing secret, receiver or external dispatch is configured or invoked.
+- Extracted shared followdelivery bridge used by manual and automatic sync.
+  It validates the original baseline, scans complete bounded findings, checks
+  prior sync header ancestry and preserves import/lease/retry/ack/dead-letter
+  state. Unchanged bindings/payloads are revalidated without rewriting the outbox.
+  The outbox is opened only during sync; temporary dispatcher lock contention
+  retries under the two-minute hook deadline, with cancellation between attempts.
+- RunWithSync startup repairs native commits not yet imported after interruption.
+  Native and outbox commits remain separate transactions. A sync failure persists
+  OUTBOX_SYNC_FAILED, clears readiness/endpoint claim, retains the prior success
+  timestamp and stops with exit 5. Source evidence/findings remain intact for
+  restart repair. Parent cancellation follows graceful STOPPED handling. Fatal
+  source/capacity errors retain their own stop behavior; manual sync/restart can
+  recover retained findings after their cause is resolved.
+- New tests simulate post-source-commit sync failure, fresh-process catch-up
+  before healthy emission, startup failure, dispatcher lock retry, cancellation,
+  unchanged DB bytes, opt-in offline checks and invalid/path-colliding flags.
+  Real captured twelve-ledger range 5407792–5407803 recovers three findings in a
+  separate offline test with a synthetic head/RPC adapter. This is not a new live
+  freshness/hosting result. No new RPC, transaction or external delivery. Exact
+  report and scope in docs/research/2026-10-27-follow-autosync-validation.md/JSON.
+- Added optional fleetwatch-sync.service template/installed unit with delivery.db
+  under the existing writable state directory and reviewed stable stream pilot.
+  Default and alternate unit syntax verified statically; installer enables/starts
+  neither and instructs choosing one. Actual host systemd/boot/hardening remains
+  unverified. Updated runtime guide, operations, delivery guide, status schema
+  and README; no Go dependency or default credential requirement added.
+- Local checks PASS: full default suite (242 top-level tests, six fuzz seed
+  targets, four intentional skips), affected followdelivery/follow/store/alert/
+  CLI race suites, separate captured-data automatic repair test, formatting,
+  vet/module verify/tidy-diff, pinned module/source-test/binary vulnerability
+  gates, actionlint/Bash/status-schema and package/install checks. Remote CI
+  unverified. No source-authentication or logical-retention upgrade is claimed.
+- Phase 9 remains IN PROGRESS for external dispatch scheduling, source-gap
+  notification policy, production receiver/proxy routing, archive chaining/
+  retention rollover, sizing and permanent-host validation. No public release,
+  protected merge, host provisioning, actual unit start or Wave submission.
+
+## Phase 9 opt-in repeated webhook dispatcher — 2026-10-27
+
+- Continues `38ab929` on feat/portable-linux-follow. Added deliver-loop with an
+  explicit imported network/stream, receiver URL/allowlist and HMAC key environment
+  selector. It dispatches only imported follow payloads; no implicit destination,
+  source discovery, signing key generation or auto-start. --check verifies local
+  options/key/transport policy without opening state, resolving DNS or sending.
+- The loop opens existing-only writable delivery state for one bounded batch,
+  then releases the file before status/interval waits. Missing and empty files
+  wait with unknown queue counts, never created/initialized. Busy/unimported
+  state is reported explicitly; nonempty invalid state/manifests stop. Batch
+  size 1–5 (default one), interval 1–60 seconds (default five), dispatch deadline
+  ninety seconds plus bounded post-batch inspection. Existing sender/lease
+  limits, sink binding and retry/dead-letter policy remain unchanged.
+- SIGINT/SIGTERM preserve durable attempts and emit STOPPED. At-least-once retry
+  after uncertain acknowledgement requires receiver deduplication. Permanent/
+  exhausted failures stay DEAD across restart, requiring audited manual recovery.
+  Output failure after acknowledgement does not clear/reset delivered rows.
+  Fixed NDJSON codes/counts expose waiting, retry, uncertainty, dead letters and
+  fatal failure without URL/key/IDs/lease tokens/raw transport errors. Queue
+  counts are null when unknown. No chain assurance or retention change.
+- Local verified-TLS loop reused the previously captured Testnet transition
+  evidence, imported three native follow findings and delivered three requests.
+  Exact-body HMAC/idempotency, released file between batches, graceful stop and
+  zero acknowledged-repeat attempts after restart PASS. No external delivery or
+  new RPC/transaction. Synthetic tests add transient retries, permanent dead
+  letters, missing/busy/empty/unimported files, corrupt-state rejection, request
+  cancellation, output failure and invalid options/key handling. Evidence in
+  docs/research/2026-10-27-delivery-loop-validation.md and JSON.
+- Prepared fleetwatch-delivery.service as a separate optional user unit, with
+  required private receiver/key environment configuration and local preflight.
+  It can accompany one selected follower unit; does not start a follower itself.
+  Installer creates no environment file/secret and starts/enables neither role.
+  Static unit verification PASS only; real target-host service/boot/hardening and
+  receiver setup remain unverified. Direct-only sender still rejects required
+  proxy routing; DNS/IP pinning, verified TLS and redirect policy are unchanged.
+- Local checks PASS: 247 default top-level tests, six fuzz seed targets, four
+  intentional skips; affected alert/store/followdelivery/follow/CLI race suites;
+  separately invoked captured-data local TLS loop; formatting/vet/modules/
+  tidy-diff; module/source-test/binary vulnerability gates; actionlint/Bash/status
+  schema and package checks. Remote CI unverified; no dependency or default
+  credential requirement. Runtime guide, schema and rendered unit ship in the
+  candidate. Operations topology now includes the separate outbox/dispatcher.
+- Phase 9 remains IN PROGRESS for production receiver/proxy routing, source-gap
+  notification policy, archive chaining/retention rollover, representative sizing
+  and permanent-host validation. No public release, protected merge, provisioning,
+  actual service start, new chain write or Wave submission occurred.
+
+## Phase 9 opt-in pinned HTTP/HTTPS proxy transport — 2026-10-27
+
+- Continues `f80c58c` on feat/portable-linux-follow. Added explicit --proxy-mode
+  pinned-connect to deliver/deliver-loop and public constructor variant. Default
+  reject mode is preserved. Go environment proxy/NO_PROXY selection is respected;
+  no proxy setting, network grant, CA trust or credential binding is modified.
+- Target DNS/public-address checks run before proxy dialing. CONNECT authority
+  and Host both use a locally checked numeric public IP:443, avoiding proxy-side
+  receiver DNS. Original receiver hostname remains HTTP Host and TLS SNI/verified
+  certificate identity. HTTPS proxies have independently verified proxy-host TLS.
+  Both roles keep TLS 1.2 minimum and OS CA trust. No insecure CLI switch exists.
+- Selected proxy URL Basic credentials go only on CONNECT, not receiver headers
+  or logs. Headers are capped at sixteen KiB, handshake IO at ten seconds or
+  earlier context deadline, with cancellation closing the socket. Buffered bytes
+  survive CONNECT for target TLS. Denials/redirects/unsafe DNS do not cause direct
+  or hostname fallback. Numeric-target proxy policy rejection remains rejection.
+- Local fixture tests PASS for HTTP and HTTPS proxy tunnels, numeric authority,
+  correct receiver Host/SNI/HMAC/idempotency, credential separation, untrusted
+  certificates at either TLS role, private/mixed DNS rejection, denied CONNECT,
+  redirects, oversized headers, cancellation, URL/mode validation and no-IO public
+  constructor/CLI preflight. Fixtures route only to fixed loopback endpoints;
+  no actual public target or external proxy/receiver call occurred.
+- Optional delivery unit defaults FLEETWATCH_DELIVERY_PROXY_MODE to reject and
+  permits reviewed host environment selection of pinned-connect. Updated proxy/
+  delivery/runtime guides and README; new guide ships in the Linux candidate.
+  No environment file/secret/recipient is generated and no unit enabled/started.
+  Evidence and protocol scope: docs/research/2026-10-27-webhook-proxy-validation.md.
+- Local checks PASS: 251 top-level default tests, six fuzz seed targets, four
+  intentional skips; affected alert/CLI race suites; formatting/vet/module
+  verify/tidy-diff; pinned module/source-test/binary vulnerability gates;
+  actionlint/Bash/package/install checks. Remote CI unverified. No dependency
+  change or external audit. No source-authentication or retention upgrade.
+- Phase 9 remains IN PROGRESS: real proxy permission/receiver compatibility,
+  archive chaining/retention rollover, source-gap notification policy, sizing and
+  permanent-host validation remain open. Real cloud sidecar numeric CONNECT
+  compatibility is unverified and may be denied; no workaround or policy bypass
+  is introduced. No release, protected merge, hosting provision or Wave submission.
+
+## Phase 9 zero-cost handoff and explicit deployment gate — 2026-10-27
+
+- User instructed continuing through Phase 9, following Dripwave and using zero-
+  cost deployment only. The earlier paid-VM suggestion is superseded; no paid
+  resource/account was created. Current environment is a development executor,
+  PID 1 tail, with no connected provider identity/capability/SSH host or authorized
+  receiver. It is not a permanent production host. The Dripwave gate explicitly
+  requires the deployed topology to work end-to-end in production.
+- Completed a zero-cost deployment handoff for an existing owner-controlled
+  host or a confirmed free persistent VM, without inventing provider eligibility.
+  Official Oracle free-tier/documentation reads returned HTTP 403 via the normal
+  proxy; free allocation, availability and cost safeguards remain unverified.
+  No policy bypass, billable trial, hardware purchase, credential or provider
+  permission was introduced. Paid fallback is disallowed by the user constraint.
+- Added Linux arm64 alongside default amd64 packaging, with target-specific Go
+  dependency notices/BUILD metadata. Both ELF/static targets are inspected;
+  only native amd64 executes here. Installer verifies architecture before staging
+  or running the binary and copies BUILD.json into the install. Mismatched target
+  installation is rejected without creating a destination. ARM runtime, actual
+  free host, unit operation and boot behavior remain unverified.
+- Added bundled read-only phase9-preflight collector and concrete acceptance
+  table. Optional --running contacts only fixed loopback status/readiness; no
+  source/receiver request or service start. The collector always emits
+  phase9_complete=false and production_validated=false; successful collection
+  cannot fabricate host/receiver/cost/retention acceptance. Offline, mock-running,
+  public-listener rejection and argument checks PASS.
+- Measured five fresh processes per operation on the same captured seventeen-
+  ledger pilot: startup inspection median 0.490640 s / max RSS 25,024 KiB;
+  archive verification median 0.349744 s / max RSS 23,340 KiB. Warm filesystem,
+  isolated copies, original DB unchanged. Detailed samples are retained in
+  docs/research/2026-10-27-phase9-sizing.json. Extrapolating this tiny sample gives
+  roughly 16.6 minutes at 64 MiB / 66.2 minutes at 256 MiB, not a production
+  forecast. A reviewed capacity/retention policy is materially necessary; a
+  larger VM alone does not bypass logical limits or prove unattended operation.
+- Independent review found one wrong-path integrity defect: writable bbolt open
+  could change foreign NoFreelistSync metadata before rejecting its namespace.
+  Fixed OpenExisting in `d65f200` with read-only recognition before writable open, pinned
+  file identity and no creation. Regression tests preserve foreign/invalid/swapped
+  file bytes and confirm valid imported outboxes still persist acknowledgements.
+  No proxy defect requiring changes was found; this is not an external audit.
+- Local checks PASS: 254 default top-level tests, six fuzz seed targets, four
+  intentional skips; affected store/alert/followdelivery/CLI race tests;
+  formatting/vet/modules/tidy-diff; pinned module/source-test/binary vulnerability
+  scans; actionlint/Bash/Python checks; two-architecture package/ELF metadata,
+  native install/preflight, mismatch rejection and all existing package failure
+  cases. Remote CI unverified. No dependency or default secret requirement added.
+- Phase 9 is BLOCKED, not complete: actual confirmed-zero-cost host/access,
+  authorized receiver/key, real routing, service/reboot/backup/resume evidence
+  and reviewed host capacity remain outstanding. Shared SQL, full lifecycle and
+  independent chain authentication are separate roadmap gaps, not reasons to
+  keep inventing unrelated Phase 9 utility milestones. Do not proceed past the
+  real hosting gate or claim approval. No source assurance upgrade, release,
+  protected merge, service start, chain write or Wave submission occurred.
+
+## Zero-host browser delivery increment
+
+- Continued from pushed 38ddf56 after the user explicitly rejected supplying a
+  machine/account. Added a self-contained Go WebAssembly current-state viewer,
+  default actual Testnet watchlist, qualified live values, visible-tab refresh,
+  stale handling and schema-v2 raw evidence download. No server, key or signup.
+  Native sequential state, assurance and outbox semantics are unchanged.
+- Browser transport explicitly uses Fetch CORS/omit-credentials/error-redirect;
+  the native HTTP transport retains inherited proxy/TLS behavior. Package embeds
+  all runtime/dependency notices and records source/dirty state plus hashes.
+- All default Go tests PASS. Source race, native/WASM vet, module verify/tidy,
+  workflow/JS/Python syntax checks PASS. Chromium/Playwright integration PASS in
+  ten deterministic scenarios. CI now cross-builds WASM; remote CI unverified.
+- Real Testnet observation at 2026-10-27T19:14:03Z: ledger 5420960, two contracts,
+  one owner/tag reference, three raw records. The live browser check used a
+  TLS-verified test relay because this managed Chromium lacks the proxy CA;
+  direct CORS preflight/POST origin headers were verified separately. File URLs
+  are blocked by this managed browser policy; no policy or TLS bypass was used.
+  See docs/research/2026-10-27-browser-validation.md and the full qualified capture.
+- GitHub Actions was rejected as perpetual serverless hosting based on current
+  official terms, default-branch schedule behavior and private billing limits.
+  Static Pages is a valid optional host, but activation/visibility cannot be
+  inspected via the currently denied GitHub API. Downloadable HTML removes that
+  prerequisite for use; public hosting is not claimed from branch publication.
+- Phase 9 remains incomplete for a verified public deployment/unattended native
+  service. The browser mode does not silently replace sequential history with
+  polling or claim permanent monitoring. No Linux machine is requested for it.
+  No paid resource, account, secret, real-asset write, external send, merge, tag
+  or Wave submission was performed.
+
+- Publication receipt: clean browser source `80c2019`, runnable distribution
+  `06252fc` pushed to `feat/portable-linux-follow`; static distribution `91edd4d`
+  pushed to new `gh-pages`. Every package SHA verified. No main merge or tag.
+  Both branches are saved remotely; Pages activation remains UNVERIFIED. Saved
+  the minimal network draft additions api.github.com and
+  soroban-fleetwatch.github.io through the supported onboarding tool; confirmed
+  saved with requires_publish=true. It has not applied to this running instance.
+  Review/save/Publish in environment settings is the product-owned activation
+  step; do not extract Git proxy credentials or bypass CONNECT denial. See
+  docs/research/2026-10-27-browser-publication.json.
+
+## Intended topology and environment reproducibility repair
+
+- Owner reports Pages unavailable on the current plan. Restored the original
+  native collector/persistent DB topology as the Phase 9 target, with optional
+  delivery and no mandatory frontend. Browser files remain preserved as optional
+  current-state diagnostics. Neither a development snapshot nor browser polling
+  is claimed as unattended production hosting.
+- Confirmed the saved repository selection chose main0014aaa while the verified
+  actual checkout/remote feature branch was ed3c3ff at /workspace/fleetwatch. The
+  corrected declaration must use this final source HEAD and mount fleetwatch.
+  Legacy empty mount and the generic failed Publish status have no proven causal
+  connection. Runtime recovered connectivity without an application change;
+  publication diagnostics remain unavailable. No cache/data was deleted on guess.
+- Added scripts/setup-cloud.sh with fresh checksum/version-verified Go staging,
+  path guards, install locking and rollback on replacement errors. Frozen modules,
+  exact compiler/root checks, default tests/build and synthetic CLI smoke pass.
+  Real isolated old-to-new install removes obsolete files; repeat install avoids
+  networking. Corrupt-download, unsafe-path, rename-failure and interruption
+  tests preserve/restore the old tree. Native compiler/evidence were untouched.
+- Both portable Linux package/ELF/hash checks, native install/preflight/failure
+  cases, foreign-architecture rejection, actionlint and shell syntax PASS. ARM64
+  execution, remote CI and production deployment remain UNVERIFIED.
+- Environment/provider observations are current and show no deployment identity,
+  capability, runtime binding or provider connection. No free permanent target
+  can be allocated through current authority. Native retention still stops at
+  capacity; its reviewed production strategy remains open. Phase 9 is BLOCKED,
+  and no account/paid service/secret/visibility change/merge/tag was performed.
+- Save the complete tested bootstrap and current startup guidance, plus the
+  verified final source SHA/path, in the environment draft. Product publication
+  remains a distinct user/platform operation; it is not proven by a draft save.
+  See docs/research/2026-10-27-environment-repair.md for evidence and limits.
+
+## Confirmed remote CI and applied network configuration
+
+- Normal GitHub API access now succeeds with the configured six-domain policy.
+  The repository is private; the owner reports Pages unavailable on the current
+  plan. This proves access/configuration propagation, not snapshot publication.
+- Independently verified remote Go CI run 34, ID40597509041, at exact source
+  a403daa077a5b071f071909cf2db809a59628c88: test, vulnerabilities and
+  testnet-fixtures all SUCCESS, with no failed steps. Only informational Ubuntu
+  runner-migration notices exist. No artifact upload is configured by this run.
+  See docs/research/2026-10-27-ci-publication-state.json and the real Actions URL.
+- Runtime connected, observed spec42; corrected draft43 is saved. Retained
+  environment diagnostics still have no records and failure is null. The
+  platform does not expose the failed snapshot/publication operation or cause.
+  Current build success does not establish the complete product/release or Phase9
+  production deployment, and no code change is claimed to fix that unknown error.
+- Repository environments list is empty. Deployment, secret and variable
+  inventories are denied403 by the integration, so those denials are not used to
+  claim that the owner has no provider accounts. No usable deployment connection
+  is available through this session's configured capabilities. No new settings
+  changes or blind Publish retry are proposed from the unconfirmed status.
+
+
+## Phase 10–12 checkpoint and audit fixes — 2026-10-28
+
+- **Starting point.** The session branch began at `main` (`0014aaa`). GitHub
+  also held `feat/portable-linux-follow` (`73f92e2`, 19 commits ahead, CI run 35
+  green) containing all Phase 8–9 work, plus `feat/testnet-cap85-demo` (its
+  ancestor) and `gh-pages`. To preserve that work, the session branch was reset
+  to `origin/feat/portable-linux-follow` before any change. None of it is on
+  `main`; merging is an owner decision.
+- **Audit commands (Go 1.27.3, GOFLAGS=-mod=readonly, GOTOOLCHAIN=local):**
+  `go mod verify`, `go mod tidy -diff`, `gofmt -l cmd internal scripts`,
+  `go vet ./...`, `go test -count=1 ./...`, `go test -race -count=1 ./...`:
+  all PASS. JSON Schemas self-check and the committed fixtures validate with a
+  cross-reference registry (python-jsonschema 4.26.0). Relative Markdown links:
+  0 broken. `scripts/check-vulnerabilities.sh` could not run locally
+  (`vuln.go.dev` returned Forbidden through this session's proxy); the same
+  script passed in remote CI run 35 on `73f92e2`. staticcheck 2026.1 cannot
+  read Go 1.27 export data, so no staticcheck result is claimed.
+- **Defects found and fixed.**
+  1. `help`, `--help`, `-h` and `COMMAND -h` exited 3 (invalid usage) at all 25
+     flag-parse sites. Fixed in `e879452` with a shared `parseArgs`; a test runs
+     every command's help from an empty directory and checks unknown flags still
+     exit 3. The usage text's misindented `capture` line was corrected.
+  2. README was materially stale (status checklist contradicted completed
+     work; CLI table listed 3 of 27 commands; outdated architecture). Rewritten
+     in `3a1bbb2`; every example was run and its comments match real output.
+  3. Docs pages linked to `../schema` and `../examples`, which break outside
+     GitHub. Rewritten to absolute repository URLs in `d54a4f4`.
+  4. The stage table above was stale for S0–S2, S7, S9 and S11; updated here.
+- **Phase 10** (`3a1bbb2`): README, CONTRIBUTING, SECURITY, issue forms, PR
+  template, CHANGELOG, REPOSITORY_SETTINGS (branch protection with real job
+  names `test`, `vulnerabilities`, `testnet-fixtures`, `docs`), and
+  `docs/build/issues.json` with 20 forward issues. `scripts/create-issues.sh`
+  dry run prints 18 labels and 20 issues; `--apply` was exercised only against
+  a stub `gh` (18 label calls, 19 creates, 1 exact-title duplicate skipped).
+  No label, issue, topic, protection rule or visibility change was made on GitHub.
+- **Phase 11** (`d54a4f4`): MkDocs 1.6.1 site with hash-pinned requirements
+  (installed with `--require-hashes` in a clean venv), new intro, CAP-85
+  mechanics, assurance labels, architecture, four persona guides,
+  troubleshooting and a CLI reference generated from the binary and guarded
+  by `TestCLIReferenceUpToDate`. `mkdocs build --strict`: PASS, 0 warnings;
+  pages rendered in headless Chromium. CI gains a `docs` job; actionlint
+  v1.7.12: PASS. The site is not hosted (repository private; Pages unavailable).
+- **Phase 12** (`9f71fe3`): draft only. www.drips.network and
+  docs.drips.network are outside this session's network allowlist, so the
+  live approved list and rules were not read; web search found no FleetWatch
+  listing. Recorded Testnet transactions could not be re-queried because
+  soroban-testnet.stellar.org is also denied in this session; the links in the
+  draft are the 2026-10-27 evidence.
+- **Totals after this checkpoint:** 262 top-level tests PASS, 4 intentional
+  skips, 0 failures (`go test -count=1 -json ./...`). Each new commit was
+  re-checked from a clean worktree (link check and strict docs build).
+- **Sources used:** CAP-85 spec
+  https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md ;
+  Protocol 28 announcement
+  https://stellar.org/blog/developers/introducing-adapter-protocol-28-on-stellar ;
+  Drips maintainer docs (not reachable here)
+  https://docs.drips.network/wave/maintainers/participating-in-a-wave/ ;
+  PyPI JSON API for requirement hashes.
+- **No** push to `main`, merge, tag, release, issue creation, settings change,
+  deployment, transaction, external message or Wave submission occurred.
+- **Next steps (owner):** review and merge this branch; make the repository
+  public after a secret review; apply REPOSITORY_SETTINGS.md; run
+  `scripts/create-issues.sh --apply`; host the docs build; record the demo;
+  supply a zero-cost permanent host to close Phase 9; allow www.drips.network,
+  docs.drips.network and soroban-testnet.stellar.org in the session network
+  policy so the live checks can be repeated.

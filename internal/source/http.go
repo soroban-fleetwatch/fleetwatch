@@ -3,11 +3,13 @@ package source
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -27,7 +29,7 @@ func NewHTTPRPC(endpoint string) (*HTTPRPC, error) {
 	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
 		return nil, errors.New("RPC endpoint must be HTTPS without credentials, query, or fragment")
 	}
-	return &HTTPRPC{endpoint: endpoint, client: &http.Client{Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("RPC redirects are disabled") }}}, nil
+	return &HTTPRPC{endpoint: endpoint, client: &http.Client{Transport: rpcTransport(), Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("RPC redirects are disabled") }}}, nil
 }
 
 type transientError struct{ delay time.Duration }
@@ -137,6 +139,20 @@ func (r *HTTPRPC) Ledgers(ctx context.Context, request protocol.GetLedgersReques
 	err := r.call(ctx, protocol.GetLedgersMethodName, request, &result)
 	if err != nil {
 		return protocol.GetLedgersResponse{}, err
+	}
+	return result, nil
+}
+
+// Transaction retrieves an endpoint claim for a canonical transaction hash.
+// Callers must separately validate its envelope/result and any chain inclusion.
+func (r *HTTPRPC) Transaction(ctx context.Context, hash string) (protocol.GetTransactionResponse, error) {
+	raw, err := hex.DecodeString(hash)
+	if err != nil || len(raw) != 32 || hash != strings.ToLower(hash) {
+		return protocol.GetTransactionResponse{}, errors.New("invalid transaction hash")
+	}
+	var result protocol.GetTransactionResponse
+	if err := r.call(ctx, protocol.GetTransactionMethodName, protocol.GetTransactionRequest{Hash: hash}, &result); err != nil {
+		return protocol.GetTransactionResponse{}, err
 	}
 	return result, nil
 }

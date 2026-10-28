@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "rpc_url": "https://rpc.example.invalid",
+  "baseline": "../testdata/reconstruction-baseline.json",
+  "state": "../follow-runs/synthetic-follow.db",
+  "listen": "127.0.0.1:9789",
+  "poll_interval_seconds": 5,
+  "batch_size": 8,
+  "head_delay_ledgers": 1,
+  "max_endpoint_lag": 4,
+  "max_retained_ledgers": 100000,
+  "max_retained_payload_bytes": 67108864
+}

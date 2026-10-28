@@ -14,11 +14,12 @@ import (
 	"time"
 
 	"github.com/soroban-fleetwatch/fleetwatch/internal/fleetwatch"
+	"github.com/soroban-fleetwatch/fleetwatch/internal/stateformat"
 	bolt "go.etcd.io/bbolt"
 )
 
 var ErrConflict = errors.New("stored observation conflicts with supplied journal")
-var stateBucket = []byte("fleetwatch.offline-replay.v1")
+var stateBucket = []byte(stateformat.Replay)
 
 const maxStateBytes = 25 << 20
 
@@ -30,6 +31,60 @@ type State struct {
 type Store struct{ db *bolt.DB }
 
 func Open(path string) (*Store, error) {
+	return openStore(path, false, nil)
+}
+
+// OpenExisting permits delivery updates but never creates missing state, even
+// if the path disappears between the initial check and bbolt's file open. Format
+// recognition is read-only so bbolt cannot sync freelist metadata in a foreign
+// database before the application namespace has been checked.
+func OpenExisting(path string) (*Store, error) {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() || info.Size() == 0 {
+		return nil, errors.New("existing state must be a nonempty regular database")
+	}
+	probe, err := bolt.Open(path, 0600, &bolt.Options{ReadOnly: true, Timeout: time.Second, OpenFile: pinnedStateOpen(info)})
+	if err != nil {
+		return nil, fmt.Errorf("recognize replay state: %w", err)
+	}
+	err = probe.View(func(tx *bolt.Tx) error {
+		if tx.Bucket(stateBucket) == nil {
+			return errors.New("unrecognized replay database")
+		}
+		return nil
+	})
+	closeErr := probe.Close()
+	if err != nil {
+		return nil, err
+	}
+	if closeErr != nil {
+		return nil, closeErr
+	}
+	return openStore(path, true, info)
+}
+
+// Pin both recognition and writable opens to the same regular, nonempty inode.
+// This prevents obvious path replacement between phases; it does not certify a
+// filesystem against hostile same-inode writes that ignore bbolt's file lock.
+func pinnedStateOpen(expected os.FileInfo) func(string, int, os.FileMode) (*os.File, error) {
+	return func(name string, flag int, mode os.FileMode) (*os.File, error) {
+		file, err := os.OpenFile(name, flag&^os.O_CREATE, mode)
+		if err != nil {
+			return nil, err
+		}
+		actual, statErr := file.Stat()
+		if statErr != nil || expected == nil || !actual.Mode().IsRegular() || actual.Size() == 0 || !os.SameFile(expected, actual) {
+			file.Close()
+			return nil, errors.New("state path changed or became invalid during open")
+		}
+		return file, nil
+	}
+}
+
+func openStore(path string, existingOnly bool, expected os.FileInfo) (*Store, error) {
 	existed := false
 	if info, err := os.Lstat(path); err == nil {
 		existed = true
@@ -39,10 +94,20 @@ func Open(path string) (*Store, error) {
 		if info.Size() == 0 {
 			return nil, errors.New("refusing pre-existing empty state file")
 		}
+		if existingOnly && (expected == nil || !os.SameFile(expected, info)) {
+			return nil, errors.New("state path changed after recognition")
+		}
 	} else if !os.IsNotExist(err) {
 		return nil, err
 	}
-	db, err := bolt.Open(path, 0600, &bolt.Options{Timeout: time.Second})
+	if existingOnly && !existed {
+		return nil, os.ErrNotExist
+	}
+	options := &bolt.Options{Timeout: time.Second}
+	if existingOnly {
+		options.OpenFile = pinnedStateOpen(expected)
+	}
+	db, err := bolt.Open(path, 0600, options)
 	if err != nil {
 		return nil, fmt.Errorf("open replay state: %w", err)
 	}

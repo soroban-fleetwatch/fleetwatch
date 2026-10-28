@@ -20,8 +20,8 @@ func recovery(args []string, stdout, stderr io.Writer, list bool) int {
 	fs.SetOutput(stderr)
 	path := fs.String("state", "", "existing local database")
 	network := fs.String("network", "", "exact network")
-	source := fs.String("source", "synthetic", "synthetic, user_snapshot or rpc_ledger_meta")
-	stream := fs.String("stream", "", "required for rpc_ledger_meta")
+	source := fs.String("source", "synthetic", "synthetic, user_snapshot, rpc_ledger_meta or follow_ledger_meta")
+	stream := fs.String("stream", "", "required for ledger-meta sources")
 	id := fs.String("alert-id", "", "alert ID")
 	var request, reason *string
 	var cycle *int
@@ -30,8 +30,8 @@ func recovery(args []string, stdout, stderr io.Writer, list bool) int {
 		reason = fs.String("reason", "", "nonsecret operator rationale")
 		cycle = fs.Int("expected-cycle", -1, "current recovery cycle (0 initially)")
 	}
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	queueSource, err := store.AlertSource(*network, *source, *stream)
 	if *path == "" || *network == "" || *id == "" || err != nil || fs.NArg() != 0 || !list && (*request == "" || *reason == "" || *cycle < 0) {

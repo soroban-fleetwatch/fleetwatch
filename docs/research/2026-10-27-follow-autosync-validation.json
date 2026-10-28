@@ -1,0 +1,19 @@
+{
+  "baseline_ledger": 5407791,
+  "external_deliveries": 0,
+  "final_verdict": "UNDETERMINED",
+  "graceful_stop": true,
+  "kind": "OFFLINE_REPLAY_WITH_SYNTHETIC_SOURCE_HEAD",
+  "new_chain_requests": 0,
+  "processed_through": 5407803,
+  "real_source_freshness_verified": false,
+  "recovered_findings": 3,
+  "restart_catches_up_before_ready": true,
+  "retained_ledgers": 12,
+  "sync_failure_not_ready": true,
+  "date": "2026-10-27",
+  "base_commit": "a670ce3",
+  "production_host_validated": false,
+  "service_enabled_or_started": false,
+  "optional_unit_static_validation": true
+}

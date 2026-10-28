@@ -62,7 +62,7 @@ status or chain verdicts. It does not resolve historical diagnostics or establis
 current source health. See [webhook constraints](WEBHOOKS.md) before delivery;
 production proxy-backed delivery and a continuous worker remain unfinished.
 
-See [result/receipt schema](../schema/alert-recovery-v1.schema.json). Runtime also
+See [result/receipt schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/alert-recovery-v1.schema.json). Runtime also
 enforces identity, scope, audit sequence and state-transition constraints.
 
 

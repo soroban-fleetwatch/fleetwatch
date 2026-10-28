@@ -1,0 +1,40 @@
+name: Feature or task
+description: Propose scoped work with acceptance criteria.
+title: "feat(<area>): <short description>"
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What should change, in one or two paragraphs.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters
+      description: The user or operator problem this solves.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checkboxes that a reviewer can verify with tests or evidence.
+      value: |
+        - [ ] 
+        - [ ] Tests cover success and failure cases
+        - [ ] Docs and schemas updated
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals and assurance impact
+      description: What this does not claim. Does any UNVERIFIED/UNKNOWN label change, and on what evidence?
+  - type: input
+    id: stack
+    attributes:
+      label: Tech stack
+      placeholder: Go, bbolt, Stellar Go SDK v0.8.0

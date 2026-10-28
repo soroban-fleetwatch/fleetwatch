@@ -21,7 +21,7 @@ This demonstrates why comparing only the final snapshot misses such transitions.
 
 ## Baseline and source requirements
 
-The [baseline schema](../schema/watched-baseline-v1.schema.json) wraps a v1
+The [baseline schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/watched-baseline-v1.schema.json) wraps a v1
 snapshot with `schema_version=1`, `kind=watched_baseline`, `source=user_asserted`
 and a lowercase nonzero 32-byte `header_hash`. Its ledger must immediately precede
 the capture's requested start, on the exact same network. The supplied hash must
@@ -98,7 +98,7 @@ checkpoint. An incomplete capture can supply an accepted prefix but returns 4.
 
 ## Findings and evidence
 
-The [report schema](../schema/watched-reconstruction-v1.schema.json) includes:
+The [report schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/watched-reconstruction-v1.schema.json) includes:
 
 - The original canonical baseline snapshot digest and separately supplied header
   hash, sorted watchlist, and final active watched snapshot.

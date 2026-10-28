@@ -15,8 +15,8 @@ func verifyApproval(args []string, stdout, stderr io.Writer) int {
 	approval := fs.String("approval", "", "versioned signed envelope JSON")
 	trustPath := fs.String("trust", "", "operator-provided public trust configuration JSON")
 	observation := fs.String("observation", "", "supplied transition observation JSON")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *approval == "" || *trustPath == "" || *observation == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "verify-approval requires --approval FILE --trust FILE --observation FILE")

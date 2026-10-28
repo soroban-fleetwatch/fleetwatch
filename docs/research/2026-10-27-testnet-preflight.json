@@ -1,0 +1,23 @@
+{
+  "checked_at": "2026-10-27T00:30:53Z",
+  "endpoint": "https://soroban-testnet.stellar.org",
+  "status": "READ_ONLY_PREFLIGHT_PASS",
+  "network": {
+    "passphrase": "Test SDF Network ; September 2015",
+    "protocolVersion": 29
+  },
+  "head": {
+    "sequence": 5407493,
+    "protocolVersion": 29,
+    "closeTime": "1793061052"
+  },
+  "ledger": 5407491,
+  "header_hash": "cf38460cb1eb5cabdfe7c076a5215d1f0ecafdb99cf3580efa682450d2f058fb",
+  "previous_hash": "0494f7d0592f86721ee81df15b044e1116b7f22d3210737c1a9a5316b1380d05",
+  "metadata_sha256": "f144e5413dca5c3caaa0f0aad405729956268defa5adf6b4315afddd3a0e6938",
+  "metadata_version": 2,
+  "source_authentication": "UNVERIFIED",
+  "metadata_commitment": "NOT_VERIFIED",
+  "final_verdict": "UNDETERMINED",
+  "transactions_sent": 0
+}

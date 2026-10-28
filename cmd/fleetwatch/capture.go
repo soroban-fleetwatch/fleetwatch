@@ -19,8 +19,8 @@ func capture(args []string, stdout, stderr io.Writer) int {
 	endpoint := fs.String("rpc-url", "", "HTTPS Stellar RPC endpoint")
 	network := fs.String("network-passphrase", "", "exact expected network passphrase")
 	file := fs.String("contracts-file", "", "watchlist: one canonical contract address per line, maximum 50")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *endpoint == "" || *network == "" || *file == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "capture requires --rpc-url, --network-passphrase and --contracts-file")

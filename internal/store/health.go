@@ -9,12 +9,21 @@ import (
 	"unicode/utf8"
 
 	"github.com/soroban-fleetwatch/fleetwatch/internal/fleetwatch"
+	"github.com/soroban-fleetwatch/fleetwatch/internal/stateformat"
 	bolt "go.etcd.io/bbolt"
 )
 
 // OpenReadOnly requires an existing recognized database and never initializes it.
 // bbolt holds a shared file lock: an active writer may prevent this open.
 func OpenReadOnly(path string) (*Store, error) {
+	return openReadOnly(path, false)
+}
+
+// OpenBackupReadOnly recognizes either engine for transaction-consistent
+// copying only. It does not make legacy replay/health APIs adopt follow state.
+func OpenBackupReadOnly(path string) (*Store, error) { return openReadOnly(path, true) }
+
+func openReadOnly(path string, allowFollow bool) (*Store, error) {
 	info, err := os.Lstat(path)
 	if err != nil {
 		return nil, err
@@ -27,7 +36,7 @@ func OpenReadOnly(path string) (*Store, error) {
 		return nil, err
 	}
 	if err := db.View(func(tx *bolt.Tx) error {
-		if tx.Bucket(stateBucket) == nil {
+		if tx.Bucket(stateBucket) == nil && !(allowFollow && tx.Bucket([]byte(stateformat.Follow)) != nil) {
 			return errors.New("unrecognized replay database")
 		}
 		return nil

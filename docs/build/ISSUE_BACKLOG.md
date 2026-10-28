@@ -1,5 +1,13 @@
 # Implementation Backlog — dependency-ordered GitHub issues
 
+> **2026-10-28 update.** FW-001 to FW-019 and FW-022 are implemented in bounded,
+> experimental form (see [STATUS.md](STATUS.md) for evidence and remaining limits).
+> FW-020, FW-023, FW-024 and FW-026 are partly done in the Phase 10–12 checkpoint.
+> Forward-looking contributor issues are now kept as data in
+> [issues.json](issues.json) and previewed or created with
+> `scripts/create-issues.sh` (dry run by default; `--apply` needs owner approval).
+> The original planning text below is kept for history.
+
 These are **planned**, not yet created. Codex may prepare `scripts/create-issues.sh --dry-run` and corresponding `.github/ISSUE_TEMPLATE` files. Bulk creation is approval-gated. Complexity: S=1–2 days, M=3–5, L=6+; these are estimates. All tickets must add actual file paths and issue/PR references after implementation.
 
 ## Foundation and evidence

@@ -34,7 +34,9 @@ jobs:
       - name: Verify dependency declarations
         run: go mod tidy -diff
       - name: Verify formatting
-        run: test -z "$(gofmt -l cmd internal)"
+        run: test -z "$(gofmt -l cmd internal scripts)"
+      - name: Validate cloud bootstrap syntax
+        run: bash -n scripts/setup-cloud.sh
       - name: Unit tests
         run: go test -timeout=60s -count=1 ./...
       - name: Static checks
@@ -43,6 +45,10 @@ jobs:
         run: go test -race -timeout=90s -count=1 ./...
       - name: Build CLI
         run: go build -trimpath -o /tmp/fleetwatch ./cmd/fleetwatch
+      - name: Build self-contained browser edition
+        run: python3 scripts/package-browser.py "$RUNNER_TEMP/fleetwatch-browser"
+      - name: Validate portable Linux package and offline installation
+        run: ./scripts/check-linux-package.sh
   vulnerabilities:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -62,3 +68,44 @@ jobs:
           test "$(go env GOVERSION)" = "go$(cat .go-version)"
       - name: Scan modules, source, tests and compiled CLI
         run: ./scripts/check-vulnerabilities.sh
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check repository Markdown links
+        run: python3 -I scripts/check-doc-links.py
+      - name: Install hash-pinned MkDocs
+        run: |
+          python3 -m venv "$RUNNER_TEMP/mkdocs"
+          "$RUNNER_TEMP/mkdocs/bin/pip" install --disable-pip-version-check --require-hashes -r docs/requirements.txt
+      - name: Build documentation site (strict)
+        run: '"$RUNNER_TEMP/mkdocs/bin/mkdocs" build --strict --site-dir "$RUNNER_TEMP/site"'
+  testnet-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RUSTUP_TOOLCHAIN: 1.99.1
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.99.1 --profile minimal --component rustfmt --target wasm32v1-none
+      - name: Install verified Stellar CLI for offline Wasm builds
+        run: |
+          cli_archive="$RUNNER_TEMP/stellar-cli.tar.gz"
+          curl --fail --location --proto '=https' --tlsv1.2 'https://github.com/stellar/stellar-cli/releases/download/v28.1.0/stellar-cli-28.1.0-x86_64-unknown-linux-gnu.tar.gz' --output "$cli_archive"
+          echo "c1680deee94301d33ada7a17f98411e642a4248c727afbd2e43050d345746462  $cli_archive" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/fleetwatch-cli"
+          tar -xzf "$cli_archive" --no-same-owner -C "$RUNNER_TEMP/fleetwatch-cli" stellar
+          echo "$RUNNER_TEMP/fleetwatch-cli" >> "$GITHUB_PATH"
+      - name: Check fixture formatting
+        run: cargo fmt --manifest-path contracts/testfixtures/Cargo.toml --all --check
+      - name: Build and test compiled CAP-85 fixture Wasm offline
+        run: ./scripts/build-testnet-fixtures.sh

@@ -9,3 +9,7 @@
 *.db
 *.db-*
 /backups/
+/testnet-runs/
+/follow-runs/
+/dist/
+/site/

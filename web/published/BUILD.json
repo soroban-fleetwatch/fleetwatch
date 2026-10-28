@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source_commit": "80c2019da656f508ad74d522f5e9c8bfbfaa0a0c",
+  "source_dirty": false,
+  "compiler": "go1.27.3",
+  "target": "js/wasm",
+  "runtime": "foreground_browser",
+  "history_completeness": "UNKNOWN",
+  "source_authentication": "UNVERIFIED",
+  "chain_verdict": "UNDETERMINED",
+  "production_daemon": false,
+  "linked_modules": {
+    "github.com/stellar/go-stellar-sdk": "v0.8.0",
+    "github.com/pkg/errors": "v0.9.1",
+    "github.com/stellar/go-xdr": "v0.0.0-20260806060815-dc590f17552a",
+    "github.com/klauspost/compress": "v1.18.7"
+  }
+}

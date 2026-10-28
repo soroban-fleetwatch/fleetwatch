@@ -1,0 +1,85 @@
+site_name: Soroban FleetWatch
+site_description: Off-chain monitor for Soroban contract fleets that share code through CAP-85 executable references.
+repo_url: https://github.com/soroban-fleetwatch/fleetwatch
+repo_name: soroban-fleetwatch/fleetwatch
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_dir: site
+strict: true
+theme:
+  name: readthedocs
+  navigation_depth: 3
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - tables
+  - fenced_code
+validation:
+  omitted_files: info
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
+exclude_docs: |
+  requirements.txt
+nav:
+  - Home: index.md
+  - Concepts:
+      - How CAP-85 fleets work: concepts/cap85.md
+      - Assurance labels: concepts/assurance.md
+      - Architecture: ARCHITECTURE.md
+      - Threat model: THREAT_MODEL.md
+  - Guides:
+      - Protocol maintainer: guides/maintainer.md
+      - Security responder: guides/responder.md
+      - Release engineer: guides/release-engineer.md
+      - Operator: guides/operator.md
+      - Testnet demo: TESTNET_DEMO.md
+  - Reference:
+      - CLI: CLI.md
+      - Troubleshooting: TROUBLESHOOTING.md
+      - Snapshot format: SNAPSHOT_FORMAT.md
+      - Capture: CAPTURE.md
+      - History collection: HISTORY.md
+      - Metadata changes: METADATA_CHANGES.md
+      - Reconstruction: RECONSTRUCTION.md
+      - Reconstruction checkpoints: RECONSTRUCTION_CHECKPOINTS.md
+      - Ingestion: INGESTION.md
+      - Watch: WATCH.md
+      - Follow: FOLLOW.md
+      - Replay: REPLAY.md
+      - Fleet report: FLEET_REPORT.md
+      - Health (doctor): HEALTH.md
+      - RPC JSON guards: RPC_JSON.md
+  - Alerts and approvals:
+      - Alert outbox: ALERTS.md
+      - Webhooks: WEBHOOKS.md
+      - Webhook proxy: WEBHOOK_PROXY.md
+      - Follow delivery: FOLLOW_DELIVERY.md
+      - Delivery loop: DELIVERY_LOOP.md
+      - Reconstruction alerts: RECONSTRUCTION_ALERTS.md
+      - Alert recovery: ALERT_RECOVERY.md
+      - Signed approvals: APPROVALS.md
+      - Approval binding: APPROVAL_BINDING.md
+  - Operations:
+      - Operations: OPERATIONS.md
+      - Backup: BACKUP.md
+      - Evidence archives: ARCHIVES.md
+      - Compaction: COMPACTION.md
+      - Zero-cost deployment: ZERO_COST_DEPLOYMENT.md
+      - Phase 9 acceptance: PHASE9_ACCEPTANCE.md
+      - Browser viewer: BROWSER.md
+      - Dependency checks: DEPENDENCY_CHECKS.md
+  - Project:
+      - Contributing: contributing.md
+      - Development: DEVELOPMENT.md
+      - Repository settings: REPOSITORY_SETTINGS.md
+      - Build status: build/STATUS.md
+      - Build plan: build/END_TO_END_BUILD_PLAN.md
+      - Wave submission draft: wave/SUBMISSION_DRAFT.md
+      - Demo recording script: wave/DEMO_SCRIPT.md
+      - Decisions:
+          - ADR 0001 Repository: adr/0001-repository.md
+          - ADR 0002 Offline replay store: adr/0002-offline-replay-store.md
+          - ADR 0003 Offline approvals: adr/0003-offline-approval-verification.md
+          - ADR 0004 Single-host follow: adr/0004-portable-single-host-follow.md

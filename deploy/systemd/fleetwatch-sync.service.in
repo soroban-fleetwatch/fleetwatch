@@ -1,0 +1,32 @@
+[Unit]
+Description=FleetWatch experimental follower with automatic outbox sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=@ROOT@/var/lib/fleetwatch
+ExecStartPre=@ROOT@/bin/fleetwatch follow --check --config @ROOT@/etc/fleetwatch/follow.json --delivery-state @ROOT@/var/lib/fleetwatch/delivery.db --delivery-stream pilot
+ExecStart=@ROOT@/bin/fleetwatch follow --config @ROOT@/etc/fleetwatch/follow.json --delivery-state @ROOT@/var/lib/fleetwatch/delivery.db --delivery-stream pilot
+EnvironmentFile=-%h/.config/fleetwatch/environment
+Restart=on-failure
+RestartSec=5s
+RestartPreventExitStatus=3 4 5 6
+TimeoutStartSec=180s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=@ROOT@/var/lib/fleetwatch
+RestrictSUIDSGID=true
+LockPersonality=true
+LimitNOFILE=4096
+MemoryMax=1G
+LogRateLimitIntervalSec=30s
+LogRateLimitBurst=120
+
+[Install]
+WantedBy=default.target

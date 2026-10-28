@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "repository": "https://github.com/soroban-fleetwatch/fleetwatch",
+  "source_commit": "80c2019da656f508ad74d522f5e9c8bfbfaa0a0c",
+  "source_dirty": false,
+  "distribution_branch": "feat/portable-linux-follow",
+  "distribution_commit": "06252fc4d8fdc60a2bc26cf9cf5859a16296a002",
+  "static_branch": "gh-pages",
+  "static_commit": "91edd4dc4871b57a54e1e7306ae9cceaa43b870f",
+  "html_sha256": "021d861b279c4df7d420b5c9ec4e9a7bc76d0cabb44567e2e2b116c626d910de",
+  "runtime": "foreground_browser",
+  "host_or_credentials_required_for_client": false,
+  "static_site_enabled": "UNVERIFIED",
+  "public_url_verified": false,
+  "phase9_production_gate_complete": false,
+  "network_draft_saved": true,
+  "network_additions": [
+    "api.github.com",
+    "soroban-fleetwatch.github.io"
+  ],
+  "network_publication_required": true,
+  "remote_ci": "UNVERIFIED"
+}
