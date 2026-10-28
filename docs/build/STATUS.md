@@ -1098,8 +1098,13 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   repository is private; the owner must set Pages source to GitHub Actions.
   actionlint v1.7.12: PASS. Not yet executed remotely.
 - Version bumped to `0.1.0-rc.1`; CHANGELOG section and
-  `docs/release/v0.1.0-rc.1.md` added. The tag is created on the merged
-  release-prep commit after CI passes.
+  `docs/release/v0.1.0-rc.1.md` added. PR
+  https://github.com/soroban-fleetwatch/fleetwatch/pull/23 merged as
+  `3f9194e` after its four CI jobs passed. Pushing the annotated tag
+  `v0.1.0-rc.1` failed with HTTP 403: this session's git access only permits
+  pushes to its designated branch, and the GitHub connector has no tag or
+  release creation. **No tag exists.** The owner creates it from the
+  Releases page (steps in docs/REPOSITORY_SETTINGS.md).
 - Demo: an offline terminal recording of real commands is produced outside
   the repository. A live Testnet segment was not recorded:
   soroban-testnet.stellar.org and friendbot.stellar.org are still denied by
