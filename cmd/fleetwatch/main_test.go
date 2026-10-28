@@ -41,10 +41,9 @@ func TestCLIHelpExitsZero(t *testing.T) {
 			t.Fatalf("%s: code=%d out=%q stderr=%q", arg, code, out.String(), errs.String())
 		}
 	}
-	commands := []string{"validate", "compare", "capture", "replay", "alerts", "requeue", "recoveries", "doctor", "report", "backup", "history", "watch", "follow", "follow-inspect", "follow-archive", "verify-follow-archive", "restore-follow-archive", "follow-compact", "follow-sync", "ingest", "changes", "reconstruct", "checkpoint", "deliver", "deliver-loop", "verify-approval", "bind-approval"}
 	dir := t.TempDir()
 	t.Chdir(dir)
-	for _, command := range commands {
+	for _, command := range documentedCommands {
 		if !strings.Contains(usageText(), " "+command+" ") {
 			t.Fatalf("usage does not describe %s", command)
 		}
@@ -63,6 +62,10 @@ func TestCLIHelpExitsZero(t *testing.T) {
 		t.Fatalf("help created files: %v %v", entries, err)
 	}
 }
+
+// documentedCommands lists every dispatched subcommand that takes flags, in
+// the order docs/CLI.md presents them.
+var documentedCommands = []string{"validate", "compare", "replay", "report", "capture", "history", "changes", "reconstruct", "checkpoint", "ingest", "watch", "follow", "follow-inspect", "follow-archive", "verify-follow-archive", "restore-follow-archive", "follow-compact", "follow-sync", "alerts", "deliver", "deliver-loop", "requeue", "recoveries", "verify-approval", "bind-approval", "doctor", "backup"}
 
 func usageText() string {
 	var b bytes.Buffer

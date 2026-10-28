@@ -76,7 +76,7 @@ RETAINED_PREFIX_ONLY: a COMPLETE_CAPTURE_APPLICATION stored report does not mean
 the latest request succeeded or the source is currently fresh. This is not a
 continuous watcher health check, source-lag metric, or gap alarm service.
 
-The [checkpoint JSON Schema](../schema/reconstruction-checkpoint-v1.schema.json)
+The [checkpoint JSON Schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/reconstruction-checkpoint-v1.schema.json)
 wraps the existing reconstruction report without exposing full raw ledger
 metadata. `found=false` has a null report and exit 4. Missing/locked/unrecognized
 or inconsistent database returns 5 without a success report. Inspection opens

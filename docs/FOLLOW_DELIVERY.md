@@ -132,7 +132,7 @@ the same DB/stream and reconcile recovery before dispatching again.
 
 The HTTP envelope remains schema 1. Its payload is schema 3 with
 `source: follow_ledger_meta`, stream, fixed projected-state assurance and a
-`reconstruction_event`. See [the schema](../schema/follow-alert-v3.schema.json).
+`reconstruction_event`. See [the schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/follow-alert-v3.schema.json).
 Receivers must accept payload schema 3 before using this source; there is no
 automatic downgrade to an older payload format.
 The original follow event ID is retained inside that event. The outer delivery

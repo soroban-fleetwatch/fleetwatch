@@ -68,6 +68,22 @@ jobs:
           test "$(go env GOVERSION)" = "go$(cat .go-version)"
       - name: Scan modules, source, tests and compiled CLI
         run: ./scripts/check-vulnerabilities.sh
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check repository Markdown links
+        run: python3 -I scripts/check-doc-links.py
+      - name: Install hash-pinned MkDocs
+        run: |
+          python3 -m venv "$RUNNER_TEMP/mkdocs"
+          "$RUNNER_TEMP/mkdocs/bin/pip" install --disable-pip-version-check --require-hashes -r docs/requirements.txt
+      - name: Build documentation site (strict)
+        run: '"$RUNNER_TEMP/mkdocs/bin/mkdocs" build --strict --site-dir "$RUNNER_TEMP/site"'
   testnet-fixtures:
     runs-on: ubuntu-latest
     timeout-minutes: 20

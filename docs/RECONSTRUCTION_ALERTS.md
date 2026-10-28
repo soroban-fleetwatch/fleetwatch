@@ -58,8 +58,8 @@ bounded to 4 KiB; accepted/failure-only scopes share the 128-stream limit.
 The outer webhook envelope/MAC framing remains v1; the inner reconstruction
 payload is **schema_version 2**. Snapshot payloads remain v1. Receivers must
 recognize the inner version and reject unsupported versions, preserving labels.
-See [payload schema](../schema/reconstruction-alert-v2.schema.json),
-[attempt schema](../schema/reconstruction-attempt-v1.schema.json), and
+See [payload schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/reconstruction-alert-v2.schema.json),
+[attempt schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/reconstruction-attempt-v1.schema.json), and
 [WEBHOOKS.md](WEBHOOKS.md) for receiver MAC verification.
 
 Payload v2 includes source rpc_ledger_meta, stream, evaluation

@@ -16,7 +16,7 @@ Stellar fee processing can change executable references. It includes A→B→A
 writes in two operations of the same transaction, a restore, upgrade removal and
 separate eviction marker. No signing key or actual transaction is involved.
 
-The [output schema](../schema/metadata-changes-v1.schema.json) records each
+The [output schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/metadata-changes-v1.schema.json) records each
 accepted ledger's header hash, metadata digest, ordered `changes`, and separate
 `unordered_evictions`. Only persistent contract-instance entries and CAP-85
 SCV_EXECUTABLE_TAG entries are projected. Other account, TTL, code and ordinary

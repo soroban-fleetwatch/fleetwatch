@@ -44,7 +44,7 @@ fixture. Baseline creation/authentication remains an explicit operator task;
 current RPC snapshots cannot prove atomic or independently authenticated state.
 The header pin must match the first retained ledger's previous hash. The
 process never replaces the baseline after a failure or silently skips a gap.
-The [synthetic example](../examples/follow.synthetic.json) uses a deliberately
+The [synthetic example](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/examples/follow.synthetic.json) uses a deliberately
 invalid endpoint and is for configuration checks only.
 
 Poll intervals are 1–60 seconds after a completed cycle; batch size 1–16;

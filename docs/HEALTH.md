@@ -14,7 +14,7 @@ go build -o fleetwatch ./cmd/fleetwatch
 ```
 
 The JSON report includes the retained cursor, supplied sequence coverage, event
-count, latest replay issues, and outbox counts; see [health-v1.json](../schema/health-v1.json).
+count, latest replay issues, and outbox counts; see [health-v1.json](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/health-v1.json).
 Inspection recomputes retained
 findings and checks their correspondence with the outbox in a single read
 transaction. Missing event or current-issue alerts, changed event payloads,
@@ -83,7 +83,7 @@ fleetwatch doctor --state reconstruction.db --network SYNTHETIC-NETWORK \
 # exit 0: OK_OFFLINE, retained ledger 100, two pending alerts
 ```
 
-This mode has a separate [reconstruction health schema](../schema/reconstruction-health-v1.schema.json).
+This mode has a separate [reconstruction health schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/reconstruction-health-v1.schema.json).
 Snapshot-mode health JSON stays unchanged. The reconstruction report includes
 retained ledger/event counts, the latest attempt summary, historical diagnostic
 count, delivery counters and aggregate recovery receipt/recovered-alert counts.

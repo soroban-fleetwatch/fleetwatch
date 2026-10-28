@@ -42,7 +42,7 @@ The endpoint is HTTPS without URL credentials/query/fragment, with certificate
 verification, disabled redirects and inherited proxy/CA routing. Do not unset
 proxy variables or disable TLS verification to reach a denied endpoint.
 
-The JSON [result](../schema/ingestion-result-v1.schema.json) reports the requested
+The JSON [result](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/ingestion-result-v1.schema.json) reports the requested
 target, starting/retained cursor, actual fetch start/count, source query coverage,
 latest attempt status, fixed collector errors and attempted reconstruction report.
 `source_query=COMPLETE_ENDPOINT_SEQUENCE` does not mean projection succeeded.

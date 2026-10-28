@@ -22,7 +22,7 @@ go build -o fleetwatch ./cmd/fleetwatch
   --output /workspace/fleetwatch-backup-001.db > /workspace/backup-001-receipt.json
 ```
 
-The [JSON receipt](../schema/backup-receipt-v1.schema.json) records `schema_version`, `bytes`, `sha256`,
+The [JSON receipt](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/backup-receipt-v1.schema.json) records `schema_version`, `bytes`, `sha256`,
 `storage_format=BBOLT_TRANSACTION_SNAPSHOT` and
 `semantic_validation=NOT_PERFORMED`. Exit 0 means the snapshot was saved and its
 receipt written. Exit 3 means invalid arguments; exit 5 means unavailable/locked

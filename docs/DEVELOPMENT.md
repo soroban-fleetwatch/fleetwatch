@@ -17,7 +17,7 @@ go build -o /workspace/.tools/bin/fleetwatch ./cmd/fleetwatch
 /workspace/.tools/bin/fleetwatch validate --snapshot testdata/before.json
 ```
 
-Go 1.27.3 is pinned in `.go-version` for CI, recommended by the go.mod toolchain directive, and used for current-instance validation; the module language floor remains Go 1.25 for Stellar SDK v0.8.0. Remote CI for the current checkpoint has not been verified. No database, service, or credentials are needed for this offline milestone. Synthetic contract labels are accepted; this is not Stellar address verification. Unsigned policy matches do not authenticate approvals. See `build/STATUS.md` for remaining work.
+Go 1.27.3 is pinned in `.go-version` for CI, recommended by the go.mod toolchain directive, and used for current-instance validation; the module language floor remains Go 1.25 for Stellar SDK v0.8.0. Remote CI status for each pushed commit is on the Actions page; see build/STATUS.md for the last verified run. No database, service, or credentials are needed for this offline milestone. Synthetic contract labels are accepted; this is not Stellar address verification. Unsigned policy matches do not authenticate approvals. See `build/STATUS.md` for remaining work.
 
 Read-only capture, bounded resumable ingestion and finite polling are implemented; see CAPTURE.md, INGESTION.md and WATCH.md. Controlled live CAP-85 validation now passes within its documented unverified assurance; see TESTNET_DEMO.md. See RPC_JSON.md for reproducible parser fuzz/benchmark commands and the limits of those measurements.
 

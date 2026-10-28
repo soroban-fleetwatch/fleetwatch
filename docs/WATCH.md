@@ -34,11 +34,11 @@ duplicate/case-aliased fields, trailing JSON, null/missing required values and
 invalid bounds fail before a state DB is opened. HTTPS endpoint restrictions and
 TLS/proxy behavior match [ingest](INGESTION.md).
 
-The [synthetic example](../examples/watch.synthetic.json) references the repository
+The [synthetic example](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/examples/watch.synthetic.json) references the repository
 baseline at ledger 99 and targets 101. Its `.invalid` endpoint is deliberately a
 placeholder; use a local synthetic RPC fixture, never a real network with that
 baseline. An independently authenticated real baseline remains unfinished.
-See the [configuration schema](../schema/watch-config-v1.schema.json).
+See the [configuration schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/watch-config-v1.schema.json).
 
 Polling intervals must be 1–60 seconds, attempts 1–120, and the overall worker
 runtime 1–3,600 seconds. The interval is a cancellable wait **after** an attempt,
@@ -59,7 +59,7 @@ replanning from the new retained cursor within the same attempt budget. A DB or
 validation failure stops without retry. No raw upstream error text appears in
 progress output.
 
-Output is one [progress JSON object](../schema/watch-progress-v1.schema.json) per
+Output is one [progress JSON object](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/watch-progress-v1.schema.json) per
 line, at most 121 lines per run. Each attempt yields a RETRYING, COMPLETE,
 ALREADY_RETAINED or STOPPED record. Cancellation/deadline during a wait can emit
 one final STOPPED record without another ingestion attempt. A broken output

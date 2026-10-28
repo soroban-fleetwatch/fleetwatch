@@ -58,7 +58,7 @@ or exhausted attempts become DEAD. The loop continues reporting dead letters;
 it does not automatically requeue them. Use the existing audited `requeue` and
 `recoveries` commands after inspection.
 
-NDJSON status follows [delivery-loop-status-v1.schema.json](../schema/delivery-loop-status-v1.schema.json).
+NDJSON status follows [delivery-loop-status-v1.schema.json](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/delivery-loop-status-v1.schema.json).
 It contains process cycle/time, fixed code, current batch counts and queue
 counts (pending/inflight/delivered/dead). Queue counts are null when unavailable,
 not fabricated zero. Process cycle resets at restart; durable row state remains

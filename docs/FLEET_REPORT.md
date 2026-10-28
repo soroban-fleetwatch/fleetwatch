@@ -25,7 +25,7 @@ report emits lowercase hex; the bytes are unchanged. NUL and invalid UTF-8 bytes
 are preserved, and `ff0061` is distinct from `ff006100`. Empty, odd-length,
 non-hex and oversized tags are rejected.
 
-The [JSON Schema](../schema/fleet-report-v1.schema.json) describes the output:
+The [JSON Schema](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/schema/fleet-report-v1.schema.json) describes the output:
 
 - `current` contains the requested retained snapshot's canonical SHA-256 digest,
   its observed hash (or null when unresolved), and sorted observed member IDs.
