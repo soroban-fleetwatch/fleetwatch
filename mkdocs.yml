@@ -73,6 +73,7 @@ nav:
   - Project:
       - Contributing: contributing.md
       - Development: DEVELOPMENT.md
+      - Repository settings: REPOSITORY_SETTINGS.md
       - Build status: build/STATUS.md
       - Build plan: build/END_TO_END_BUILD_PLAN.md
       - Decisions:

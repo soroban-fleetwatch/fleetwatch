@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "note": "Planned contributor issues derived from open gaps in docs/build/STATUS.md. Not created on GitHub until the owner runs scripts/create-issues.sh --apply.",
+  "labels": {
+    "type:feature": "0e8a16", "type:bug": "d73a4a", "type:security": "b60205", "type:docs": "0075ca",
+    "type:infra": "5319e7", "type:test": "fbca04",
+    "complexity:S": "c2e0c6", "complexity:M": "bfd4f2", "complexity:L": "d4c5f9",
+    "area:source": "ededed", "area:history": "ededed", "area:follow": "ededed", "area:alerts": "ededed",
+    "area:approvals": "ededed", "area:cli": "ededed", "area:docs": "ededed", "area:release": "ededed",
+    "good first issue": "7057ff"
+  },
+  "issues": [
+    {
+      "title": "feat(source): cross-check ledger headers across two RPC endpoints",
+      "labels": ["type:security", "complexity:L", "area:source"],
+      "summary": "Every report labels source authentication UNVERIFIED because FleetWatch trusts one RPC endpoint. Add an optional second endpoint. For each accepted ledger, compare the header hash from both. Disagreement raises SOURCE_DIVERGENCE and stops the cursor instead of committing.",
+      "acceptance": ["Optional `secondary_rpc_url` in follow config, validated like `rpc_url`", "Matching headers commit as today; mismatched headers commit nothing and record a SOURCE_DIVERGENCE diagnostic", "Secondary unavailable is a distinct diagnostic, never treated as agreement", "Assurance label documents what two endpoints do and do not prove (same operator, same upstream)", "Tests with two local TLS fixtures: agree, disagree, one down, one lagging"],
+      "stack": "Go, internal/source, internal/follow"
+    },
+    {
+      "title": "feat(history): verify transaction-set and result hashes against the ledger header",
+      "labels": ["type:security", "complexity:L", "area:history"],
+      "summary": "Metadata commitments are NOT_VERIFIED: a modified transaction meta can still carry a valid embedded header. Recompute the transaction-set hash and transaction-result-set hash from LedgerCloseMeta and compare them with the header fields, for every supported meta version.",
+      "acceptance": ["Commitment check implemented for LedgerCloseMeta v0, v1 and v2", "Tampered tx meta with an unchanged header is rejected", "Real Testnet ledgers from docs/research pass (fetch at test time only behind an opt-in flag)", "Assurance label moves from NOT_VERIFIED only for the fields actually checked", "Research note cites the stellar-core source used for the hash rules"],
+      "stack": "Go, Stellar Go SDK xdr, internal/history"
+    },
+    {
+      "title": "feat(baseline): build a watched baseline from getLedgerEntries at a pinned ledger",
+      "labels": ["type:feature", "complexity:M", "area:source"],
+      "summary": "Operators hand-write the asserted baseline today. Add a command that reads the watched instances and their owner/tag entries, pins the result to one ledger header, and refuses to emit a baseline when response ledgers differ.",
+      "acceptance": ["`fleetwatch baseline --rpc-url URL --network-passphrase TEXT --contracts-file FILE --output NEW_FILE`", "Output validates against schema/watched-baseline-v1.schema.json", "Mixed response ledgers, missing references and stale heads exit 4 without writing", "Raw tag bytes preserved as hex; tested with NUL and invalid UTF-8 tags"],
+      "stack": "Go, internal/source"
+    },
+    {
+      "title": "feat(follow): evidence-preserving retention rollover",
+      "labels": ["type:feature", "complexity:L", "area:follow"],
+      "summary": "The follower stops with exit 6 when it reaches max_retained_ledgers or max_retained_payload_bytes. Add an explicit rollover that archives the retained evidence, verifies the archive, and starts a new state from the last projected snapshot as a new asserted baseline linked to the archive digest.",
+      "acceptance": ["Rollover only runs on a stopped follower and never deletes the source DB", "New state records the archive SHA-256 and previous cursor", "verify-follow-archive passes on the produced archive", "Findings and outbox identities are not duplicated across the boundary", "Interrupted rollover leaves the old state usable (crash test)"],
+      "stack": "Go, bbolt, internal/follow"
+    },
+    {
+      "title": "feat(history): handle archival and restore of watched instances and tag entries",
+      "labels": ["type:feature", "complexity:L", "area:history"],
+      "summary": "Reconstruction stops on unordered evictions of watched entries. Model the persistent-entry archival and restore lifecycle so that eviction followed by restore of the same value continues, while a restore with a different value raises a finding.",
+      "acceptance": ["Eviction of a watched instance or tag entry records an ARCHIVED state, not deletion", "Restore with identical value continues without a finding", "Restore with a different value raises a finding with both hashes", "Synthetic fixtures labeled synthetic; behavior cited from protocol docs"],
+      "stack": "Go, internal/history"
+    },
+    {
+      "title": "feat(approvals): attach verified signed approvals to follow findings",
+      "labels": ["type:feature", "complexity:M", "area:approvals"],
+      "summary": "bind-approval works for snapshot replay incidents only. Allow binding a signed approval to a follow finding. Show the approval status next to the finding without changing the chain verdict, which stays UNDETERMINED.",
+      "acceptance": ["Binding checks network, owner, tag, from/to hash and ledger validity against the follow finding", "Nonce reuse across follow and replay scopes in one DB is rejected", "Alert payload shows SIGNED_APPROVAL_VERIFIED separately from policy match", "Tests for forged, expired, revoked and wrong-transition approvals"],
+      "stack": "Go, internal/policy, internal/follow"
+    },
+    {
+      "title": "docs(approvals): specify trust-root distribution and key rotation",
+      "labels": ["type:docs", "complexity:M", "area:approvals"],
+      "summary": "Trust roots are local files with no distribution story. Write an ADR covering how teams publish trust roots, rotate signer keys, revoke keys and what FleetWatch verifies at each step.",
+      "acceptance": ["ADR in docs/adr with alternatives considered", "Worked example using the existing synthetic vector", "Threat model updated for trust-root substitution"],
+      "stack": "Markdown, Ed25519"
+    },
+    {
+      "title": "test(protocol): add Protocol 30 decoding gate",
+      "labels": ["type:test", "complexity:M", "area:history"],
+      "summary": "History accepts protocols 28-29 and fails closed above that. Capture only checks the lower bound. When Protocol 30 XDR is published, add fixtures and decide per path whether to accept it, with tests that pin the decision.",
+      "acceptance": ["Research note with the Protocol 30 XDR changes and SDK version that supports them", "Capture and history apply the same documented protocol range", "Fixtures for each newly supported LedgerCloseMeta/TransactionMeta version", "Unsupported versions fail closed with a fixed error code"],
+      "stack": "Go, Stellar Go SDK"
+    },
+    {
+      "title": "feat(cli): add `fleetwatch init` to scaffold follow configuration",
+      "labels": ["type:feature", "complexity:M", "area:cli"],
+      "summary": "Setting up `follow` needs a hand-written config and baseline. Add `init` that writes a commented example config for a given network and watchlist into a new directory, without contacting any endpoint.",
+      "acceptance": ["Refuses to overwrite existing files", "Output passes `follow --config FILE --check` once a baseline is supplied", "No network access; documented in docs/CLI.md"],
+      "stack": "Go, internal/follow"
+    },
+    {
+      "title": "feat(cli): stamp release version into the binary",
+      "labels": ["type:feature", "complexity:S", "area:cli", "good first issue"],
+      "summary": "`fleetwatch version` prints a hard-coded 0.1.0-dev. Make the version a variable set with -ldflags in scripts/package-linux.sh and print the source commit when known.",
+      "acceptance": ["`go build` without flags still prints 0.1.0-dev", "package-linux.sh sets the version from an explicit argument or BUILD.json", "Test covers the default value"],
+      "stack": "Go, Bash"
+    },
+    {
+      "title": "feat(alerts): add a chat-friendly summary field to webhook payloads",
+      "labels": ["type:feature", "complexity:S", "area:alerts", "good first issue"],
+      "summary": "Webhook payloads are structured JSON only. Add a bounded plain-text summary (owner, tag hex, old/new hash prefix, affected count, assurance labels) so simple receivers can forward it. The HMAC framing must not change.",
+      "acceptance": ["Summary is at most 512 bytes and contains no endpoint, key or path", "Schema updated additively; existing receivers keep working", "Tests for each finding type"],
+      "stack": "Go, internal/alert"
+    },
+    {
+      "title": "docs(ops): example alert rules for follow metrics",
+      "labels": ["type:docs", "complexity:S", "area:docs", "good first issue"],
+      "summary": "The follower exposes loopback metrics such as fleetwatch_follow_ready, fleetwatch_follow_endpoint_ledger_lag, fleetwatch_follow_gap_episodes_total and fleetwatch_follow_retained_payload_bytes. Document example alert rules for not-ready, rising lag, new gaps and retention near capacity.",
+      "acceptance": ["Rules reference only metric names emitted by internal/follow", "Each rule explains the operator action", "Linked from docs/OPERATIONS.md"],
+      "stack": "Markdown, Prometheus exposition format"
+    },
+    {
+      "title": "test(fuzz): fuzz follow configuration and archive readers",
+      "labels": ["type:test", "complexity:S", "area:follow"],
+      "summary": "Fuzz targets cover RPC JSON, XDR metadata and snapshots. Add targets for follow config parsing and archive verification input.",
+      "acceptance": ["Two new Fuzz* targets with seed corpora", "No panics in a 60-second local run, recorded in STATUS.md", "Seeds run in the default test suite"],
+      "stack": "Go fuzzing"
+    },
+    {
+      "title": "perf(follow): benchmark a representative fleet and history",
+      "labels": ["type:test", "complexity:M", "area:follow"],
+      "summary": "Sizing so far uses a 17-ledger Testnet sample. Build a synthetic workload (for example 50 watched contracts, 1,000 ledgers) and measure ingest time, RSS and retained bytes per ledger.",
+      "acceptance": ["Benchmark is reproducible from a script with fixed seeds", "Results recorded with Go version, CPU and exact workload", "No SLA or capacity claim beyond the measured run"],
+      "stack": "Go benchmarks"
+    },
+    {
+      "title": "ci(release): add a non-publishing release dry run",
+      "labels": ["type:infra", "complexity:M", "area:release"],
+      "summary": "There is no release pipeline. Add a manual workflow that builds linux amd64/arm64 packages with scripts/package-linux.sh, writes SHA-256 sums, and runs the offline install check. It must not create tags or releases.",
+      "acceptance": ["workflow_dispatch only, contents: read permissions", "Packages and checksums match a local build at the same commit", "Documented in docs/build/RELEASE_AND_OPERATIONS.md"],
+      "stack": "GitHub Actions, Bash"
+    },
+    {
+      "title": "feat(store): versioned migrations for bbolt namespaces",
+      "labels": ["type:feature", "complexity:M", "area:follow"],
+      "summary": "Older binaries may reject records written by newer ones, and there is no migration path. Add an explicit namespace version record and a `migrate` command that upgrades a stopped database copy.",
+      "acceptance": ["Migration writes to a new file and never edits the source in place", "doctor reports the namespace version", "Round-trip tests from each previous on-disk format kept in testdata"],
+      "stack": "Go, bbolt"
+    },
+    {
+      "title": "docs(adr): decide whether to ship a read-only HTTP API",
+      "labels": ["type:docs", "complexity:S", "area:docs"],
+      "summary": "The build plan lists an optional read-only API. Record the decision: current loopback status routes, what an API would add, authentication and rate-limit needs, and why or why not now.",
+      "acceptance": ["ADR with options and decision", "If accepted, follow-up issues with OpenAPI scope"],
+      "stack": "Markdown"
+    },
+    {
+      "title": "test(e2e): manual Testnet smoke workflow",
+      "labels": ["type:test", "complexity:M", "area:release"],
+      "summary": "The Testnet demo runs from a developer machine. Add a workflow_dispatch job that runs the read-only preflight and a bounded history capture against public Testnet, with no keys and no transactions.",
+      "acceptance": ["Manual trigger only; never on pull requests", "No secrets required; no transactions sent", "Output summary uploaded as job log only"],
+      "stack": "GitHub Actions, Go"
+    },
+    {
+      "title": "docs(site): tutorial for watching your own Testnet fleet",
+      "labels": ["type:docs", "complexity:S", "area:docs", "good first issue"],
+      "summary": "Write a step-by-step tutorial: deploy the fixture contracts with a fresh Testnet identity, write the baseline, run follow, perform an update and read the finding.",
+      "acceptance": ["Every command run by the author and output pasted from a real run", "Uses a fresh identity; no keys in the docs", "Added to mkdocs.yml navigation"],
+      "stack": "Markdown, Stellar CLI, Go"
+    },
+    {
+      "title": "feat(discovery): list contracts created with a given owner/tag in a ledger range",
+      "labels": ["type:feature", "complexity:L", "area:history"],
+      "summary": "FleetWatch only watches listed contracts. Add a bounded scan of ledger metadata that reports contract instances created or repointed to a given owner/tag in a range, labeled as range-limited discovery, never as a complete fleet.",
+      "acceptance": ["Output labels coverage RANGE_ONLY with the exact range", "Works on the captured Testnet evidence", "Bounded by the existing capture limits"],
+      "stack": "Go, internal/history"
+    }
+  ]
+}

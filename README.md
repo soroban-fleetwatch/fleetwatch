@@ -1,191 +1,207 @@
 # Soroban FleetWatch
 
-**Experimental prototype — qualified Testnet observations and offline analysis; chain authentication remains unverified.**
+[![Go CI](https://github.com/soroban-fleetwatch/fleetwatch/actions/workflows/ci.yml/badge.svg)](https://github.com/soroban-fleetwatch/fleetwatch/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+![Status: experimental](https://img.shields.io/badge/status-experimental-orange.svg)
+![Not audited](https://img.shields.io/badge/security%20audit-none-lightgrey.svg)
 
-Soroban FleetWatch is a Go-based, open-source tool for observing **Soroban contract fleets** that share executable code through externally managed references (CAP-85, Stellar Protocol 28). A single update to the owner contract's tagged Wasm hash can change the executable of many referenced contracts. FleetWatch compares captured ledger-state snapshots, identifies such changes, calculates the affected contracts, and evaluates observed hash transitions against an explicit approval file.
+**An off-chain monitor for Soroban contract fleets that share code through CAP-85 executable references.**
 
-> **Security boundary:** Snapshot comparisons use JSON supplied by an operator. They do not authenticate ledger entries, validate network consensus, attribute an on-chain actor, or provide continuous alerting. An unsigned policy match is not proof of authorization. The separate signed approval verifier checks scoped signatures against operator-provided trust roots; it does not authenticate chain observations.
+Protocol 28 added CAP-85: a contract's executable can be a reference to
+`{owner contract, opaque tag}` instead of a fixed Wasm hash. The owner keeps the
+current Wasm hash for each tag in one persistent ledger entry. Change that entry
+once, and every contract pointing at the tag runs new code in the same ledger.
+
+That is useful for upgrading a fleet. It is also a single point where an
+unexpected or unauthorized change reaches every member at once. FleetWatch
+watches those references on the ledger and answers four questions:
+
+1. Did a shared reference change, and from which Wasm hash to which?
+2. Which watched contracts were affected (the blast radius)?
+3. Does the change match an approval you declared or signed in advance?
+4. Is there a gap in what FleetWatch actually observed?
+
+FleetWatch is a Go command-line tool and single-host service. It needs no wallet,
+no private key and no on-chain contract of its own.
+
+> **Status: experimental prototype, not audited.** Testnet behavior has been
+> demonstrated with real transactions (below). Every report still labels source
+> authentication `UNVERIFIED`, metadata commitments `NOT_VERIFIED`, fleet
+> coverage `UNKNOWN` and the final chain verdict `UNDETERMINED`. Do not use it
+> as the only protection for contracts that hold real value.
+
+## Testnet proof
+
+On 2026-10-27 a controlled CAP-85 fleet was deployed on Stellar Testnet: one
+owner contract, tag `fleetwatch-demo` (hex `666c65657477617463682d64656d6f`) and
+two member contracts. FleetWatch ingested the real ledger metadata and reported
+each change.
+
+| Action | Ledger | Transaction | FleetWatch result |
+| --- | --- | --- | --- |
+| Shared tag A→B | 5407730 | [87d17163…](https://stellar.expert/explorer/testnet/tx/87d17163405a84414649879a859904b05416f37a6695c1f708080c5ccea99405) | Both members affected |
+| Rollback B→A | 5407793 | [18524b37…](https://stellar.expert/explorer/testnet/tx/18524b37ecc6af823ca88ae81c1af38afccd82fbeadb12012f176cfb2c09e58d) | Both members affected |
+| Member 1 repointed to direct Wasm A | 5407796 | [ce990c0e…](https://stellar.expert/explorer/testnet/tx/ce990c0ea9f53d9aad500b772e4a997fb62e8928e6689c5de84827cadddc24d7) | Repoint finding for member 1 |
+| Shared tag A→B again | 5407797 | [a09957ea…](https://stellar.expert/explorer/testnet/tx/a09957ea7da0da7c922aee36819f37434625db8eac59dd4c9ef4a3de08a4d65b) | Only member 2 affected |
+
+Owner `CCSC3UOXCCNB3VV7MM2P63IPNVKHQQ3TUMBCIW6OW42F75FBGMI4Y3VA`, members
+`CDL6H5M2VYLOR536DDUG7SQXKJNLSADSIKNNMH5EW3R5R55QZJ2KXOZY` and
+`CD6GZKPCBF2OFUV7VAGBFMWM4H2S2BBPI66CQ674RMFQAVLSVZOAWVSM`. These are disposable
+test fixtures, not product contracts. Testnet resets periodically, so these
+links will eventually stop resolving. Full evidence, including restart and gap
+recovery, is in [the validation record](docs/research/2026-10-27-testnet-validation.md).
+To repeat it with a fresh fleet, follow [TESTNET_DEMO.md](docs/TESTNET_DEMO.md).
 
 ## Quick start
 
-Requires Go 1.25+ for pinned Stellar SDK v0.8.0. The cloud environment uses verified Go 1.27.3.
+Requires Go 1.25 or later; CI pins Go `1.27.3` (see `.go-version`).
 
 ```sh
+git clone https://github.com/soroban-fleetwatch/fleetwatch.git
+cd fleetwatch
 go test ./...
-go run ./cmd/fleetwatch validate --snapshot testdata/before.json
-go run ./cmd/fleetwatch compare \
-  --before testdata/before.json \
-  --after testdata/after.json \
-  --format json \
-  --fail-on never
-```
-
-The synthetic demo changes the `release-stable` reference from hash `aa…aa` to `bb…bb` and detects that demo contracts A and B are affected.
-
-An unapproved transition fails with exit code 2 when executed as a compiled binary:
-
-```sh
 go build -o fleetwatch ./cmd/fleetwatch
-./fleetwatch compare --before testdata/before.json --after testdata/after.json
-# exit status 2: critical finding
+./fleetwatch help
 ```
 
-When the transition appears in the supplied approval policy, it produces an informational finding instead:
+Compare two offline snapshots. The synthetic demo moves tag `release-stable`
+from hash `aa…aa` to `bb…bb`:
 
 ```sh
+./fleetwatch compare --before testdata/before.json --after testdata/after.json
+# [CRITICAL] UNAPPROVED_REFERENCE_CHANGE: ...
+#   owner=OWNER_DEMO tag_hex=72656c656173652d737461626c65
+#   affected=CONTRACT_DEMO_A,CONTRACT_DEMO_B
+# exit status 2
+
 ./fleetwatch compare --before testdata/before.json --after testdata/after.json \
   --policy testdata/approved-policy.json
+# [INFO] POLICY_MATCHED_REFERENCE_CHANGE ...
 # exit status 0
 ```
 
-For CI reporting:
+Reconstruct a watched fleet from captured ledger metadata, offline:
 
 ```sh
-./fleetwatch compare --before old.json --after new.json \
-  --policy approval.json --format json > fleetwatch-report.json
+./fleetwatch reconstruct \
+  --baseline testdata/reconstruction-baseline.json \
+  --capture testdata/reconstruction-capture.json
+# JSON report with per-ledger findings; exit status 2 because findings exist
 ```
 
-Reports explicitly label coverage as `UNKNOWN` and authorization as `UNVERIFIED`, including unsigned policy matches. Input bounds and compatibility are documented in [snapshot format](docs/SNAPSHOT_FORMAT.md).
+Continuous single-host operation uses `follow --config FILE`. See
+[FOLLOW.md](docs/FOLLOW.md) and [OPERATIONS.md](docs/OPERATIONS.md).
 
-Experimental read-only capture is documented in [CAPTURE.md](docs/CAPTURE.md). Multi-call consistency remains unproven and produces a partial diagnostic result.
-
-Diagnostic [historical metadata collection](docs/HISTORY.md) reads bounded consecutive ledger-close metadata from RPC and checks header hashes/linkage. Two real Testnet protocol-29 records have been parsed; metadata commitments and authenticated durable fleet reconstruction remain unimplemented.
-
-The offline [changes command](docs/METADATA_CHANGES.md) projects executable-related metadata in transaction-phase order, preserving preimages, intermediate writes and restores. It does not yet apply a baseline or infer complete fleet membership.
-
-The separate [reconstruct command](docs/RECONSTRUCTION.md) applies an operator-asserted baseline to a fixed watchlist, checks executable preimages and reports operation-boundary changes. It stops on conflicts and uncertain watched evictions; baseline/source authentication and metadata commitments remain unverified.
-
-[Dependency checks](docs/DEPENDENCY_CHECKS.md) cover required-module advisories, source/tests and the compiled CLI with a pinned scanner. CI also pins its compiler and action revisions; remote CI results remain unverified.
-
-The [Testnet validation guide](docs/TESTNET_DEMO.md) includes compiled fixtures and a completed controlled two-member CAP-85 demonstration: upgrade/rollback, direct repoint, bounded history, restart/gap recovery and local signed alerts. [Actual evidence](docs/research/2026-10-27-testnet-validation.md) retains unverified chain assurance; production operations remain unfinished.
-
-[RPC response guards](docs/RPC_JSON.md) reject ambiguous or oversized JSON before typed capture and reconstruction. Provider extensions remain supported; chain authentication remains unverified.
-
-The [bounded polling worker](docs/WATCH.md) retries a fixed target with strict JSON configuration, cancellation and NDJSON progress. It retains the original 16-ledger interval bound and does not send alerts.
-
-The experimental [continuous follower](docs/FOLLOW.md) advances across finite batches while retaining the original assertion, complete reducer state and raw evidence. [Portable Linux deployment](docs/OPERATIONS.md) provides a local-storage pilot, loopback health/metrics, an installer and systemd unit. Explicit retention budgets stop it safely; production hosting and notification integration remain unfinished.
-
-[Compressed evidence archives](docs/ARCHIVES.md) can be exported from a stopped
-follower, replay-verified offline and recovered into a separate database from the
-original assertion. They preserve evidence without deleting live state;
-automatic retention rollover remains open.
-
-The [delivery bridge](docs/FOLLOW_DELIVERY.md) syncs validated follow findings
-into a separate durable outbox, manually or with opt-in automatic queue sync.
-The opt-in [dispatcher loop](docs/DELIVERY_LOOP.md) repeatedly sends queued
-alerts to an explicitly configured receiver, with optional
-[pinned CONNECT proxy routing](docs/WEBHOOK_PROXY.md). Actual receiver/proxy
-compatibility and permanent-host validation remain unverified.
-
-The [intended deployment](docs/ZERO_COST_DEPLOYMENT.md) runs the native follower
-with persistent local evidence. A frontend and GitHub Pages are optional; Pages
-is unavailable on the owner's current plan. The separate [browser viewer](docs/BROWSER.md)
-observes current state while open and does not replace the unattended service.
-See the [deployment acceptance evidence](docs/PHASE9_ACCEPTANCE.md).
-
-Explicit [bounded RPC ingestion](docs/INGESTION.md) fetches from a retained reconstruction cursor through a selected target and saves evidence, findings and diagnostics atomically. It remains limited to 16 ledgers beyond the original asserted baseline.
-
-Optional [reconstruction checkpoints](docs/RECONSTRUCTION_CHECKPOINTS.md) retain the original baseline, accepted raw metadata and findings atomically. Use `checkpoint` to inspect and revalidate a retained prefix after restart; this does not establish current source health or authenticate the chain.
-
-Offline per-ledger snapshot [replay](docs/REPLAY.md) can expose transient changes and missing observations. It supports optional durable local state with `replay --state FILE`; continuous authenticated ledger-meta ingestion remains unfinished.
-
-Durable replay also maintains a [local alert outbox](docs/ALERTS.md); `alerts` lists pending records without sending them. Experimental signed HTTPS [webhook delivery](docs/WEBHOOKS.md) is a separate `deliver` command. Explicit [dead-letter recovery](docs/ALERT_RECOVERY.md) preserves alert identity and records each operator retry.
-
-Use [doctor](docs/HEALTH.md) to inspect persisted replay coverage and alert delivery health without changing the database. For reconstruction streams, add `--source rpc_ledger_meta --stream ID` to check the retained prefix, latest attempt, queue and recovery audit together. Its `OK_OFFLINE` status does not establish live chain coverage.
-
-Use [report](docs/FLEET_REPORT.md) to query an observed owner/tag fleet at an exact retained ledger, including adjacent membership changes, snapshot digests and related replay events. Membership outside the supplied snapshots remains unknown.
-
-The [backup command and recovery guide](docs/BACKUP.md) preserve replay, delivery and approval indices in a single local transaction snapshot. Restoring an older history still requires reconciling later nonce use and acknowledgments.
-
-Offline [signed approval verification](docs/APPROVALS.md) checks Ed25519 statements against explicit trust roots. Optional [durable incident binding](docs/APPROVAL_BINDING.md) prevents nonce reuse within one database history. These checks remain separate from unsigned policy matching and do not authenticate chain observations.
-
-Durable reconstruction now has [stream-scoped finding and diagnostic alerts](docs/RECONSTRUCTION_ALERTS.md). Inspect them with `alerts --source rpc_ledger_meta --stream ID`; explicit webhook delivery retains all unverified labels.
-
-## CLI interface
-
-| Command | Purpose |
-|---|---|
-| `version` | Print build version |
-| `validate --snapshot FILE` | Validate a normalized snapshot |
-| `compare --before FILE --after FILE [--policy FILE]` | Compare two observed ledger states |
-| `--format text\|json` | Emit human- or machine-readable report |
-| `--fail-on critical\|high\|warning\|info\|never` | Set CI severity threshold (default: high) |
-
-Exit statuses: **0** success; **2** security threshold triggered; **3** invalid inputs/usage. Using `go run` wraps nonzero exits and typically displays `exit status 2`; compiled binaries preserve exact status codes.
-
-## Architecture
+## How it works
 
 ```text
-            Current prototype                          Future modules
-       ┌──────────────────────┐                 ┌──────────────────────┐
-       │ two normalized JSONs │                 │ RPC + ledger history │
-       └──────────┬───────────┘                 └──────────┬───────────┘
-                  ▼                                        ▼
-        ┌────────────────────┐                  ┌────────────────────┐
-        │ schema validation  │  ◀───────────────│ verified ingestion │
-        └──────────┬─────────┘                  └────────────────────┘
-                   ▼
-        ┌────────────────────────┐
-        │ reference & fleet diff │
-        └──────────┬─────────────┘
-                   ▼
-       ┌──────────────────────────┐
-       │ exact hash-approval match│
-       └──────────┬───────────────┘
-                  ▼
-          text/JSON security report
-                  │
-                  └── next: signed policies, continuous watches, alerts
+ Stellar RPC (HTTPS, read-only)
+   getLedgers / getLedgerEntries / getLatestLedger / getNetwork
+            │
+            ▼
+ source adapters ── strict JSON + bounded XDR decoding, network/protocol checks,
+            │        header hash and previous-header linkage
+            ▼
+ history projection ── executable and CAP-85 tag entries, in transaction-phase order
+            │
+            ▼
+ watched reconstruction ── operator-asserted baseline + metadata → state per operation
+            │
+            ├──► findings: reference change, repoint, gap, unresolved reference
+            │
+            ▼
+ local bbolt store ── raw evidence, cursor, findings and outbox in one transaction
+            │
+            ├──► doctor / report / checkpoint (read-only inspection)
+            ├──► signed approvals (Ed25519, scoped trust roots) — kept separate
+            └──► HMAC-signed HTTPS webhooks (at-least-once, dead letters, audit)
 ```
 
-This repo does not deploy a Soroban smart contract. An on-chain monitoring contract is not needed for the current functionality.
+Source adapters are separate from the pure comparison code. Tag bytes are kept
+exactly as raw bytes (shown as hex). A matched unsigned policy is never reported
+as a signed approval. Missing data produces a gap finding, never a clean verdict.
+Read more in [ARCHITECTURE.md](docs/ARCHITECTURE.md) and the
+[threat model](docs/THREAT_MODEL.md).
 
-## Data model
+## Commands
 
-- **Contract executable `wasm`:** a direct 32-byte hash.
-- **Contract executable `external_ref`:** owner contract identifier and `tag_hex`, representing the raw CAP-85 executable tag bytes.
-- **Contract executable `stellar_asset`:** the Stellar Asset Contract executable variant.
-- **Reference:** owner, raw tag bytes, and resolved 32-byte Wasm hash at the observed ledger.
-- **Approval:** exact owner, tag, previous hash, new hash, and nonempty human change ticket.
+Run `fleetwatch help` for full flags, or `fleetwatch COMMAND -h` for one command.
 
-The CAP-85 executable tag is an `SCString`, which is not safe to assume is Unicode text. Store its original bytes as **hex**, never a lossy decoded string.
+| Area | Commands |
+| --- | --- |
+| Offline snapshots | `validate`, `compare`, `replay`, `report` |
+| Ledger metadata | `capture`, `history`, `changes`, `reconstruct`, `checkpoint`, `ingest`, `watch` |
+| Continuous service | `follow`, `follow-inspect`, `follow-archive`, `verify-follow-archive`, `restore-follow-archive`, `follow-compact`, `follow-sync` |
+| Alerts | `alerts`, `deliver`, `deliver-loop`, `requeue`, `recoveries` |
+| Approvals | `verify-approval`, `bind-approval` |
+| Maintenance | `doctor`, `backup`, `version`, `help` |
 
-See [Snapshot Format](docs/SNAPSHOT_FORMAT.md), [Threat Model](docs/THREAT_MODEL.md), and [Development Plan](docs/BUILD_PLAN.md).
+| Exit code | Meaning |
+| --- | --- |
+| 0 | Success (including help) |
+| 2 | Finding at or above the `--fail-on` threshold, or delivery attention needed |
+| 3 | Invalid input or usage |
+| 4 | Source unavailable or observation incomplete |
+| 5 | State or output failure |
+| 6 | Follow retention capacity reached |
 
-## Current detection rules
+The full reference is in [CLI.md](docs/CLI.md).
+
+## Detection rules (snapshot comparison)
 
 | Rule | Severity | Meaning |
-|---|---|---|
-| `UNAPPROVED_REFERENCE_CHANGE` | Critical | Shared reference changed without an exact local-policy match |
-| `POLICY_MATCHED_REFERENCE_CHANGE` | Info | Exact before/after transition matches provided policy |
-| `CONTRACT_EXECUTABLE_REPOINTED` | High | Contract switched executable kind, direct hash, or reference owner/tag |
-| `REFERENCE_NOT_OBSERVED` | High | Previously seen reference missing in a later supplied snapshot |
-| `UNRESOLVED_EXTERNAL_REFERENCE` | High | A contract points to an owner/tag whose value is missing from input |
-| `CONTRACT_NOT_OBSERVED` | High | A previously observed contract is missing in a later snapshot |
-| `NEW_REFERENCE_OBSERVED` | Info | Reference first appears, without a historic baseline |
-| `NEW_CONTRACT_OBSERVED` | Info | Contract first appears, without a historic baseline |
+| --- | --- | --- |
+| `UNAPPROVED_REFERENCE_CHANGE` | Critical | Shared reference changed with no exact policy match |
+| `POLICY_MATCHED_REFERENCE_CHANGE` | Info | Change matches the unsigned policy file (not a signature) |
+| `CONTRACT_EXECUTABLE_REPOINTED` | High | Contract changed executable kind, hash, or owner/tag |
+| `REFERENCE_NOT_OBSERVED` | High | A reference seen earlier is missing from a later snapshot |
+| `UNRESOLVED_EXTERNAL_REFERENCE` | High | A contract points to an owner/tag with no observed value |
+| `CONTRACT_NOT_OBSERVED` | High | A contract seen earlier is missing from a later snapshot |
+| `NEW_REFERENCE_OBSERVED` | Info | First observation of a reference |
+| `NEW_CONTRACT_OBSERVED` | Info | First observation of a contract |
 
-**Do not equate missing input with deletion.** CAP-85 tag entries have restrictions against deletion; missing observations are treated as collection gaps, not proof the ledger entry was destroyed.
+Missing input is treated as a collection gap, not as deletion.
 
-## Project status
+## What is not done yet
 
-- [x] Research CAP-85 and competing pre-deployment upgrade tools
-- [x] Define the normalized fleet snapshot and approval schemas
-- [x] Implement deterministic comparison, severity, CLI and regression tests
-- [ ] Read ledger entries directly using the official Stellar Go SDK
-- [ ] Test with actual Protocol-28+ network fixtures (Testnet)
-- [ ] Persist replay-safe block checkpoints and recover from gaps
-- [ ] Verify signed approval provenance and expected upgrade authority
-- [ ] Continuous watch mode, alert delivery and dashboards
-- [ ] Harden against untrusted data sources, resource exhaustion and partial ledgers
+- Independent authentication of RPC data, baselines and metadata commitments.
+- Full fleet discovery. FleetWatch watches the contracts you list.
+- A permanent hosted deployment. Dripwave Phase 9 is blocked on a zero-cost
+  host; see [PHASE9_ACCEPTANCE.md](docs/PHASE9_ACCEPTANCE.md).
+- Production retention beyond the documented per-stream limits.
+- A tagged release and an external security review.
 
-## Research references
+Current state, commands run and evidence for every milestone are in
+[docs/build/STATUS.md](docs/build/STATUS.md).
 
-- [Stellar CAP-85 — Externally Managed Contract Executables](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md)
-- [Protocol 28 introduction](https://stellar.org/blog/developers/introducing-adapter-protocol-28-on-stellar)
-- [Official Stellar Go SDK](https://github.com/stellar/go-stellar-sdk)
-- [Soroban Upgrade Safeguard — complementary predeployment tool](https://github.com/ShippedLabs/soroban-upgrade-safeguard)
+## Documentation
 
-## Contributing and security
+The documentation site source is in [`docs/`](docs/index.md) and builds with
+MkDocs (`mkdocs build --strict`). Start with [docs/index.md](docs/index.md).
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). This repository is **not audited** and should not be the sole protection for deployed funds or contracts. Please report issues privately rather than publishing exploitable vulnerabilities.
+## Contributing
+
+Issues are scoped with acceptance criteria and labels for complexity. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Every change
+needs tests, and claims about chain behavior need recorded evidence.
+
+## Security
+
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
+This project has had no external security audit.
+
+## Contributors
+
+<a href="https://github.com/soroban-fleetwatch/fleetwatch/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=soroban-fleetwatch/fleetwatch" alt="Contributors" />
+</a>
+
+## References
+
+- [CAP-85: Externally managed contract executables](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md)
+- [Introducing Adapter, Protocol 28 on Stellar](https://stellar.org/blog/developers/introducing-adapter-protocol-28-on-stellar)
+- [Stellar Go SDK v0.8.0](https://github.com/stellar/go-stellar-sdk)
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
