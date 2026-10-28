@@ -32,7 +32,10 @@ func followService(args []string, stdout, stderr io.Writer) int {
 	check := fs.Bool("check", false, "validate configuration and baseline without opening state or querying RPC")
 	deliveryState := fs.String("delivery-state", "", "optional separate outbox database for automatic sync (no dispatch)")
 	deliveryStream := fs.String("delivery-stream", "", "stable stream required with --delivery-state")
-	if fs.Parse(args) != nil || *path == "" || fs.NArg() != 0 {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if *path == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "follow requires --config FILE [--check]")
 		return 3
 	}
@@ -138,7 +141,10 @@ func followInspect(args []string, stdout, stderr io.Writer) int {
 	path := fs.String("config", "", "follow configuration JSON")
 	after := fs.String("after-id", "", "exclusive stable finding ID cursor")
 	limit := fs.Int("limit", 20, "finding page size 1-100")
-	if fs.Parse(args) != nil || *path == "" || *limit < 1 || *limit > 100 || fs.NArg() != 0 {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if *path == "" || *limit < 1 || *limit > 100 || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "follow-inspect requires --config FILE [--limit N --after-id ID]")
 		return 3
 	}

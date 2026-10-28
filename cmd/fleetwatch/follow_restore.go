@@ -22,7 +22,10 @@ func restoreFollowArchive(args []string, stdout, stderr io.Writer) int {
 	input := fs.String("input", "", "existing gzip evidence archive")
 	output := fs.String("output", "", "NEW follow database path")
 	expected := fs.String("sha256", "", "expected compressed archive SHA256 from trusted receipt")
-	if fs.Parse(args) != nil || fs.NArg() != 0 || *input == "" || *output == "" {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if fs.NArg() != 0 || *input == "" || *output == "" {
 		fmt.Fprintln(stderr, "restore-follow-archive requires --input FILE --output NEW_DB --sha256 EXPECTED_DIGEST")
 		return 3
 	}

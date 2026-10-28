@@ -16,8 +16,8 @@ func backup(args []string, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 	path := fs.String("state", "", "existing replay or follow database (read only)")
 	destination := fs.String("output", "", "new backup path in an existing directory")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *path == "" || *destination == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "backup requires --state FILE --output NEW_FILE")

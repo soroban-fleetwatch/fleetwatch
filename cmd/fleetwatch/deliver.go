@@ -28,8 +28,8 @@ func deliver(args []string, stdout, stderr io.Writer) int {
 	keyEnv := fs.String("hmac-key-env", "FLEETWATCH_WEBHOOK_KEY", "environment variable holding raw HMAC key (32-4096 bytes)")
 	proxyMode := fs.String("proxy-mode", "reject", "reject proxy routes or explicitly use pinned-connect")
 	limit := fs.Int("limit", 10, "maximum alerts this batch, 1-50")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	queueSource, scopeErr := store.AlertSource(*network, *source, *stream)
 	if *path == "" || *network == "" || *endpoint == "" || *host == "" || scopeErr != nil || !envNamePattern.MatchString(*keyEnv) || *limit < 1 || *limit > 50 || fs.NArg() != 0 {

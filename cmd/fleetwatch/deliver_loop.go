@@ -27,7 +27,10 @@ func deliverLoop(args []string, stdout, stderr io.Writer) int {
 	keyEnv := fs.String("hmac-key-env", "FLEETWATCH_WEBHOOK_KEY", "environment variable holding raw HMAC key")
 	proxyMode := fs.String("proxy-mode", "reject", "reject proxy routes or explicitly use pinned-connect")
 	check := fs.Bool("check", false, "validate local options/key/transport policy without opening state, DNS or delivery")
-	if fs.Parse(args) != nil || fs.NArg() != 0 || *endpoint == "" || *host == "" || !envNamePattern.MatchString(*keyEnv) {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if fs.NArg() != 0 || *endpoint == "" || *host == "" || !envNamePattern.MatchString(*keyEnv) {
 		fmt.Fprintln(stderr, "deliver-loop requires --state FILE --network TEXT --stream ID --webhook-url HTTPS_URL --allow-host HOST")
 		return 3
 	}

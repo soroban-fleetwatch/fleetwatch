@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -21,6 +22,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 3
 	}
 	switch args[0] {
+	case "help", "-h", "-help", "--help":
+		usage(stdout)
+		return 0
 	case "version":
 		fmt.Fprintln(stdout, "fleetwatch "+version)
 		return 0
@@ -28,8 +32,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fs := flag.NewFlagSet("validate", flag.ContinueOnError)
 		fs.SetOutput(stderr)
 		file := fs.String("snapshot", "", "path to fleet snapshot JSON")
-		if err := fs.Parse(args[1:]); err != nil {
-			return 3
+		if code, ok := parseArgs(fs, args[1:]); !ok {
+			return code
 		}
 		if *file == "" || fs.NArg() != 0 {
 			fmt.Fprintln(stderr, "validate requires --snapshot path")
@@ -108,8 +112,8 @@ func compare(args []string, stdout, stderr io.Writer) int {
 	policyPath := fs.String("policy", "", "optional approval policy JSON; absent means no approved changes")
 	output := fs.String("format", "text", "text or json")
 	failOn := fs.String("fail-on", "high", "critical, high, warning, info or never")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *before == "" || *after == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "compare requires --before and --after paths")
@@ -179,6 +183,19 @@ func compare(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// parseArgs parses subcommand flags. An explicit -h/--help request has already
+// printed the flag set's defaults, so it exits 0 rather than as invalid usage.
+func parseArgs(fs *flag.FlagSet, args []string) (int, bool) {
+	err := fs.Parse(args)
+	if errors.Is(err, flag.ErrHelp) {
+		return 0, false
+	}
+	if err != nil {
+		return 3, false
+	}
+	return 0, true
+}
+
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "fleetwatch <compare|validate|capture|replay|alerts|requeue|recoveries|doctor|report|backup|history|watch|follow|follow-inspect|follow-archive|verify-follow-archive|restore-follow-archive|follow-compact|follow-sync|ingest|changes|reconstruct|checkpoint|deliver|deliver-loop|verify-approval|bind-approval|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\ncapture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  requeue --state FILE --network TEXT --alert-id ID --request-id ID --expected-cycle N --reason TEXT\n  recoveries --state FILE --network TEXT --alert-id ID\n  checkpoint --state FILE --network TEXT --stream ID\n  reconstruct --baseline watched-baseline.json --capture history-capture.json [--state FILE --stream ID]\n  changes --capture history-capture.json\n  follow --config FILE [--check] [--delivery-state FILE --delivery-stream ID]\n  follow-inspect --config FILE [--limit N --after-id ID]\n  follow-archive --config FILE --output NEW_FILE\n  verify-follow-archive --input FILE\n  restore-follow-archive --input FILE --output NEW_DB --sha256 EXPECTED_DIGEST\n  follow-compact --config FILE --output NEW_DB\n  follow-sync --config FILE --delivery-state FILE --stream ID\n  watch --config FILE\n  ingest --rpc-url HTTPS_URL --baseline FILE --state FILE --stream ID --to-ledger N\n  history --rpc-url HTTPS_URL --network-passphrase TEXT --from-ledger N --to-ledger M\n  backup --state replay.db --output NEW_FILE\n  report --state replay.db --network TEXT --ledger N --owner ID --tag-hex HEX\n  doctor --state replay.db --network TEXT [--source synthetic|user_snapshot|rpc_ledger_meta] [--stream ID for rpc_ledger_meta]\n  deliver --state replay.db --network TEXT --webhook-url HTTPS_URL --allow-host HOST\n  deliver-loop --state delivery.db --network TEXT --stream ID --webhook-url HTTPS_URL --allow-host HOST [--batch-size 1 --poll-interval-seconds 5]\n  verify-approval --approval envelope.json --trust trust.json --observation transition.json\n  bind-approval --state replay.db --network TEXT --event-id ID --approval envelope.json --trust trust.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=state/output failure, 6=follow retention capacity")
+	fmt.Fprintln(w, "fleetwatch <help|compare|validate|capture|replay|alerts|requeue|recoveries|doctor|report|backup|history|watch|follow|follow-inspect|follow-archive|verify-follow-archive|restore-follow-archive|follow-compact|follow-sync|ingest|changes|reconstruct|checkpoint|deliver|deliver-loop|verify-approval|bind-approval|version>\n  compare --before old.json --after new.json [--policy approvals.json] [--format text|json] [--fail-on critical|high|warning|info|never]\n  validate --snapshot fleet.json\n  capture --rpc-url HTTPS_URL --network-passphrase PASSPHRASE --contracts-file FILE\n  replay --journal per-ledger-snapshots.json\n  alerts --state replay.db --network TEXT [--source synthetic|user_snapshot]\n  requeue --state FILE --network TEXT --alert-id ID --request-id ID --expected-cycle N --reason TEXT\n  recoveries --state FILE --network TEXT --alert-id ID\n  checkpoint --state FILE --network TEXT --stream ID\n  reconstruct --baseline watched-baseline.json --capture history-capture.json [--state FILE --stream ID]\n  changes --capture history-capture.json\n  follow --config FILE [--check] [--delivery-state FILE --delivery-stream ID]\n  follow-inspect --config FILE [--limit N --after-id ID]\n  follow-archive --config FILE --output NEW_FILE\n  verify-follow-archive --input FILE\n  restore-follow-archive --input FILE --output NEW_DB --sha256 EXPECTED_DIGEST\n  follow-compact --config FILE --output NEW_DB\n  follow-sync --config FILE --delivery-state FILE --stream ID\n  watch --config FILE\n  ingest --rpc-url HTTPS_URL --baseline FILE --state FILE --stream ID --to-ledger N\n  history --rpc-url HTTPS_URL --network-passphrase TEXT --from-ledger N --to-ledger M\n  backup --state replay.db --output NEW_FILE\n  report --state replay.db --network TEXT --ledger N --owner ID --tag-hex HEX\n  doctor --state replay.db --network TEXT [--source synthetic|user_snapshot|rpc_ledger_meta] [--stream ID for rpc_ledger_meta]\n  deliver --state replay.db --network TEXT --webhook-url HTTPS_URL --allow-host HOST\n  deliver-loop --state delivery.db --network TEXT --stream ID --webhook-url HTTPS_URL --allow-host HOST [--batch-size 1 --poll-interval-seconds 5]\n  verify-approval --approval envelope.json --trust trust.json --observation transition.json\n  bind-approval --state replay.db --network TEXT --event-id ID --approval envelope.json --trust trust.json\nExit 0=pass, 2=policy threshold exceeded, 3=invalid input/usage, 4=source unavailable/incomplete, 5=state/output failure, 6=follow retention capacity")
 }

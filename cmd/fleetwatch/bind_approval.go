@@ -21,8 +21,8 @@ func bindApproval(args []string, stdout, stderr io.Writer) int {
 	eventID := fs.String("event-id", "", "exact persisted reference-change event ID")
 	approval := fs.String("approval", "", "signed approval envelope JSON")
 	trustPath := fs.String("trust", "", "operator-provided public trust configuration JSON")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *path == "" || *network == "" || *eventID == "" || *approval == "" || *trustPath == "" || (*source != "synthetic" && *source != "user_snapshot") || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "bind-approval requires --state FILE --network TEXT --event-id ID --approval FILE --trust FILE")

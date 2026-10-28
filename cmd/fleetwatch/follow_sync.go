@@ -25,7 +25,10 @@ func followSync(args []string, stdout, stderr io.Writer) int {
 	config := fs.String("config", "", "stopped follow configuration")
 	destination := fs.String("delivery-state", "", "separate durable delivery outbox database")
 	stream := fs.String("stream", "", "stable delivery stream identifier")
-	if fs.Parse(args) != nil || fs.NArg() != 0 || *config == "" || *destination == "" || *stream == "" {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if fs.NArg() != 0 || *config == "" || *destination == "" || *stream == "" {
 		fmt.Fprintln(stderr, "follow-sync requires --config FILE --delivery-state FILE --stream ID")
 		return 3
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -31,6 +32,42 @@ func TestCLIValidateAndInvalidFlags(t *testing.T) {
 	if code := run([]string{"compare", "--format", "xml"}, &out, &errs); code != 3 {
 		t.Fatalf("expected invalid usage, got %d", code)
 	}
+}
+
+func TestCLIHelpExitsZero(t *testing.T) {
+	for _, arg := range []string{"help", "-h", "-help", "--help"} {
+		var out, errs bytes.Buffer
+		if code := run([]string{arg}, &out, &errs); code != 0 || !strings.Contains(out.String(), "follow-inspect") || errs.Len() != 0 {
+			t.Fatalf("%s: code=%d out=%q stderr=%q", arg, code, out.String(), errs.String())
+		}
+	}
+	commands := []string{"validate", "compare", "capture", "replay", "alerts", "requeue", "recoveries", "doctor", "report", "backup", "history", "watch", "follow", "follow-inspect", "follow-archive", "verify-follow-archive", "restore-follow-archive", "follow-compact", "follow-sync", "ingest", "changes", "reconstruct", "checkpoint", "deliver", "deliver-loop", "verify-approval", "bind-approval"}
+	dir := t.TempDir()
+	t.Chdir(dir)
+	for _, command := range commands {
+		if !strings.Contains(usageText(), " "+command+" ") {
+			t.Fatalf("usage does not describe %s", command)
+		}
+		for _, flagArg := range []string{"-h", "--help"} {
+			var out, errs bytes.Buffer
+			if code := run([]string{command, flagArg}, &out, &errs); code != 0 || !strings.Contains(errs.String(), "Usage of "+command) {
+				t.Fatalf("%s %s: code=%d stderr=%q", command, flagArg, code, errs.String())
+			}
+		}
+		var out, errs bytes.Buffer
+		if code := run([]string{command, "--no-such-flag"}, &out, &errs); code != 3 {
+			t.Fatalf("%s unknown flag: code=%d", command, code)
+		}
+	}
+	if entries, err := os.ReadDir(dir); err != nil || len(entries) != 0 {
+		t.Fatalf("help created files: %v %v", entries, err)
+	}
+}
+
+func usageText() string {
+	var b bytes.Buffer
+	usage(&b)
+	return b.String()
 }
 
 func TestCLIRejectsUnknownThreshold(t *testing.T) {

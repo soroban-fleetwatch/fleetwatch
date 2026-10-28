@@ -21,8 +21,8 @@ func reconstruct(args []string, stdout, stderr io.Writer) int {
 	capture := fs.String("capture", "", "raw history capture JSON (not normalized changes)")
 	statePath := fs.String("state", "", "optional local database for retained reconstruction evidence")
 	stream := fs.String("stream", "", "operator-assigned stream ID (required with --state)")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *baseline == "" || *capture == "" || (*statePath == "") != (*stream == "") || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "reconstruct requires --baseline FILE --capture FILE")

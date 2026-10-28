@@ -19,8 +19,8 @@ func alerts(args []string, stdout, stderr io.Writer) int {
 	network := fs.String("network", "", "exact journal network")
 	source := fs.String("source", "synthetic", "synthetic, user_snapshot, rpc_ledger_meta or follow_ledger_meta")
 	stream := fs.String("stream", "", "required with ledger-meta sources")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	queueSource, scopeErr := store.AlertSource(*network, *source, *stream)
 	if *path == "" || *network == "" || scopeErr != nil || fs.NArg() != 0 {

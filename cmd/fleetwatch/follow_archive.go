@@ -30,7 +30,10 @@ func followArchive(args []string, stdout, stderr io.Writer, verify bool) int {
 		fs.StringVar(&config, "config", "", "stopped follow configuration")
 		fs.StringVar(&output, "output", "", "new evidence archive path")
 	}
-	if fs.Parse(args) != nil || fs.NArg() != 0 || (verify && input == "") || (!verify && (config == "" || output == "")) {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if fs.NArg() != 0 || (verify && input == "") || (!verify && (config == "" || output == "")) {
 		fmt.Fprintln(stderr, "follow-archive requires --config FILE --output NEW_FILE; verify-follow-archive requires --input FILE")
 		return 3
 	}

@@ -21,7 +21,10 @@ func followCompact(args []string, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 	config := fs.String("config", "", "stopped follow configuration")
 	output := fs.String("output", "", "NEW compacted database path")
-	if fs.Parse(args) != nil || fs.NArg() != 0 || *config == "" || *output == "" {
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
+	}
+	if fs.NArg() != 0 || *config == "" || *output == "" {
 		fmt.Fprintln(stderr, "follow-compact requires --config FILE --output NEW_DB")
 		return 3
 	}

@@ -27,8 +27,8 @@ func watchWithRPC(args []string, stdout, stderr io.Writer, newRPC func(string) (
 	fs := flag.NewFlagSet("watch", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	path := fs.String("config", "", "bounded watch JSON configuration")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *path == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "watch requires --config FILE")

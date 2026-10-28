@@ -28,8 +28,8 @@ func checkpoint(args []string, stdout, stderr io.Writer) int {
 	path := fs.String("state", "", "existing database (read only)")
 	network := fs.String("network", "", "exact persisted network")
 	stream := fs.String("stream", "", "operator-assigned stream ID")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *path == "" || store.ValidateReconstructionScope(*network, *stream) != nil || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "checkpoint requires --state FILE --network TEXT --stream ID")

@@ -16,8 +16,8 @@ func replay(args []string, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 	input := fs.String("journal", "", "bounded offline per-ledger snapshot journal JSON")
 	statePath := fs.String("state", "", "optional local bbolt database for resumable offline replay")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *input == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "replay requires --journal FILE")

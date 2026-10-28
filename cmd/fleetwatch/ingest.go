@@ -31,8 +31,8 @@ func ingestHistoryWithRPC(args []string, stdout, stderr io.Writer, newRPC func(s
 	path := fs.String("state", "", "local database for durable evidence")
 	stream := fs.String("stream", "", "operator-assigned stream ID")
 	to := fs.Uint64("to-ledger", 0, "inclusive target within 16 ledgers of baseline")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	var b history.Baseline
 	if *path == "" || *baseline == "" || *to > math.MaxUint32 || fs.NArg() != 0 || jsoninput.File(*baseline, &b) != nil || history.ValidateBaseline(b) != nil || store.ValidateReconstructionScope(b.Snapshot.Network, *stream) != nil || *to <= uint64(b.Snapshot.Ledger) || *to-uint64(b.Snapshot.Ledger) > history.MaxLedgers {

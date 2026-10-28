@@ -16,8 +16,8 @@ func normalizeChanges(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("changes", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	path := fs.String("capture", "", "diagnostic history capture JSON")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	if *path == "" || fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "changes requires --capture FILE")

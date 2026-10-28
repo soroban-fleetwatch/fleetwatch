@@ -20,8 +20,8 @@ func doctor(args []string, stdout, stderr io.Writer) int {
 	network := fs.String("network", "", "exact journal network")
 	source := fs.String("source", "synthetic", "synthetic, user_snapshot or rpc_ledger_meta")
 	stream := fs.String("stream", "", "required with --source rpc_ledger_meta")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	_, scopeErr := store.AlertSource(*network, *source, *stream)
 	if *path == "" || *network == "" || len(*network) > fleetwatch.MaxIdentifierBytes || !utf8.ValidString(*network) || scopeErr != nil || fs.NArg() != 0 {

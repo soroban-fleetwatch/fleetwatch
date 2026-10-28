@@ -20,8 +20,8 @@ func reportFleet(args []string, stdout, stderr io.Writer) int {
 	ledger := fs.Uint64("ledger", 0, "exact retained ledger")
 	owner := fs.String("owner", "", "exact executable reference owner")
 	tag := fs.String("tag-hex", "", "raw tag bytes in hex")
-	if err := fs.Parse(args); err != nil {
-		return 3
+	if code, ok := parseArgs(fs, args); !ok {
+		return code
 	}
 	q := fleetwatch.FleetQuery{Network: *network, Ledger: uint32(*ledger), Owner: *owner, TagHex: *tag}
 	if *path == "" || *ledger > math.MaxUint32 || q.Validate() != nil || (*source != "synthetic" && *source != "user_snapshot") || fs.NArg() != 0 {
