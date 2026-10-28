@@ -74,6 +74,7 @@ nav:
       - Contributing: contributing.md
       - Development: DEVELOPMENT.md
       - Repository settings: REPOSITORY_SETTINGS.md
+      - Release notes v0.1.0-rc.1: release/v0.1.0-rc.1.md
       - Build status: build/STATUS.md
       - Build plan: build/END_TO_END_BUILD_PLAN.md
       - Wave submission draft: wave/SUBMISSION_DRAFT.md
