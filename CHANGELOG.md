@@ -1,10 +1,16 @@
 # Changelog
 
 All notable changes are listed here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). There is no tagged
-release yet; everything below is unreleased and experimental.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). There is no stable
+release yet; `v0.1.0-rc.1` is the first pre-release tag. Everything here is
+experimental and unaudited.
 
 ## [Unreleased]
+
+## [0.1.0-rc.1] - 2026-10-28
+
+First release-candidate tag. Not a production release. See
+[docs/release/v0.1.0-rc.1.md](docs/release/v0.1.0-rc.1.md) for scope and limits.
 
 ### Added
 
@@ -38,8 +44,10 @@ release yet; everything below is unreleased and experimental.
   preflight. `84917cc`, `38ddf56`
 - Self-contained browser viewer for current Testnet state. `80c2019`
 - Contributor issue templates, pull request template, planned issue catalogue
-  with `scripts/create-issues.sh` (dry run by default) and a MkDocs
-  documentation site.
+  with `scripts/create-issues.sh` (dry run by default), a MkDocs
+  documentation site and a GitHub Pages deploy workflow that runs once the
+  repository is public.
+- `fleetwatch version` reports `0.1.0-rc.1`.
 
 ### Fixed
 

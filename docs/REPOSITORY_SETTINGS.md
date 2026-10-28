@@ -30,6 +30,13 @@ The `docs` job is new; merge it to `main` before marking it required.
 - Dependabot alerts: On.
 - Secret scanning: On where the plan allows it.
 
+## GitHub Pages (docs site)
+
+After the repository is public: Settings → Pages → Build and deployment →
+Source: **GitHub Actions**. Then run the "Docs site" workflow from the Actions
+tab, or push to `main`. The workflow skips deployment while the repository is
+private.
+
 ## Topics
 
 Settings → General → Topics (About panel):
@@ -49,11 +56,10 @@ because history becomes public too.
 
 ## Release tag
 
-No tag exists. A first pre-release tag such as `v0.1.0-rc.1` should wait for:
-
-1. this branch merged to `main` with all required checks green;
-2. owner approval to publish;
-3. release notes that link the Testnet evidence and repeat the assurance limits.
+`v0.1.0-rc.1` was tagged on 2026-10-28 with notes in
+[release/v0.1.0-rc.1.md](release/v0.1.0-rc.1.md). To show it on the Releases
+page: Releases → Draft a new release → choose the tag → paste the notes →
+tick "Set as a pre-release" → Publish.
 
 FleetWatch has no product contract. The release notes should list the
 **Testnet fixture** contracts from
@@ -62,6 +68,6 @@ fixtures only, not as deployed product addresses.
 
 ## Labels and issues
 
-`scripts/create-issues.sh` prints the planned labels and issues by default.
-`scripts/create-issues.sh --apply` creates them and skips exact-title
-duplicates. Run it only with owner approval.
+Issues #3–#22 were created on 2026-10-28. GitHub created their labels in its
+default grey. `scripts/create-issues.sh --apply` (with an authenticated `gh`)
+recolors the labels and skips the existing issues.

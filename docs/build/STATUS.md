@@ -1078,3 +1078,31 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   supply a zero-cost permanent host to close Phase 9; allow www.drips.network,
   docs.drips.network and soroban-testnet.stellar.org in the session network
   policy so the live checks can be repeated.
+
+
+## Owner follow-ups: issues, docs deploy and v0.1.0-rc.1 — 2026-10-28
+
+- PR https://github.com/soroban-fleetwatch/fleetwatch/pull/2 merged to `main`
+  as `3a80fb9` on the owner's instruction; Go CI run 39 on `main`: all four
+  jobs PASS (https://github.com/soroban-fleetwatch/fleetwatch/actions/runs/40740354572).
+- On the owner's instruction, the 20 catalogue issues were created through the
+  GitHub connector as #3–#22 (`gh` is not authenticated in this session).
+  An exact-title check beforehand found no existing issues. GitHub created
+  the labels in default grey; `create-issues.sh --apply` can recolor them.
+  Issue #12's wording was adjusted so it stays true after the version bump.
+- Added `.github/workflows/pages.yml`: strict MkDocs build, then
+  `actions/upload-pages-artifact` v4.0.0, `actions/configure-pages` v5.0.0
+  and `actions/deploy-pages` v4.0.5, pinned to commit SHAs read with
+  `git ls-remote` (lightweight tags). Major versions follow GitHub's
+  published Pages workflow examples. Deployment is skipped while the
+  repository is private; the owner must set Pages source to GitHub Actions.
+  actionlint v1.7.12: PASS. Not yet executed remotely.
+- Version bumped to `0.1.0-rc.1`; CHANGELOG section and
+  `docs/release/v0.1.0-rc.1.md` added. The tag is created on the merged
+  release-prep commit after CI passes.
+- Demo: an offline terminal recording of real commands is produced outside
+  the repository. A live Testnet segment was not recorded:
+  soroban-testnet.stellar.org and friendbot.stellar.org are still denied by
+  this session's network policy.
+- Phase 9 remains BLOCKED: no zero-cost permanent host is available to this
+  session.

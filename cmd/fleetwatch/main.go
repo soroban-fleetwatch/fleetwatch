@@ -12,7 +12,7 @@ import (
 	"github.com/soroban-fleetwatch/fleetwatch/internal/fleetwatch"
 )
 
-const version = "0.1.0-dev"
+const version = "0.1.0-rc.1"
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 

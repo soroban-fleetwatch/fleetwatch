@@ -1,7 +1,7 @@
 # Drips Stellar Wave — submission draft
 
 **State: DRAFT, NOT SUBMITTED, NOT READY.** Prepared 2026-10-28 for owner
-review. Submitting a repository to a Wave program is the owner's decision and
+review; blockers updated later the same day. Submitting a repository to a Wave program is the owner's decision and
 action. Nothing here has been sent anywhere.
 
 ## 1. Eligibility and status check
@@ -25,10 +25,11 @@ Only links that exist today are listed. Missing items are blockers in section 6.
 | Testnet proof: direct repoint | <https://stellar.expert/explorer/testnet/tx/ce990c0ea9f53d9aad500b772e4a997fb62e8928e6689c5de84827cadddc24d7> | Same |
 | Testnet proof: upgrade after repoint | <https://stellar.expert/explorer/testnet/tx/a09957ea7da0da7c922aee36819f37434625db8eac59dd4c9ef4a3de08a4d65b> | Same |
 | Evidence record | [`docs/research/2026-10-27-testnet-validation.md`](../research/2026-10-27-testnet-validation.md) | In repo |
-| Documentation site | Source in `docs/`, builds with `mkdocs build --strict` | **Not hosted** |
+| Documentation site | Source in `docs/`; `.github/workflows/pages.yml` deploys it to GitHub Pages | **Not hosted yet**: deploys once the repo is public and Pages source is set to GitHub Actions |
 | Live app | None. FleetWatch is a CLI and single-host service. | Not applicable; see section 3 |
-| Demo video | None | **Missing**; script in [DEMO_SCRIPT.md](DEMO_SCRIPT.md) |
-| Planned issues | [`docs/build/issues.json`](https://github.com/soroban-fleetwatch/fleetwatch/blob/main/docs/build/issues.json) (20 issues) | **Not created on GitHub yet** |
+| Demo video | Offline terminal recording produced 2026-10-28 (not committed) | **Not uploaded**; a live Testnet segment still needs recording, see [DEMO_SCRIPT.md](DEMO_SCRIPT.md) |
+| Planned issues | <https://github.com/soroban-fleetwatch/fleetwatch/issues> (#3–#22) | Created 2026-10-28 |
+| Release tag | `v0.1.0-rc.1`, notes in [docs/release/v0.1.0-rc.1.md](../release/v0.1.0-rc.1.md) | Pre-release tag |
 
 The explorer links come from the fixture run. The transactions were checked
 through RPC and XDR at the time, not through the explorer. They were not
@@ -63,9 +64,7 @@ addresses are test evidence, not deployed product contracts.
 
 ## 5. Planned issues, by area
 
-From `docs/build/issues.json`. Create them with
-`scripts/create-issues.sh --apply` (owner approval required) before applying,
-so the application can link real issue numbers.
+Created on GitHub on 2026-10-28 as issues #3–#22, from `docs/build/issues.json`.
 
 - **Source trust (L, security):** cross-check ledger headers across two RPC
   endpoints; verify transaction-set and result hashes against the header.
@@ -90,12 +89,12 @@ Five issues are marked `good first issue`.
 | --- | --- | --- | --- |
 | 1 | Repository is private | Owner | Review history for secrets, then make it public (Settings → General → Danger zone). |
 | 2 | Phase 8–12 work is not on `main` | Owner | Review and merge the pull request from this branch. |
-| 3 | No demo video | Owner | Record from [DEMO_SCRIPT.md](DEMO_SCRIPT.md), using a fresh Testnet fleet. |
-| 4 | Docs site not hosted | Owner | Once public, enable GitHub Pages or another free static host for the `mkdocs build` output. |
-| 5 | Planned issues not created | Owner | `scripts/create-issues.sh --apply`. |
+| 3 | Demo video not published | Owner | An offline recording exists. Upload it (YouTube or a release asset), and ideally add the live Testnet segment from [DEMO_SCRIPT.md](DEMO_SCRIPT.md). |
+| 4 | Docs site not hosted | Owner | After making the repo public: Settings → Pages → Source: GitHub Actions, then re-run the "Docs site" workflow. |
+| 5 | ~~Planned issues not created~~ | Done | Issues #3–#22 created 2026-10-28. |
 | 6 | Branch protection, topics, private vulnerability reporting not set | Owner | [Repository settings](../REPOSITORY_SETTINGS.md). |
 | 7 | Dripwave Phase 9 hosting blocked | Owner | A zero-cost permanent host. See [Phase 9 acceptance](../PHASE9_ACCEPTANCE.md). The skill treats a working deployment as part of an approved-grade repo; FleetWatch has no web app, so explain the CLI/service model and link the Testnet evidence. |
-| 8 | No release tag | Owner | `v0.1.0-rc.1` after merge, with release notes linking the evidence. |
+| 8 | ~~No release tag~~ | Done | `v0.1.0-rc.1` tagged; optionally publish a GitHub Release from the tag using the notes file. |
 | 9 | Live Wave rules and list not re-checked | Owner or a session with `drips.network` allowed | Re-check eligibility, caps and KYC on the day of applying. |
 
 ## 7. What not to claim

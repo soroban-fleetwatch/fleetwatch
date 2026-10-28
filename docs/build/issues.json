@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "note": "Planned contributor issues derived from open gaps in docs/build/STATUS.md. Not created on GitHub until the owner runs scripts/create-issues.sh --apply.",
+  "note": "Contributor issues derived from open gaps in docs/build/STATUS.md. Created on GitHub on 2026-10-28 as issues #3-#22, in this order. scripts/create-issues.sh skips titles that already exist.",
   "labels": {
     "type:feature": "0e8a16", "type:bug": "d73a4a", "type:security": "b60205", "type:docs": "0075ca",
     "type:infra": "5319e7", "type:test": "fbca04",
@@ -76,8 +76,8 @@
     {
       "title": "feat(cli): stamp release version into the binary",
       "labels": ["type:feature", "complexity:S", "area:cli", "good first issue"],
-      "summary": "`fleetwatch version` prints a hard-coded 0.1.0-dev. Make the version a variable set with -ldflags in scripts/package-linux.sh and print the source commit when known.",
-      "acceptance": ["`go build` without flags still prints 0.1.0-dev", "package-linux.sh sets the version from an explicit argument or BUILD.json", "Test covers the default value"],
+      "summary": "`fleetwatch version` prints a constant in cmd/fleetwatch/main.go that has to be edited by hand for every release. Make the version a variable that scripts/package-linux.sh sets with -ldflags, and print the source commit when it is known.",
+      "acceptance": ["`go build` without flags still prints the constant from main.go", "package-linux.sh sets the version from an explicit argument or BUILD.json", "Test covers the default value"],
       "stack": "Go, Bash"
     },
     {
