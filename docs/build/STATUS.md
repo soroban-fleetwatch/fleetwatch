@@ -1,39 +1,44 @@
 # FleetWatch — verified build status
 
-**Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch
-**Working branch:** `feat/portable-linux-follow` (from Phase 8 checkpoint `85dd0ec`)
-**Date checked:** 2026-10-27
+**Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch (private, per GitHub API 2026-10-28)
+**Working branch:** `claude/beautiful-darwin-g731lo`, continuing `feat/portable-linux-follow` at `73f92e2`
+**Date checked:** 2026-10-28
 **Release state:** NOT RELEASED
 **Mainnet writes:** NONE AUTHORIZED
 
-**Dripwave Phase 9: BLOCKED — intended native service is not deployed.**
-The environment is reachable again. Investigation found that its saved repository
-declaration selected `main` rather than the actual Phase 9 source. This checkpoint
-provides a tested bootstrap and the verified identity for correcting that declaration. This is a reproducibility defect,
-not a proven cause of the platform's generic publication/status error.
+## Dripwave phase map (2026-10-28)
 
-The intended topology remains a stateful native collector, persistent local
-evidence DB and loopback operational endpoints, with optional delivery. GitHub
-Pages is unavailable on the owner's current plan (owner report). The foreground
-browser viewer remains optional and does not satisfy this deployment gate.
-No permanent provider/resource is connected; production retention is also open.
-See [repair evidence](../research/2026-10-27-environment-repair.md) and
-[Phase 9 acceptance](../PHASE9_ACCEPTANCE.md).
+| Dripwave phase | State | Evidence / blocker |
+|---|---|---|
+| 1–3 Recon, ideas, review | DONE (pre-existing) | docs/research, build plan section A |
+| 4–5 Scoping, architecture | DONE | ADR 0001–0004; [ARCHITECTURE.md](../ARCHITECTURE.md) added 2026-10-28 |
+| 6–7 Agent prompts | DONE (pre-existing) | AGENTS.md and the user-held CODEX_MASTER_PROMPT.md |
+| 8 Local env and Testnet deployment | PASS (scoped) | Controlled CAP-85 fleet on Testnet, 2026-10-27; [validation record](../research/2026-10-27-testnet-validation.md) |
+| 9 Hosting topology | **BLOCKED** | No zero-cost permanent host; [PHASE9_ACCEPTANCE.md](../PHASE9_ACCEPTANCE.md) |
+| 10 Repo hygiene | DONE in repo; owner settings pending | README/CONTRIBUTING/SECURITY/templates/CHANGELOG/issue script committed; branch protection, topics, visibility, issue creation and tag need the owner ([REPOSITORY_SETTINGS.md](../REPOSITORY_SETTINGS.md)) |
+| 11 Documentation site | DONE as source; not hosted | `mkdocs build --strict` passes; CI `docs` job added |
+| 12 Submission | DRAFT ONLY, NOT READY | [SUBMISSION_DRAFT.md](../wave/SUBMISSION_DRAFT.md) lists nine owner blockers |
+| 13 Post-approval | NOT STARTED | Requires approval |
+
+Phase 9 remains blocked: the intended native follower has not been deployed on a
+permanent host. Phases 10–12 were advanced in parallel on the user's explicit
+request ("continue the build till phase 12"); that does not clear the Phase 9
+gate, and the submission draft says so.
 
 | Stage | State | Commit/PR/test or evidence | Blocker / next action |
 |---|---|---|---|
-| S0 Repo audit and M1 repair | IN PROGRESS: baseline verified | Local import; 21 unit tests plus fuzz seeds, race tests, vet, compiled demos pass | Local bounds and explicit unknown coverage implemented; strict chain identifiers and remote CI remain |
-| S1 Research/architecture | IN PROGRESS | Official CAP-85 and SDK v0.8.0 source inspected; see docs/research/2026-10-26-cap85-sdk.md | Compile typed compatibility fixtures and finish source/history decisions |
-| S2 Typed RPC capture | IN PROGRESS | Typed XDR, bounded HTTPS adapter, CLI capture and offline fixtures | Live proof, freshness/retry/protocol compatibility remain |
+| S0 Repo audit and M1 repair | PASS | Module path/Apache-2.0 verified; full suite, race, vet and remote CI green (run 35 at `73f92e2`) | None |
+| S1 Research/architecture | PASS (scoped) | CAP-85 Final/protocol 28, SDK v0.8.0, RPC getLedgers wire format, ADRs 0001–0004, ARCHITECTURE.md | Protocol 30 decoding remains open (issue catalogue) |
+| S2 Typed RPC capture | PASS (scoped) | Typed XDR, bounded HTTPS adapter, freshness/retry, live Testnet use in Phase 8 | Multi-call atomicity stays PARTIAL by design |
 | S3 Real Testnet proof | PASS: scoped controlled demonstration | Actual two-member upgrade/rollback/direct repoint; 15 checked receipts; real metadata/restart evidence; local gap/TLS tests | Source/baseline authentication and production operations remain separate gaps; see 2026-10-27-testnet-validation evidence |
 | S4 Sequential historical ingest | IN PROGRESS: continuous single-host pilot plus legacy bounded ingestion | Original-assertion continuation, complete cached preimages/absence, atomic raw records/findings/cursor; 40 synthetic and 17 live ledgers | Authentication, lifecycle reconciliation, production archive/retention and shared SQL remain |
 | S5 Watcher/alerts | IN PROGRESS: continuous pilot, queue sync, dispatcher and opt-in pinned proxy route | Follow/restart/gap checks; durable sync/startup repair; local signed HTTP/HTTPS proxy delivery and audited recovery | Production proxy permission/receiver validation, gap-notification policy, retention rollover and hosting remain |
 | S6 Signed approvals | IN PROGRESS: standalone verifier | Ed25519 statement/trust/threshold tests and public synthetic vector | Signed trust distribution, trustworthy chain evidence and policy integration remain |
-| S7 CLI/API integration | IN PROGRESS: experimental CLI | Capture/ingest/watch/replay/outbox/approval commands, bounded JSON worker config, doctor and fleet reports with schemas | Stable configuration, full help/exit compatibility and optional API decision remain |
+| S7 CLI/API integration | IN PROGRESS: 27 commands, help exits 0, generated CLI reference | `e879452` help fix; docs/CLI.md checked by TestCLIReferenceUpToDate | Stable config compatibility policy and API decision remain |
 | S8 Security/performance | IN PROGRESS: parser and dependency gates | RPC guards/fuzz, module/source/binary scans, compression advisory fixed and race/fault tests | Ongoing advisory monitoring, representative load tests and external review remain |
-| S9 Docs/repo hygiene | IN PROGRESS: CI verified at a403daa | [Go CI run 34](https://github.com/soroban-fleetwatch/fleetwatch/actions/runs/40597509041): test, vulnerabilities and testnet-fixtures PASS | Docs site and full repository/release review remain |
+| S9 Docs/repo hygiene | IN PROGRESS: repo files and docs site source done | `d54a4f4`, `3a1bbb2`; strict MkDocs build and link check pass locally | Owner settings, hosting and remote run of the new `docs` job |
 | S10 Release candidate | NOT STARTED | None | Clean-room test and owner review |
-| S11 Wave readiness optional | NOT STARTED | None | Eligibility and submission evidence |
+| S11 Wave readiness optional | DRAFT | `9f71fe3` docs/wave/SUBMISSION_DRAFT.md | Nine owner blockers; nothing submitted |
 | S12 Maintenance | NOT STARTED | None | Runbooks and triage |
 
 ## Initial baseline checks (historical)
@@ -1005,3 +1010,71 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   claim that the owner has no provider accounts. No usable deployment connection
   is available through this session's configured capabilities. No new settings
   changes or blind Publish retry are proposed from the unconfirmed status.
+
+
+## Phase 10–12 checkpoint and audit fixes — 2026-10-28
+
+- **Starting point.** The session branch began at `main` (`0014aaa`). GitHub
+  also held `feat/portable-linux-follow` (`73f92e2`, 19 commits ahead, CI run 35
+  green) containing all Phase 8–9 work, plus `feat/testnet-cap85-demo` (its
+  ancestor) and `gh-pages`. To preserve that work, the session branch was reset
+  to `origin/feat/portable-linux-follow` before any change. None of it is on
+  `main`; merging is an owner decision.
+- **Audit commands (Go 1.27.3, GOFLAGS=-mod=readonly, GOTOOLCHAIN=local):**
+  `go mod verify`, `go mod tidy -diff`, `gofmt -l cmd internal scripts`,
+  `go vet ./...`, `go test -count=1 ./...`, `go test -race -count=1 ./...`:
+  all PASS. JSON Schemas self-check and the committed fixtures validate with a
+  cross-reference registry (python-jsonschema 4.26.0). Relative Markdown links:
+  0 broken. `scripts/check-vulnerabilities.sh` could not run locally
+  (`vuln.go.dev` returned Forbidden through this session's proxy); the same
+  script passed in remote CI run 35 on `73f92e2`. staticcheck 2026.1 cannot
+  read Go 1.27 export data, so no staticcheck result is claimed.
+- **Defects found and fixed.**
+  1. `help`, `--help`, `-h` and `COMMAND -h` exited 3 (invalid usage) at all 25
+     flag-parse sites. Fixed in `e879452` with a shared `parseArgs`; a test runs
+     every command's help from an empty directory and checks unknown flags still
+     exit 3. The usage text's misindented `capture` line was corrected.
+  2. README was materially stale (status checklist contradicted completed
+     work; CLI table listed 3 of 27 commands; outdated architecture). Rewritten
+     in `3a1bbb2`; every example was run and its comments match real output.
+  3. Docs pages linked to `../schema` and `../examples`, which break outside
+     GitHub. Rewritten to absolute repository URLs in `d54a4f4`.
+  4. The stage table above was stale for S0–S2, S7, S9 and S11; updated here.
+- **Phase 10** (`3a1bbb2`): README, CONTRIBUTING, SECURITY, issue forms, PR
+  template, CHANGELOG, REPOSITORY_SETTINGS (branch protection with real job
+  names `test`, `vulnerabilities`, `testnet-fixtures`, `docs`), and
+  `docs/build/issues.json` with 20 forward issues. `scripts/create-issues.sh`
+  dry run prints 18 labels and 20 issues; `--apply` was exercised only against
+  a stub `gh` (18 label calls, 19 creates, 1 exact-title duplicate skipped).
+  No label, issue, topic, protection rule or visibility change was made on GitHub.
+- **Phase 11** (`d54a4f4`): MkDocs 1.6.1 site with hash-pinned requirements
+  (installed with `--require-hashes` in a clean venv), new intro, CAP-85
+  mechanics, assurance labels, architecture, four persona guides,
+  troubleshooting and a CLI reference generated from the binary and guarded
+  by `TestCLIReferenceUpToDate`. `mkdocs build --strict`: PASS, 0 warnings;
+  pages rendered in headless Chromium. CI gains a `docs` job; actionlint
+  v1.7.12: PASS. The site is not hosted (repository private; Pages unavailable).
+- **Phase 12** (`9f71fe3`): draft only. www.drips.network and
+  docs.drips.network are outside this session's network allowlist, so the
+  live approved list and rules were not read; web search found no FleetWatch
+  listing. Recorded Testnet transactions could not be re-queried because
+  soroban-testnet.stellar.org is also denied in this session; the links in the
+  draft are the 2026-10-27 evidence.
+- **Totals after this checkpoint:** 262 top-level tests PASS, 4 intentional
+  skips, 0 failures (`go test -count=1 -json ./...`). Each new commit was
+  re-checked from a clean worktree (link check and strict docs build).
+- **Sources used:** CAP-85 spec
+  https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md ;
+  Protocol 28 announcement
+  https://stellar.org/blog/developers/introducing-adapter-protocol-28-on-stellar ;
+  Drips maintainer docs (not reachable here)
+  https://docs.drips.network/wave/maintainers/participating-in-a-wave/ ;
+  PyPI JSON API for requirement hashes.
+- **No** push to `main`, merge, tag, release, issue creation, settings change,
+  deployment, transaction, external message or Wave submission occurred.
+- **Next steps (owner):** review and merge this branch; make the repository
+  public after a secret review; apply REPOSITORY_SETTINGS.md; run
+  `scripts/create-issues.sh --apply`; host the docs build; record the demo;
+  supply a zero-cost permanent host to close Phase 9; allow www.drips.network,
+  docs.drips.network and soroban-testnet.stellar.org in the session network
+  policy so the live checks can be repeated.
