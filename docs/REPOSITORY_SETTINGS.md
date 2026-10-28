@@ -56,10 +56,14 @@ because history becomes public too.
 
 ## Release tag
 
-`v0.1.0-rc.1` was tagged on 2026-10-28 with notes in
-[release/v0.1.0-rc.1.md](release/v0.1.0-rc.1.md). To show it on the Releases
-page: Releases → Draft a new release → choose the tag → paste the notes →
-tick "Set as a pre-release" → Publish.
+The `v0.1.0-rc.1` release is prepared on `main` at merge commit `3f9194e`
+(version string, CHANGELOG section and
+[release/v0.1.0-rc.1.md](release/v0.1.0-rc.1.md)). The tag itself is not
+created yet: the agent session's git access could not push tags (HTTP 403).
+Create it from the web UI: Releases → Draft a new release → Choose a tag →
+type `v0.1.0-rc.1` → "Create new tag on publish" → Target: `main` (confirm
+the latest commit is `3f9194e` or a later docs-only commit) → paste the notes
+→ tick "Set as a pre-release" → Publish.
 
 FleetWatch has no product contract. The release notes should list the
 **Testnet fixture** contracts from

@@ -29,7 +29,7 @@ Only links that exist today are listed. Missing items are blockers in section 6.
 | Live app | None. FleetWatch is a CLI and single-host service. | Not applicable; see section 3 |
 | Demo video | Offline terminal recording produced 2026-10-28 (not committed) | **Not uploaded**; a live Testnet segment still needs recording, see [DEMO_SCRIPT.md](DEMO_SCRIPT.md) |
 | Planned issues | <https://github.com/soroban-fleetwatch/fleetwatch/issues> (#3–#22) | Created 2026-10-28 |
-| Release tag | `v0.1.0-rc.1`, notes in [docs/release/v0.1.0-rc.1.md](../release/v0.1.0-rc.1.md) | Pre-release tag |
+| Release tag | `v0.1.0-rc.1`, notes in [docs/release/v0.1.0-rc.1.md](../release/v0.1.0-rc.1.md) | Prepared on `main`; **tag not created yet** (owner creates it from the Releases page) |
 
 The explorer links come from the fixture run. The transactions were checked
 through RPC and XDR at the time, not through the explorer. They were not
@@ -94,7 +94,7 @@ Five issues are marked `good first issue`.
 | 5 | ~~Planned issues not created~~ | Done | Issues #3–#22 created 2026-10-28. |
 | 6 | Branch protection, topics, private vulnerability reporting not set | Owner | [Repository settings](../REPOSITORY_SETTINGS.md). |
 | 7 | Dripwave Phase 9 hosting blocked | Owner | A zero-cost permanent host. See [Phase 9 acceptance](../PHASE9_ACCEPTANCE.md). The skill treats a working deployment as part of an approved-grade repo; FleetWatch has no web app, so explain the CLI/service model and link the Testnet evidence. |
-| 8 | ~~No release tag~~ | Done | `v0.1.0-rc.1` tagged; optionally publish a GitHub Release from the tag using the notes file. |
+| 8 | Release tag not created | Owner | Release content is on `main`. Create the `v0.1.0-rc.1` pre-release from the Releases page; steps in [Repository settings](../REPOSITORY_SETTINGS.md). |
 | 9 | Live Wave rules and list not re-checked | Owner or a session with `drips.network` allowed | Re-check eligibility, caps and KYC on the day of applying. |
 
 ## 7. What not to claim
