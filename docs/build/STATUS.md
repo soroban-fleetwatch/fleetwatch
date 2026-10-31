@@ -1,6 +1,6 @@
 # FleetWatch — verified build status
 
-**Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch (private, per GitHub API 2026-10-28)
+**Repository URL:** https://github.com/soroban-fleetwatch/fleetwatch (public since 2026-10-31)
 **Working branch:** `claude/beautiful-darwin-g731lo`, continuing `feat/portable-linux-follow` at `73f92e2`
 **Date checked:** 2026-10-28
 **Release state:** NOT RELEASED
@@ -1111,3 +1111,25 @@ Sources: https://pkg.go.dev/vuln/GO-2026-5841 ; https://pkg.go.dev/golang.org/x/
   this session's network policy.
 - Phase 9 remains BLOCKED: no zero-cost permanent host is available to this
   session.
+
+
+## Owner actions confirmed — 2026-10-31
+
+- Checked through the GitHub API: the repository is public with topics set;
+  the `v0.1.0-rc.1` pre-release is published
+  (https://github.com/soroban-fleetwatch/fleetwatch/releases/tag/v0.1.0-rc.1);
+  the "Docs site" workflow run 41169677170 built and deployed the site to
+  https://soroban-fleetwatch.github.io/fleetwatch/. Branch protection and
+  private vulnerability reporting were not checked (no API access from this
+  session).
+- Before the visibility change, a regex scan of all branches' history (56
+  commits) for private keys, GitHub/AWS/Slack tokens, Stellar secret seeds and
+  webhook URLs, plus a filename check for key and env files, found nothing. This
+  is a pattern scan, not an exhaustive secret audit.
+- Corrected the submission draft's good-first-issue count from five to four
+  (#12, #13, #14, #21).
+- Phase 9: the owner created an Oracle Cloud Always Free account in
+  af-johannesburg-1. No instance has been provisioned or verified yet; Phase 9
+  remains BLOCKED until the native follower runs there and passes the
+  acceptance table in docs/PHASE9_ACCEPTANCE.md.
+
