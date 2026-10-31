@@ -70,4 +70,4 @@ Build progress, the exact commands run and their results are recorded in
 - Source data, baselines and metadata commitments are not independently authenticated.
 - FleetWatch watches the contracts you list. It does not discover a whole fleet.
 - No permanent hosted deployment has been accepted yet.
-- No tagged release and no external security review.
+- No stable release (`v0.1.0-rc.1` is a pre-release) and no external security review.

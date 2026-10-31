@@ -32,10 +32,9 @@ The `docs` job is new; merge it to `main` before marking it required.
 
 ## GitHub Pages (docs site)
 
-After the repository is public: Settings → Pages → Build and deployment →
-Source: **GitHub Actions**. Then run the "Docs site" workflow from the Actions
-tab, or push to `main`. The workflow skips deployment while the repository is
-private.
+Enabled with Source: **GitHub Actions**. The site is at
+<https://soroban-fleetwatch.github.io/fleetwatch/> and redeploys on every push
+to `main`, or when the "Docs site" workflow is run by hand.
 
 ## Topics
 
@@ -46,24 +45,16 @@ Settings → General → Topics (About panel):
 
 ## Visibility
 
-The repository is currently **private**: the GitHub API reported
-`"visibility": "private"`, no topics and `has_pages: false` on 2026-10-28.
-Open-source programs such as Drips Wave review public repositories, and the
-README badges and contributor image do not render for logged-out visitors of a
-private repository. Making it public is an owner decision. Before doing so,
-confirm that no file contains secrets (`git log -p` review or a secret scan),
-because history becomes public too.
+The repository is **public** (GitHub API, 2026-10-31). Before the switch, a
+pattern scan of all branches' history found no private keys, tokens, Stellar
+secret seeds or webhook URLs. Topics are set.
 
 ## Release tag
 
-The `v0.1.0-rc.1` release is prepared on `main` at merge commit `3f9194e`
-(version string, CHANGELOG section and
-[release/v0.1.0-rc.1.md](release/v0.1.0-rc.1.md)). The tag itself is not
-created yet: the agent session's git access could not push tags (HTTP 403).
-Create it from the web UI: Releases → Draft a new release → Choose a tag →
-type `v0.1.0-rc.1` → "Create new tag on publish" → Target: `main` (confirm
-the latest commit is `3f9194e` or a later docs-only commit) → paste the notes
-→ tick "Set as a pre-release" → Publish.
+The `v0.1.0-rc.1` pre-release was published by the owner on 2026-10-31:
+<https://github.com/soroban-fleetwatch/fleetwatch/releases/tag/v0.1.0-rc.1>.
+Notes: [release/v0.1.0-rc.1.md](release/v0.1.0-rc.1.md). For later releases,
+create the tag from Releases → Draft a new release on `main`.
 
 FleetWatch has no product contract. The release notes should list the
 **Testnet fixture** contracts from

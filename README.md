@@ -169,15 +169,16 @@ Missing input is treated as a collection gap, not as deletion.
 - A permanent hosted deployment. Dripwave Phase 9 is blocked on a zero-cost
   host; see [PHASE9_ACCEPTANCE.md](docs/PHASE9_ACCEPTANCE.md).
 - Production retention beyond the documented per-stream limits.
-- A tagged release and an external security review.
+- A stable release and an external security review. `v0.1.0-rc.1` is a pre-release.
 
 Current state, commands run and evidence for every milestone are in
 [docs/build/STATUS.md](docs/build/STATUS.md).
 
 ## Documentation
 
-The documentation site source is in [`docs/`](docs/index.md) and builds with
-MkDocs (`mkdocs build --strict`). Start with [docs/index.md](docs/index.md).
+Read the documentation at <https://soroban-fleetwatch.github.io/fleetwatch/>.
+Its source is in [`docs/`](docs/index.md) and builds with MkDocs
+(`mkdocs build --strict`).
 
 ## Contributing
 
